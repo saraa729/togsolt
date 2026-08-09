@@ -7,7 +7,7 @@ import { Alert, EmptyState, Field, Spinner } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
-import { classNames, formatMoney, imageOrPlaceholder } from "@/lib/format";
+import { formatMoney, imageOrPlaceholder } from "@/lib/format";
 import type { Cart, Currency, Order } from "@/lib/types";
 
 export default function CartPage() {
@@ -25,8 +25,12 @@ function CartView() {
   const [loading, setLoading] = useState(true);
   const [busyItem, setBusyItem] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [payCurrency, setPayCurrency] = useState<Currency>(currency);
-  const [paymentMethod, setPaymentMethod] = useState<"qpay" | "stripe">(currency === "USD" ? "stripe" : "qpay");
+  /*
+   * Төлбөрийн валют нь толгойн хэсэгт сонгосон валютыг дагана. Төлбөрийн
+   * хэрэгслийг (qpay/stripe) хэрэглэгчээр сонгуулахаа больж, backend валютаас
+   * нь өөрөө тодорхойлдог болгов — сагснаас шууд төлнө.
+   */
+  const [payCurrency] = useState<Currency>(currency);
   const [address, setAddress] = useState({
     name: "",
     phone: "",
@@ -67,10 +71,6 @@ function CartView() {
     if (user) setAddress((prev) => ({ ...prev, name: prev.name || user.name, phone: prev.phone || user.phone || "" }));
   }, [user]);
 
-  useEffect(() => {
-    setPaymentMethod(payCurrency === "USD" ? "stripe" : "qpay");
-  }, [payCurrency]);
-
   const isInternational = address.country !== "MN";
 
   useEffect(() => {
@@ -101,9 +101,9 @@ function CartView() {
     setBusy(true);
     setError(null);
     try {
+      // `paymentMethod` илгээхгүй — backend валютаас нь тодорхойлно.
       const data = await api.post<{ order: Order }>("/checkout", {
         currency: payCurrency,
-        paymentMethod,
         shippingAddress: address,
         shippingSelections,
         couponCode: coupon || undefined,
@@ -375,37 +375,6 @@ function CartView() {
                 onChange={(event) => setAddress({ ...address, zip: event.target.value })}
               />
             </Field>
-          </section>
-
-          <section className="space-y-3 rounded-3xl border border-line p-4">
-            <h2 className="font-medium">{t("checkout.payment")}</h2>
-            <p className="muted text-xs">{t("checkout.currencyHint")}</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {(
-                [
-                  { code: "qpay", currency: "MNT", label: t("checkout.qpay") },
-                  { code: "stripe", currency: "USD", label: t("checkout.stripe") },
-                ] as const
-              ).map((option) => (
-                <button
-                  key={option.code}
-                  type="button"
-                  onClick={() => {
-                    setPayCurrency(option.currency);
-                    setPaymentMethod(option.code);
-                  }}
-                  className={classNames(
-                    "cursor-pointer rounded-xl border p-4 text-left transition-colors",
-                    paymentMethod === option.code ? "border-clay bg-clay-soft/40" : "border-line bg-surface"
-                  )}
-                >
-                  <span className="block text-sm font-medium">{option.label}</span>
-                  <span className="muted block text-xs">
-                    {option.code === "qpay" ? "Дотоод банк / QR" : "Visa · Mastercard · Amex"}
-                  </span>
-                </button>
-              ))}
-            </div>
           </section>
 
           <button type="submit" className="btn-primary w-full" disabled={busy}>

@@ -300,8 +300,6 @@ export const dict: Dict = {
   "checkout.line1": { mn: "Дэлгэрэнгүй хаяг", en: "Address" },
   "checkout.zip": { mn: "Шуудангийн код", en: "Postal code" },
   "checkout.payment": { mn: "Төлбөрийн хэрэгсэл", en: "Payment method" },
-  "checkout.qpay": { mn: "QPay (дотоод, ₮)", en: "QPay (domestic, ₮)" },
-  "checkout.stripe": { mn: "Stripe карт (олон улс, $)", en: "Stripe card (international, $)" },
   "checkout.escrowNote": {
     mn: "Төлбөр escrow-д хадгалагдана. Та бараагаа хүлээж авснаа баталгаажуулсны дараа урлаачид шилжинэ.",
     en: "Your payment is held in escrow and released to the artisan once you confirm delivery.",
@@ -310,10 +308,6 @@ export const dict: Dict = {
   "checkout.success": { mn: "Захиалга амжилттай!", en: "Order placed!" },
   "checkout.successNote": { mn: "Төлбөр escrow-д хадгалагдлаа.", en: "Payment is now held in escrow." },
   "checkout.viewOrders": { mn: "Захиалгаа харах", en: "View my orders" },
-  "checkout.currencyHint": {
-    mn: "₮ сонговол QPay, $ сонговол Stripe ашиглана.",
-    en: "₮ is paid with QPay, $ with Stripe.",
-  },
 
   // --- orders ---
   "orders.title": { mn: "Миний захиалга", en: "My orders" },
