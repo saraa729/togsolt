@@ -286,7 +286,7 @@ export const dict: Dict = {
   "cart.emptyCta": { mn: "Бүтээл үзэх", en: "Browse crafts" },
   "cart.subtotal": { mn: "Дүн", en: "Subtotal" },
   "cart.remove": { mn: "Хасах", en: "Remove" },
-  "cart.checkout": { mn: "Захиалга баталгаажуулах", en: "Checkout" },
+  "cart.checkout": { mn: "Төлбөр төлөх", en: "Pay now" },
   "cart.multiSeller": {
     mn: "Сагсанд олон урлаачийн бүтээл байна — захиалга урлаач тус бүрээр салж, тус бүр өөрийн хүргэлттэй.",
     en: "Your cart has several artisans — the order splits per artisan, each with its own shipping.",
