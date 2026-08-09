@@ -22,6 +22,7 @@ module.exports = function registerAuth(ctx) {
     issueAuthSession,
     rotateRefreshToken,
     revokeRefreshToken,
+    mailer,
     sellerShop,
     assertText,
     assertSupportedLocale,
@@ -288,8 +289,22 @@ module.exports = function registerAuth(ctx) {
       db.passwordResetTokens.push(reset);
       audit(user.id, 'request_password_reset', 'user', user.id);
       saveState(db);
-      return { ok: true, resetToken: process.env.NODE_ENV === 'production' ? undefined : reset.token };
+
+      const link = `${process.env.EXPOCRAFT_WEB_ORIGIN || 'http://localhost:3000'}/reset-password?token=${encodeURIComponent(reset.token)}`;
+      await mailer.send({
+        to: user.email,
+        subject: 'ExpoCraft — нууц үг сэргээх / Reset your password',
+        text: `Нууц үгээ сэргээхийн тулд доорх холбоосыг нээнэ үү (1 цаг хүчинтэй):\n${link}\n\nOpen this link to reset your password (valid for 1 hour):\n${link}`
+      });
+
+      /*
+       * SMTP тохируулсан үед токеныг хариунд БУЦААХГҮЙ — зөвхөн и-мэйлээр
+       * хүрнэ. Тохируулаагүй хөгжүүлэлтийн орчинд урсгалыг шалгах боломжтой
+       * байхын тулд буцаана.
+       */
+      return { ok: true, resetToken: mailer.enabled ? undefined : reset.token };
     }
+    // Байхгүй и-мэйлд ч ижил хариу — акаунт байгаа эсэхийг мэдэгдэхгүй.
     return { ok: true };
   });
 

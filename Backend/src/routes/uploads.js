@@ -27,7 +27,7 @@ function parseMultipart(buffer, contentType) {
 }
 
 module.exports = function registerUploads(ctx) {
-  const { route, ROLES, db, now, id, httpError, saveState, audit, readRaw, requireRole, saveImage } = ctx;
+  const { route, ROLES, db, now, id, httpError, saveState, audit, readRaw, requireRole, saveImage, saveThumbnail } = ctx;
 
   route('POST', '/uploads/images', async (ctx) => {
     const user = requireRole(ctx, [ROLES.SELLER, ROLES.ADMIN]);
@@ -37,11 +37,14 @@ module.exports = function registerUploads(ctx) {
     if (!parsed || !ALLOWED_TYPES.has(parsed.type)) throw httpError(422, 'invalid_upload', 'Only jpg, png, webp, and gif images are supported.');
     const fileName = `${id('img')}${ALLOWED_TYPES.get(parsed.type)}`;
     const stored = await saveImage({ fileName, contentType: parsed.type, data: parsed.data });
+    // Жагсаалтад хөнгөн хувилбар үзүүлэхийн тулд. Бүтэлгүйтвэл null — эх зураг үлдэнэ.
+    const thumbnailUrl = await saveThumbnail({ fileName, contentType: parsed.type, data: parsed.data });
     const upload = {
       id: id('upl'),
       ownerId: user.id,
       provider: stored.provider,
       url: stored.url,
+      thumbnailUrl,
       fileName: parsed.name,
       contentType: parsed.type,
       size: parsed.data.length,

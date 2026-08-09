@@ -14,6 +14,7 @@ const { createCatalogService } = require('./services/catalog');
 const { createCartService } = require('./services/cart');
 const { createBankService } = require('./services/bank');
 const { createStorageService } = require('./services/storage');
+const { createMailer } = require('./services/mailer');
 const { createSearchService } = require('./services/search');
 const { createRuntimeStore } = require('./services/runtime-store');
 const { createJobScheduler } = require('./jobs/scheduler');
@@ -89,6 +90,8 @@ const bank = createBankService({
 const storage = createStorageService({
   httpError
 });
+
+const mailer = createMailer();
 
 const runtimeStore = createRuntimeStore();
 const search = createSearchService({
@@ -167,6 +170,8 @@ registerRoutes({
   cartResponse: cart.cartResponse,
   executeBankTransfer: bank.executeTransfer,
   saveImage: storage.saveImage,
+  saveThumbnail: storage.saveThumbnail,
+  mailer,
   runtimeStore,
   searchProducts: search.searchProducts,
   jobScheduler: jobs
