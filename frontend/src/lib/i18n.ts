@@ -557,6 +557,12 @@ export const dict: Dict = {
   "auth.verifyDone": { mn: "И-мэйл амжилттай баталгаажлаа.", en: "Your email has been verified." },
   "auth.backToLogin": { mn: "Нэвтрэх хуудас руу буцах", en: "Back to sign in" },
   "auth.or": { mn: "эсвэл", en: "or" },
+  "auth.googlePhoneTitle": { mn: "Утасны дугаараа оруулна уу", en: "Add your phone number" },
+  "auth.googlePhoneHint": {
+    mn: "Google утасны дугаар дамжуулдаггүй. Хүргэлтэд шаардлагатай тул нэг удаа оруулна.",
+    en: "Google does not share a phone number. We need it once for delivery.",
+  },
+  "auth.googleAbroad": { mn: "Би Монголоос гадуур байна", en: "I am outside Mongolia" },
   "auth.googleUnavailable": {
     mn: "Google нэвтрэлт одоогоор боломжгүй байна. Нууц үгээрээ нэвтэрнэ үү.",
     en: "Google sign-in is unavailable right now. Please sign in with your password.",
