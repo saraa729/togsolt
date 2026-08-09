@@ -1,0 +1,268 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #faf7f2;
+  --color-surface: #ffffff;
+  --color-ink: #221c15;
+  --color-muted: #6f6355;
+  --color-line: #e7dfd3;
+  --color-clay: #b4533a;
+  --color-clay-dark: #90402c;
+  --color-clay-soft: #f6e9e4;
+  --color-pine: #1f4d4a;
+  --color-pine-soft: #e4efed;
+  --color-gold: #b5872b;
+  --color-gold-soft: #f7eeda;
+
+  /* Музейн editorial өнгө */
+  --color-night: #17140f;
+  --color-night-soft: #241f18;
+  --color-cream: #efe8dc;
+  --color-sand: #d8c39b;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+/*
+ * Display (serif) фонтыг @theme-д бүү тавь: Tailwind v4-ийн --font-* namespace
+ * давхарласан var()-ыг задалдаггүй тул фонт үйлчлэхгүй болно. Энгийн класс байх ёстой.
+ */
+
+* {
+  box-sizing: border-box;
+  border-color: var(--color-line);
+}
+
+html,
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  min-height: 100vh;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.65;
+}
+
+@utility page {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 py-10;
+}
+
+@utility page-wide {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 py-10;
+}
+
+@utility section {
+  @apply space-y-8 py-10;
+}
+
+@utility section-tight {
+  @apply space-y-6 py-6;
+}
+
+@utility card {
+  @apply rounded-3xl border border-line/70 bg-surface shadow-sm;
+}
+
+@utility card-pad {
+  @apply rounded-3xl border border-line/70 bg-surface p-6 shadow-sm;
+}
+
+@utility btn {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-transparent px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-transparent px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  background-color: var(--color-clay);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-clay-dark);
+}
+
+/* Accessibility: visible focus outlines for keyboard users */
+:where(button, a, input, textarea):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-sand) 70%, white);
+  outline-offset: 3px;
+}
+
+@utility btn-secondary {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  border: 1px solid var(--color-line);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-paper);
+}
+
+@utility btn-ghost {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-transparent px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  color: var(--color-muted);
+}
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+@utility btn-dark {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-transparent px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  background-color: var(--color-pine);
+  color: #fff;
+}
+.btn-dark:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+@utility btn-danger {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  border: 1px solid #fecaca;
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: #fee2e2;
+}
+
+@utility btn-sm {
+  @apply px-3 py-1.5 text-xs;
+}
+
+@utility label {
+  @apply mb-1.5 block text-xs font-medium tracking-wide text-muted uppercase;
+}
+
+@utility input {
+  @apply w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none placeholder:text-muted/60 focus:border-clay focus:ring-2 focus:ring-clay/15;
+}
+
+@utility textarea {
+  @apply min-h-24 w-full resize-y rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none placeholder:text-muted/60 focus:border-clay focus:ring-2 focus:ring-clay/15;
+}
+
+@utility badge {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium;
+}
+
+@utility badge-neutral {
+  @apply inline-flex items-center gap-1 rounded-full bg-paper px-2.5 py-1 text-xs font-medium text-muted;
+}
+
+@utility badge-clay {
+  @apply inline-flex items-center gap-1 rounded-full bg-clay-soft px-2.5 py-1 text-xs font-medium text-clay-dark;
+}
+
+@utility badge-pine {
+  @apply inline-flex items-center gap-1 rounded-full bg-pine-soft px-2.5 py-1 text-xs font-medium text-pine;
+}
+
+@utility badge-gold {
+  @apply inline-flex items-center gap-1 rounded-full bg-gold-soft px-2.5 py-1 text-xs font-medium text-gold;
+}
+
+@utility section-title {
+  @apply text-xl font-semibold tracking-tight sm:text-2xl;
+}
+
+@utility muted {
+  @apply text-sm text-muted;
+}
+
+@utility table-wrap {
+  @apply overflow-x-auto rounded-2xl border border-line bg-surface;
+}
+
+@utility link {
+  @apply text-clay underline-offset-4 hover:underline;
+}
+
+/* --- Музейн editorial хэв маяг --- */
+
+.display {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+@utility eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+@utility rule-link {
+  @apply inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] uppercase transition-opacity hover:opacity-60;
+}
+
+@utility btn-pill-dark {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-7 py-3 text-[11px] font-medium tracking-[0.18em] uppercase transition-opacity;
+  background-color: var(--color-night);
+  color: #fff;
+}
+.btn-pill-dark:hover {
+  opacity: 0.85;
+}
+
+@utility btn-pill-sand {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-7 py-3 text-[11px] font-medium tracking-[0.18em] uppercase transition-opacity;
+  background-color: var(--color-sand);
+  color: var(--color-night);
+}
+.btn-pill-sand:hover {
+  opacity: 0.88;
+}
+
+.table {
+  width: 100%;
+  min-width: 640px;
+  text-align: left;
+  font-size: 0.875rem;
+}
+.table th {
+  border-bottom: 1px solid var(--color-line);
+  padding: 0.75rem 1rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.table td {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-line) 70%, transparent);
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #efe8de 25%, #f7f2ea 37%, #efe8de 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.3s ease infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ddd2c2;
+  border-radius: 999px;
+  border: 3px solid var(--color-paper);
+}

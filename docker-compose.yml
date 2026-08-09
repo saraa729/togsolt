@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./Backend
+    ports:
+      - '4000:4000'
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      EXPOCRAFT_SEED: 'true'
+      EXPOCRAFT_STORAGE_PROVIDER: local
+      EXPOCRAFT_DB_PROVIDER: json
+      EXPOCRAFT_SEARCH_PROVIDER: local
+    volumes:
+      - ./Backend/data:/usr/src/app/data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: 'http://localhost:4000'
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend

@@ -1,0 +1,32 @@
+{
+  "title": "ExpoCraft Backend",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "HTTP Requests",
+      "targets": [{ "expr": "expocraft_http_requests_total" }],
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "type": "stat",
+      "title": "HTTP Errors",
+      "targets": [{ "expr": "expocraft_http_errors_total" }],
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests by Route",
+      "targets": [{ "expr": "sum by (method, route) (rate(expocraft_route_requests_total[5m]))" }],
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Job Failures",
+      "targets": [{ "expr": "sum by (job) (increase(expocraft_job_failures_total[15m]))" }],
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 }
+    }
+  ]
+}

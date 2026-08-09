@@ -1,0 +1,18 @@
+[Unit]
+Description=ExpoCraft Backend
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/expocraft/Backend
+EnvironmentFile=/opt/expocraft/Backend/.env
+ExecStart=/usr/bin/node app.js
+Restart=always
+RestartSec=5
+User=expocraft
+Group=expocraft
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

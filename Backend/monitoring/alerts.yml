@@ -1,0 +1,24 @@
+groups:
+  - name: expocraft-backend
+    rules:
+      - alert: ExpoCraftHighErrorCount
+        expr: increase(expocraft_http_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: ExpoCraft backend has elevated HTTP errors
+      - alert: ExpoCraftJobFailures
+        expr: increase(expocraft_job_failures_total[15m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: ExpoCraft background job failed
+      - alert: ExpoCraftBackendDown
+        expr: up{job="expocraft-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: ExpoCraft backend is down

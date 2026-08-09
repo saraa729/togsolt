@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+._*
+
+# Хамаарлууд
+node_modules/
+
+# Орчны хувьсагч — хэзээ ч хянахгүй
+.env
+.env.local
+.env.*.local
+
+# Build үр дүн
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# Лог
+*.log
+npm-debug.log*
