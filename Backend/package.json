@@ -10,7 +10,8 @@
     "test": "node --test",
     "db:migrate": "node scripts/migrate-postgres.js up",
     "db:export": "node scripts/migrate-postgres.js export",
-    "backup": "bash scripts/backup.sh"
+    "backup": "bash scripts/backup.sh",
+    "db:relational": "node scripts/export-relational.js"
   },
   "engines": {
     "node": ">=18"
