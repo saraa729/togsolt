@@ -1,4 +1,30 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: expocraft
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d expocraft']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   backend:
     build:
       context: ./Backend
@@ -9,10 +35,20 @@ services:
       PORT: 4000
       EXPOCRAFT_SEED: 'true'
       EXPOCRAFT_STORAGE_PROVIDER: local
-      EXPOCRAFT_DB_PROVIDER: json
+      EXPOCRAFT_DATA_DIR: /usr/src/app/data
+      EXPOCRAFT_UPLOAD_DIR: /usr/src/app/data/uploads
+      EXPOCRAFT_DB_PROVIDER: postgres
+      EXPOCRAFT_POSTGRES_RELATIONAL_SYNC: 'true'
       EXPOCRAFT_SEARCH_PROVIDER: local
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/expocraft
+      REDIS_URL: redis://redis:6379/0
     volumes:
       - ./Backend/data:/usr/src/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   frontend:
     build:
@@ -24,3 +60,6 @@ services:
       - '3000:3000'
     depends_on:
       - backend
+
+volumes:
+  postgres-data:

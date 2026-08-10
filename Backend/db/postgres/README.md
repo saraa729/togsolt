@@ -2,16 +2,26 @@
 
 Энэ хавтсанд хоёр өөр зориулалттай схем байна.
 
-## 1. `schema.sql` — ажиллаж буй серверийн хадгалалт
+## 1. PostgreSQL runtime state
 
-Сервер өгөгдлөө нэг JSON баримт болгон хадгална (`app_state` хүснэгт).
-`EXPOCRAFT_DB_PROVIDER=postgres` үед энэ горим ажиллана; үндсэн утга нь
-`json` буюу локал файл.
+Production-д `EXPOCRAFT_DB_PROVIDER=postgres` ашиглавал серверийн runtime
+state-ийн **source of truth нь PostgreSQL** болно.
+
+- Startup дээр `app_state` хүснэгтээс уншина.
+- Save бүр `app_state` руу blocking write хийдэг.
+- `Backend/data/expo-store.json` руу runtime write хийхгүй.
+- Normalized tables (`users`, `shops`, `products`, `orders`,
+  `ledger_entries`, гэх мэт) нь `app_state`-ээс background sync-ээр
+  шинэчлэгдэнэ.
 
 ```bash
-DATABASE_URL=postgres://... npm run db:migrate   # схем үүсгэж, JSON-оо ачаална
+DATABASE_URL=postgres://... npm run db:migrate   # Prisma schema push + JSON import
+DATABASE_URL=postgres://... npm run db:status    # app_state төлөв
 DATABASE_URL=postgres://... npm run db:export    # буцааж JSON болгож татна
+DATABASE_URL=postgres://... EXPOCRAFT_RELATIONAL_SOURCE=postgres npm run db:relational
 ```
+
+Prisma schema: `Backend/prisma/schema.prisma`
 
 ## 2. `relational.sql` — хэвийн хэлбэрт оруулсан загвар (§7)
 
@@ -31,9 +41,13 @@ DATABASE_URL=postgres://... npm run db:relational
 
 ### Зорилго
 
-Энэ нь **тайлан, шинжилгээ, цаашид бүрэн шилжих** зориулалттай. Сервер өдөр
-тутам JSON дээрээ ажиллаж байгаа тул хоёрын хооронд зөрүү үүсэхээс сэргийлж
-шаардлагатай үедээ дахин ажиллуулна.
+Энэ нь тайлан, шинжилгээ, admin reporting-д зориулсан normalized projection.
+`EXPOCRAFT_DB_PROVIDER=postgres` үед сервер save хийх бүрт sync автоматаар
+явна. Гараар дахин дүүргэх шаардлагатай бол:
+
+```bash
+DATABASE_URL=postgres://... EXPOCRAFT_RELATIONAL_SOURCE=postgres npm run db:relational
+```
 
 ### Жишээ асуулгууд
 

@@ -1,7 +1,8 @@
-# Google-ээр нэвтрэх тохиргоо
+# Жинхэнэ Gmail-ээр нэвтрэх тохиргоо
 
-Код бүрэн бэлэн. Ажиллуулахын тулд Google-өөс **OAuth Client ID** авч, хоёр
-газар тавихад л хангалттай. Нийт ~5 минут, төлбөргүй.
+Кодын тал бэлэн: frontend нь Google Identity Services товч гаргана, backend нь
+Google-ийн ID токеныг Google дээр шалгаад зөвхөн баталгаажсан Gmail-ээр сесс
+үүсгэнэ. Ажиллуулахын тулд Google-өөс **OAuth Client ID** авч env-д тавина.
 
 ## 1. Google Cloud Console дээр Client ID үүсгэх
 
@@ -20,23 +21,31 @@
      ```
      http://localhost:3000
      ```
+     Google OAuth нь `192.168...` шиг raw/private IP-г origin дээр авахгүй.
+     Жинхэнэ Google login-ийг local дээр шалгах бол browser-оо яг
+     `http://localhost:3000` дээр нээ.
    - **Create** дар
 5. Гарч ирэх **Client ID**-г хуулж ав
    (`123456789-abc123.apps.googleusercontent.com` хэлбэртэй)
 
-## 2. Client ID-г төсөлдөө тавих
+## 2. Client ID-г local demo-д тавих
 
-**Хоёуланд нь ижил утга** тавина.
+Local demo дээр нэг газар тавихад хангалттай. `./dev.sh` энэ public Client ID-г
+backend рүү автоматаар дамжуулна.
 
 `frontend/.env.local`:
 ```
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=<өөрийн-client-id>
 ```
 
-`Backend/.env` (байхгүй бол шинээр үүсгэ):
+Backend-ийг `./dev.sh`-гүй дангаар нь асаавал `Backend/.env` дээр мөн ижил
+утгыг тавина:
 ```
 GOOGLE_CLIENT_ID=<өөрийн-client-id>
 ```
+
+Production дээр frontend/backend хоёр тусдаа deploy тул env dashboard дээр
+хоёуланд нь ижил Client ID-г тавина.
 
 ## 3. Дахин асаах
 
@@ -52,10 +61,30 @@ Frontend-ийн орчны хувьсагч сервер асахад уншиг
 
 ## Анхаарах зүйлс
 
-**Заавал `http://localhost:3000`-оор ор.** `http://192.168.1.15:3000` гэх мэт
-IP хаягаар орвол Google `origin_mismatch` алдаа өгнө — тэр хаягийг мөн
-"Authorized JavaScript origins"-д нэмээгүй бол. Өөр компьютерээс үзүүлэх бол
-тухайн хаягаа нэмэх хэрэгтэй.
+**Яг Google Console дээр нэмсэн origin-оор ор.** Local demo дээр Google login
+шалгахдаа:
+
+```
+http://localhost:3000/login
+```
+
+гэж орно. `http://192.168.10.34:3000` зэрэг raw IP-г Google OAuth origin дээр
+авахгүй.
+
+**Алдаа 400: `origin_mismatch` гарвал** Google Cloud Console → APIs & Services
+→ Credentials → OAuth 2.0 Client IDs → `ExpoCraft Web` → **Authorized
+JavaScript origins** дээр local development-д зөвхөн үүнийг нэм:
+
+```
+http://localhost:3000
+```
+
+`/login`, `/register` гэх мэт path нэмэхгүй. Зөвхөн origin нэмнэ. Хадгалсны
+дараа 1-2 минут хүлээгээд browser дээр hard refresh (`Cmd + Shift + R`) хийнэ.
+
+**Өөр төхөөрөмжөөс үзүүлэх хэрэгтэй бол** raw IP биш public HTTPS origin ашигла:
+өөрийн domain, Vercel deploy URL, Cloudflare Tunnel, ngrok гэх мэт. Тэр үед
+Google Console дээр жишээ нь `https://your-demo-domain.com` origin-ийг нэмнэ.
 
 **Утасны дугаар.** Google утасны дугаар дамжуулдаггүй. Дотоодын худалдан
 авагчид утас заавал шаардлагатай тул шинээр бүртгүүлэх үед товчны доор
@@ -71,3 +100,12 @@ IP хаягаар орвол Google `origin_mismatch` алдаа өгнө — т
 **Тохируулаагүй бол юу болох вэ.** Товч огт харагдахгүй, нууц үгээр нэвтрэх
 хэвийн ажиллана. Backend талд `/auth/google` нь `503 google_auth_unavailable`
 буцаана. Өөрөөр хэлбэл тохируулаагүй байх нь сайтыг эвдэхгүй.
+
+## Хурдан шалгах
+
+1. `frontend/.env.local` дээр `NEXT_PUBLIC_GOOGLE_CLIENT_ID` хоосон биш эсэхийг
+   шалга.
+2. `./dev.sh` асаагаад `/login` руу ор.
+3. Google товч гарч ирвэл товчоо дараад жинхэнэ Gmail хаягаа сонго.
+4. Шинэ дотоод хэрэглэгч бол утас асууна. Утас оруулсны дараа `/home` руу орвол
+   Gmail login амжилттай.

@@ -208,7 +208,11 @@ export async function uploadImage(file: File, isRetry = false): Promise<string> 
 }
 
 export function errorMessage(error: unknown, fallback = "Алдаа гарлаа / Something went wrong"): string {
-  if (error instanceof ApiError) return error.message;
+  if (error instanceof ApiError) {
+    if (error.code === "bad_credentials") return "Имэйл эсвэл нууц үг буруу байна.";
+    if (error.code === "too_many_attempts") return "Олон удаа буруу оролдлоо. Түр хүлээгээд дахин оролдоно уу.";
+    return error.message;
+  }
   if (error instanceof Error) return error.message;
   return fallback;
 }

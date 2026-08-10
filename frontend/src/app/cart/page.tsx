@@ -103,6 +103,7 @@ function CartView() {
     try {
       // `paymentMethod` илгээхгүй — backend валютаас нь тодорхойлно.
       const data = await api.post<{ order: Order }>("/checkout", {
+        cartId: cart?.id,
         currency: payCurrency,
         shippingAddress: address,
         shippingSelections,

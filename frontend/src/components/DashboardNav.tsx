@@ -11,7 +11,7 @@ export default function DashboardNav({
   title: string;
   items: { href: string; label: string }[];
 }) {
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
 
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">

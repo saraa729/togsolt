@@ -4,9 +4,11 @@ import ProductCard from "@/components/ProductCard";
 import ShopFollowButton from "@/components/ShopFollowButton";
 import { Stars } from "@/components/ui";
 import { serverGet } from "@/lib/api";
+import { demoArtisanImage } from "@/lib/demo-images";
 import { imageOrPlaceholder, initials } from "@/lib/format";
 import { translate } from "@/lib/i18n";
 import { readPreferences } from "@/lib/prefs";
+import { shopDisplayName, shopLocationText } from "@/lib/shop-display";
 import type { Shop } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -23,14 +25,17 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const shop = await loadShop(slug);
   if (!shop) return { title: "Дэлгүүр олдсонгүй / Shop not found" };
+  const displayName = shopDisplayName(shop);
+  const demoImage = demoArtisanImage(shop);
+  const heroImage = demoImage || shop.bannerUrl;
   return {
-    title: shop.seo?.title || `${shop.displayName} | ExpoCraft`,
+    title: `${displayName} | ExpoCraft`,
     description: (shop.seo?.description || shop.storyText || "").slice(0, 180),
     alternates: { canonical: `/shop/${shop.slug}` },
     openGraph: {
-      title: shop.displayName,
+      title: displayName,
       description: (shop.storyText || "").slice(0, 180),
-      images: shop.bannerUrl ? [{ url: shop.bannerUrl }] : undefined,
+      images: heroImage ? [{ url: heroImage }] : undefined,
     },
   };
 }
@@ -42,15 +47,18 @@ export default async function ShopPage({ params }: { params: Promise<Params> }) 
   const shop = await loadShop(slug);
   if (!shop) notFound();
 
-  const portrait = shop.artisanProfile?.portraitUrl || shop.logoUrl;
+  const demoImage = demoArtisanImage(shop);
+  const heroImage = demoImage || shop.bannerUrl;
+  const portrait = demoImage || shop.artisanProfile?.portraitUrl || shop.logoUrl;
   const products = shop.products ?? [];
+  const displayName = shopDisplayName(shop);
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Store",
-    name: shop.displayName,
+    name: displayName,
     description: shop.storyText,
-    image: shop.bannerUrl || shop.logoUrl || undefined,
+    image: heroImage || shop.logoUrl || undefined,
     address: { "@type": "PostalAddress", addressLocality: shop.city, addressRegion: shop.province, addressCountry: "MN" },
     aggregateRating: shop.stats?.ratingCount
       ? { "@type": "AggregateRating", ratingValue: shop.stats.ratingAverage, reviewCount: shop.stats.ratingCount }
@@ -62,8 +70,8 @@ export default async function ShopPage({ params }: { params: Promise<Params> }) 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="h-48 w-full bg-clay-soft sm:h-64">
-        {shop.bannerUrl ? (
-          <img src={imageOrPlaceholder(shop.bannerUrl)} alt="" className="h-full w-full object-cover" />
+        {heroImage ? (
+          <img src={imageOrPlaceholder(heroImage)} alt="" className="h-full w-full object-cover" />
         ) : null}
       </div>
 
@@ -71,14 +79,14 @@ export default async function ShopPage({ params }: { params: Promise<Params> }) 
         <div className="-mt-14 flex flex-wrap items-end gap-5 pb-8">
           <div className="grid h-28 w-28 place-items-center overflow-hidden rounded-3xl border-4 border-paper bg-pine text-2xl font-semibold text-white">
             {portrait ? (
-              <img src={imageOrPlaceholder(portrait)} alt={shop.displayName} className="h-full w-full object-cover" />
+              <img src={imageOrPlaceholder(portrait)} alt={displayName} className="h-full w-full object-cover" />
             ) : (
-              initials(shop.displayName)
+              initials(displayName)
             )}
           </div>
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{shop.displayName}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{displayName}</h1>
               {shop.verified ? (
                 <span className="badge bg-emerald-50 text-emerald-700">✓ {t("shop.verified")}</span>
               ) : (
@@ -86,7 +94,7 @@ export default async function ShopPage({ params }: { params: Promise<Params> }) 
               )}
             </div>
             <p className="muted mt-1">
-              {[shop.province, shop.district, shop.city].filter(Boolean).join(", ")}
+              {shopLocationText(shop)}
               {shop.artisanProfile?.makerName ? ` · ${shop.artisanProfile.makerName}` : ""}
             </p>
           </div>

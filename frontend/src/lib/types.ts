@@ -289,8 +289,13 @@ export type PayoutRequest = {
   amount: Money;
   method: string;
   bankAccount?: any;
+  payoutId?: string | null;
+  receipt?: any;
   note?: string;
   adminNote?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  paidAt?: string;
   createdAt: string;
   updatedAt: string;
 };

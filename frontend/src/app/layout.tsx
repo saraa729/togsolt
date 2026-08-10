@@ -1,18 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lora } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import Chrome from "@/components/Chrome";
 import { readPreferences } from "@/lib/prefs";
-
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin", "cyrillic"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-// Lora — кирилл үсгийг бүрэн дэмждэг editorial serif (Playfair-д кирилл байхгүй)
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600"],
-});
 
 export const metadata: Metadata = {
   title: {
@@ -34,7 +24,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   return (
     <html lang={locale}>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} min-h-screen antialiased`}>
+      <body className="min-h-screen antialiased">
         <Providers initialLocale={locale} initialCurrency={currency}>
           <Chrome>{children}</Chrome>
         </Providers>

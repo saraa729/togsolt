@@ -58,6 +58,24 @@ function loadGsi(): Promise<void> {
   return gsiPromise;
 }
 
+function isBlockedRawIpOrigin(origin: string): boolean {
+  try {
+    const { hostname } = new URL(origin);
+    const isIpv4 = /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
+    const isLocalhostIp = hostname === "127.0.0.1" || hostname === "0.0.0.0";
+    return isIpv4 && !isLocalhostIp;
+  } catch {
+    return false;
+  }
+}
+
+function localhostUrl(): string {
+  if (typeof window === "undefined") return "http://localhost:3000/login";
+  const url = new URL(window.location.href);
+  url.hostname = "localhost";
+  return url.toString();
+}
+
 /**
  * "Google-ээр нэвтрэх" товч.
  *
@@ -65,8 +83,9 @@ function loadGsi(): Promise<void> {
  * дээр баталгаажуулж, и-мэйлийг ТОКЕНООС авна. Хэрэглэгчийн и-мэйлийг клиентээс
  * илгээх нь ямар ч баталгаа болохгүй тул огт илгээхгүй.
  *
- * `NEXT_PUBLIC_GOOGLE_CLIENT_ID` тохируулаагүй бол товч огт харагдахгүй —
- * ажиллахгүй товч харуулснаас нуусан нь дээр.
+ * `NEXT_PUBLIC_GOOGLE_CLIENT_ID` тохируулаагүй бол Google хэсгийг disabled
+ * байдлаар харуулна. Ингэснээр login/register дээр Google урсгал байгаа нь
+ * тодорхой харагдаж, тохиргоо дутууг ойлгомжтой мэдэгдэнэ.
  */
 export default function GoogleSignInButton({
   roles,
@@ -89,6 +108,10 @@ export default function GoogleSignInButton({
   const [phone, setPhone] = useState("");
   const [abroad, setAbroad] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [googleReady, setGoogleReady] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(Boolean(CLIENT_ID));
+  const [currentOrigin, setCurrentOrigin] = useState("");
+  const isRawIpOrigin = isBlockedRawIpOrigin(currentOrigin);
 
   async function submitCredential(credential: string, extra?: { phone?: string; country?: string }) {
     try {
@@ -117,29 +140,64 @@ export default function GoogleSignInButton({
   });
 
   useEffect(() => {
-    if (!CLIENT_ID) return;
+    setCurrentOrigin(window.location.origin);
+  }, []);
+
+  useEffect(() => {
+    if (!CLIENT_ID) {
+      setGoogleLoading(false);
+      return;
+    }
+    if (isBlockedRawIpOrigin(window.location.origin)) {
+      setGoogleLoading(false);
+      setGoogleReady(false);
+      setError(null);
+      return;
+    }
     let cancelled = false;
+    setGoogleLoading(true);
 
     loadGsi()
       .then(() => {
         if (cancelled || !holder.current) return;
         const identity = window.google?.accounts?.id;
-        if (!identity) return;
+        if (!identity) {
+          setGoogleLoading(false);
+          setError(t("auth.googleUnavailable"));
+          return;
+        }
 
-        identity.initialize({
-          client_id: CLIENT_ID,
-          callback: (response) => {
-            if (!response.credential) return;
-            setError(null);
-            submitRef.current(response.credential);
-          },
-        });
+        try {
+          identity.initialize({
+            client_id: CLIENT_ID,
+            callback: (response) => {
+              if (!response.credential) return;
+              setError(null);
+              submitRef.current(response.credential);
+            },
+          });
 
-        // Товчны бичвэр, хэлийг Google өөрөө хуудасны хэлээр сонгоно.
-        identity.renderButton(holder.current, { type: "standard", theme: "outline", size: "large", width: 320 });
+          // Strict Mode/dev refresh үед давхар renderButton үүсэхээс хамгаална.
+          holder.current.innerHTML = "";
+          // Товчны бичвэр, хэлийг Google өөрөө хуудасны хэлээр сонгоно.
+          identity.renderButton(holder.current, { type: "standard", theme: "outline", size: "large", width: 320 });
+          window.requestAnimationFrame(() => {
+            if (cancelled || !holder.current) return;
+            const rendered = holder.current.childElementCount > 0;
+            setGoogleReady(rendered);
+            setGoogleLoading(false);
+            if (!rendered) setError(t("auth.googleOriginHint", { origin: window.location.origin }));
+          });
+        } catch {
+          setGoogleLoading(false);
+          setError(t("auth.googleOriginHint", { origin: window.location.origin }));
+        }
       })
       .catch(() => {
-        if (!cancelled) setError(t("auth.googleUnavailable"));
+        if (!cancelled) {
+          setGoogleLoading(false);
+          setError(t("auth.googleUnavailable"));
+        }
       });
 
     return () => {
@@ -148,8 +206,6 @@ export default function GoogleSignInButton({
     // Google-ийг нэг л удаа эхлүүлнэ — хамаарлыг ref барьж байгаа тул энд оруулахгүй.
   }, [t]);
 
-  if (!CLIENT_ID) return null;
-
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-3">
@@ -157,8 +213,50 @@ export default function GoogleSignInButton({
         <span className="text-[10px] tracking-[0.18em] text-muted uppercase">{t("auth.or")}</span>
         <span className="h-px flex-1 bg-line" />
       </div>
+
+      {!CLIENT_ID ? (
+        <div className="space-y-2">
+          <button type="button" className="btn-secondary w-full justify-center" disabled>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface text-xs font-semibold">
+              G
+            </span>
+            {t("auth.google")}
+          </button>
+          <Alert tone="warn">{t("auth.googleConfigMissing")}</Alert>
+        </div>
+      ) : null}
+
+      {CLIENT_ID && isRawIpOrigin ? (
+        <button type="button" className="btn-secondary w-full justify-center" onClick={() => window.location.assign(localhostUrl())}>
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface text-xs font-semibold">
+            G
+          </span>
+          {t("auth.googleOpenLocalhost")}
+        </button>
+      ) : null}
+
+      {CLIENT_ID && !isRawIpOrigin && !pendingCredential && (!googleReady || googleLoading) ? (
+        <button type="button" className="btn-secondary w-full justify-center" disabled>
+          {googleLoading ? <Spinner /> : null}
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface text-xs font-semibold">
+            G
+          </span>
+          {t("auth.google")}
+        </button>
+      ) : null}
+
       {/* Утас асуух үед Google товчийг нуухгүй — хэрэглэгч буцаж болно. */}
-      <div ref={holder} className={pendingCredential ? "hidden" : "flex justify-center"} />
+      {CLIENT_ID && !isRawIpOrigin ? (
+        <div ref={holder} className={pendingCredential ? "hidden" : "flex min-h-11 justify-center"} />
+      ) : null}
+
+      {CLIENT_ID && currentOrigin ? (
+        <p className="rounded-xl border border-line bg-paper px-3 py-2 text-xs text-muted">
+          {isRawIpOrigin
+            ? t("auth.googleRawIpOrigin", { origin: currentOrigin })
+            : t("auth.googleOriginCurrent", { origin: currentOrigin })}
+        </p>
+      ) : null}
 
       {pendingCredential ? (
         <form

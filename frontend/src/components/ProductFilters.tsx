@@ -19,7 +19,7 @@ export default function ProductFilters({
   const { t } = useApp();
   const router = useRouter();
   const params = useSearchParams();
-  const initial = useMemo(() => Object.fromEntries(params.entries()), [params]);
+  const initial = useMemo(() => Object.fromEntries(params?.entries() || []), [params]);
   const [form, setForm] = useState<Record<string, string>>({
     q: initial.q || "",
     categoryId: initial.categoryId || "",

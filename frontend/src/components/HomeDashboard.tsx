@@ -7,7 +7,9 @@ import CraftTile from "@/components/CraftTile";
 import RequireAuth from "@/components/RequireAuth";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
+import { demoArtisanImage } from "@/lib/demo-images";
 import { formatMoney, initials, resolveImageUrl } from "@/lib/format";
+import { shopCraftLine, shopDisplayName, shopLocationText } from "@/lib/shop-display";
 import type { Category, Locale, Product, Shop } from "@/lib/types";
 
 type Props = {
@@ -188,13 +190,14 @@ function Dashboard({ recommended, fresh, categories, artisans }: Props) {
               <Link
                 key={shop.id}
                 href={`/shop/${shop.slug}`}
-                className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-clay/40 hover:bg-paper"
+                className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-clay/40 hover:bg-paper"
               >
                 <Avatar shop={shop} />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{shop.displayName}</span>
-                  <span className="block truncate text-xs text-muted">
-                    {[shop.province, shop.district].filter(Boolean).join(" · ") || shop.city || "—"}
+                  <span className="block truncate text-sm font-medium">{shop.artisanProfile?.makerName || shopDisplayName(shop)}</span>
+                  <span className="block truncate text-xs text-muted">{shopDisplayName(shop)}</span>
+                  <span className="mt-1 block line-clamp-1 text-xs font-medium text-clay-dark">
+                    {shopCraftLine(shop, 3) || shopLocationText(shop) || "—"}
                   </span>
                 </span>
                 {shop.verified ? <span className="shrink-0 text-xs text-pine">✓</span> : null}
@@ -365,15 +368,15 @@ function EmptyLine({ text }: { text: string }) {
 }
 
 function Avatar({ shop }: { shop: Shop }) {
-  const src = resolveImageUrl(shop.artisanProfile?.portraitUrl || shop.logoUrl);
+  const src = resolveImageUrl(demoArtisanImage(shop) || shop.artisanProfile?.portraitUrl || shop.logoUrl);
 
   if (!src) {
     return (
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-paper text-xs font-medium text-muted">
-        {initials(shop.displayName)}
+        {initials(shopDisplayName(shop))}
       </span>
     );
   }
 
-  return <img src={src} alt={shop.displayName} className="h-10 w-10 shrink-0 rounded-full object-cover" />;
+  return <img src={src} alt={shopDisplayName(shop)} className="h-10 w-10 shrink-0 rounded-full object-cover" />;
 }

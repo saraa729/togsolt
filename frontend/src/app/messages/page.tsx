@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { io, type Socket } from "socket.io-client";
 import RequireAuth from "@/components/RequireAuth";
 import { Alert, EmptyState, Spinner } from "@/components/ui";
-import { api, errorMessage, TOKEN_KEY } from "@/lib/api";
+import { api, errorMessage, getToken } from "@/lib/api";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
 import { API_URL, classNames, formatDateTime } from "@/lib/format";
@@ -26,8 +27,12 @@ function MessagesView() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [live, setLive] = useState(false);
+  const [presence, setPresence] = useState<Record<string, string[]>>({});
+  const [typing, setTyping] = useState<Record<string, string[]>>({});
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const socketRef = useRef<Socket | null>(null);
+  const typingStopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -45,28 +50,83 @@ function MessagesView() {
     load();
   }, [load]);
 
-  // Realtime: backend SSE (/conversations/stream)
+  // Realtime: Socket.io rooms, presence, typing.
   useEffect(() => {
-    const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
+    const token = getToken();
     if (!token) return;
-    const source = new EventSource(`${API_URL}/conversations/stream?token=${encodeURIComponent(token)}`);
-    source.addEventListener("ready", () => setLive(true));
-    source.addEventListener("message", (event) => {
-      try {
-        const payload = JSON.parse((event as MessageEvent).data);
-        setConversations((prev) =>
-          prev.map((conversation) =>
-            conversation.id === payload.conversationId
-              ? { ...conversation, messages: [...conversation.messages, payload.message] }
-              : conversation
-          )
-        );
-      } catch {
-        /* хүчингүй event-ийг алгасна */
-      }
+
+    const socket = io(API_URL, {
+      auth: { token },
+      transports: ["websocket", "polling"],
     });
-    source.onerror = () => setLive(false);
-    return () => source.close();
+    socketRef.current = socket;
+
+    socket.on("connect", () => setLive(true));
+    socket.on("realtime:ready", () => setLive(true));
+    socket.on("disconnect", () => setLive(false));
+    socket.on("connect_error", () => setLive(false));
+
+    socket.on("conversation:upsert", (payload: { conversation: Conversation }) => {
+      if (!payload.conversation) return;
+      setConversations((prev) => {
+        const exists = prev.some((conversation) => conversation.id === payload.conversation.id);
+        if (exists) {
+          return prev.map((conversation) =>
+            conversation.id === payload.conversation.id ? { ...conversation, ...payload.conversation } : conversation
+          );
+        }
+        return [payload.conversation, ...prev];
+      });
+    });
+
+    socket.on("conversation:message", (payload: { conversationId: string; message: Conversation["messages"][number] }) => {
+      setConversations((prev) =>
+        prev.map((conversation) => {
+          if (conversation.id !== payload.conversationId) return conversation;
+          if (conversation.messages.some((message) => message.id === payload.message.id)) return conversation;
+          return { ...conversation, messages: [...conversation.messages, payload.message], updatedAt: payload.message.createdAt };
+        })
+      );
+      setTyping((prev) => ({ ...prev, [payload.conversationId]: [] }));
+    });
+
+    socket.on("conversation:presence", (payload: { conversationId: string; users: { id: string; name: string }[] }) => {
+      setPresence((prev) => ({
+        ...prev,
+        [payload.conversationId]: (payload.users || []).filter((item) => item.id !== user?.id).map((item) => item.name),
+      }));
+    });
+
+    socket.on("typing:update", (payload: { conversationId: string; userId: string; userName: string; typing: boolean }) => {
+      if (!payload.conversationId || payload.userId === user?.id) return;
+      setTyping((prev) => {
+        const names = new Set(prev[payload.conversationId] || []);
+        if (payload.typing) names.add(payload.userName);
+        else names.delete(payload.userName);
+        return { ...prev, [payload.conversationId]: Array.from(names) };
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !activeId) return;
+    socket.emit("conversation:join", { conversationId: activeId });
+    return () => {
+      socket.emit("typing:stop", { conversationId: activeId });
+      socket.emit("conversation:leave", { conversationId: activeId });
+    };
+  }, [activeId]);
+
+  useEffect(() => {
+    return () => {
+      if (typingStopRef.current) clearTimeout(typingStopRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -74,11 +134,24 @@ function MessagesView() {
   }, [activeId, conversations]);
 
   const active = conversations.find((conversation) => conversation.id === activeId) || null;
+  const activePresence = activeId ? presence[activeId] || [] : [];
+  const activeTyping = activeId ? typing[activeId] || [] : [];
+
+  function updateDraft(value: string) {
+    setDraft(value);
+    if (!activeId || !socketRef.current?.connected) return;
+    socketRef.current.emit("typing:start", { conversationId: activeId });
+    if (typingStopRef.current) clearTimeout(typingStopRef.current);
+    typingStopRef.current = setTimeout(() => {
+      socketRef.current?.emit("typing:stop", { conversationId: activeId });
+    }, 1200);
+  }
 
   async function send() {
     if (!active || !draft.trim()) return;
     setBusy(true);
     try {
+      socketRef.current?.emit("typing:stop", { conversationId: active.id });
       const data = await api.post<{ conversation: Conversation }>(`/conversations/${active.id}/messages`, {
         message: draft.trim(),
       });
@@ -140,6 +213,16 @@ function MessagesView() {
           </aside>
 
           <section className="card flex max-h-[70vh] flex-col">
+            <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
+              <div>
+                <p className="text-sm font-medium">
+                  {active ? (active.buyerId === user?.id ? active.seller?.name : active.buyer?.name) || active.id : "—"}
+                </p>
+                <p className="muted text-xs">
+                  {activePresence.length > 0 ? `${activePresence.join(", ")} ${t("messages.online")}` : t("messages.noPresence")}
+                </p>
+              </div>
+            </div>
             <div className="flex-1 space-y-2 overflow-y-auto p-5">
               {(active?.messages || []).map((item) => (
                 <div
@@ -155,13 +238,16 @@ function MessagesView() {
                   </p>
                 </div>
               ))}
+              {activeTyping.length > 0 ? (
+                <p className="muted px-1 text-xs">{`${activeTyping.join(", ")} ${t("messages.typing")}`}</p>
+              ) : null}
               <div ref={bottomRef} />
             </div>
             <div className="flex gap-2 border-t border-line p-3">
               <input
                 className="input"
                 value={draft}
-                onChange={(event) => setDraft(event.target.value)}
+                onChange={(event) => updateDraft(event.target.value)}
                 placeholder={t("custom.messagePlaceholder")}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {

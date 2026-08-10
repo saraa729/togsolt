@@ -1,0 +1,291 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AppState {
+  id        String   @id @default("expocraft")
+  data      Json
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("app_state")
+}
+
+model StateMigration {
+  id        String   @id
+  name      String
+  appliedAt DateTime @default(now()) @map("applied_at") @db.Timestamptz(6)
+
+  @@map("state_migrations")
+}
+
+model User {
+  id               String    @id
+  email            String    @unique
+  passwordHash     String?   @map("password_hash")
+  roles            String[]  @default(["buyer"])
+  name             String
+  phone            String?
+  country          String    @default("MN")
+  locale           String    @default("mn")
+  authProviders    String[]  @default([]) @map("auth_providers")
+  emailVerified    Boolean   @default(false) @map("email_verified")
+  disabled         Boolean   @default(false)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastLoginAt      DateTime? @map("last_login_at") @db.Timestamptz(6)
+  shops            Shop[]
+  buyerOrders      Order[]
+  sellerOrderShops OrderShop[] @relation("OrderShopSeller")
+  sellerOrderItems OrderItem[] @relation("OrderItemSeller")
+  ledgerEntries    LedgerEntry[]
+  payouts          Payout[] @relation("SellerPayouts")
+
+  @@map("users")
+}
+
+model Shop {
+  id             String    @id
+  sellerId       String    @map("seller_id")
+  seller         User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  slug           String    @unique
+  displayName    String    @map("display_name")
+  status         String    @default("pending_verification")
+  logoUrl        String?   @map("logo_url")
+  bannerUrl      String?   @map("banner_url")
+  story          Json      @default("{}")
+  city           String?
+  province       String?
+  district       String?
+  contact        Json      @default("{}")
+  artisanProfile Json?     @map("artisan_profile")
+  processMedia   Json      @default("[]") @map("process_media")
+  ratingAvg      Decimal   @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount    Int       @default(0) @map("rating_count")
+  salesCount     Int       @default(0) @map("sales_count")
+  responseHours  Int?      @map("response_hours")
+  verifiedAt     DateTime? @map("verified_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  products       Product[]
+  orderShops     OrderShop[]
+
+  @@index([sellerId])
+  @@index([status])
+  @@map("shops")
+}
+
+model Category {
+  id       String    @id
+  parentId String?   @map("parent_id")
+  parent   Category? @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryTree")
+  slug     String    @unique
+  name     Json
+  products Product[]
+
+  @@map("categories")
+}
+
+model Material {
+  id       String            @id
+  name     Json
+  products ProductMaterial[]
+
+  @@map("materials")
+}
+
+model Product {
+  id                    String            @id
+  shopId                String            @map("shop_id")
+  sellerId              String            @map("seller_id")
+  categoryId            String?           @map("category_id")
+  shop                  Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  category              Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  name                  Json
+  description           Json              @default("{}")
+  story                 Json?
+  technique             Json?
+  techniques            String[]          @default([])
+  styles                String[]          @default([])
+  images                Json              @default("[]")
+  processMedia          Json              @default("[]") @map("process_media")
+  stockMode             String            @map("stock_mode")
+  stock                 Int               @default(0)
+  leadTimeDays          Int?              @map("lead_time_days")
+  priceAmount           BigInt            @map("price_amount")
+  priceCurrency         String            @default("MNT") @map("price_currency")
+  intlPriceAmount       BigInt?           @map("intl_price_amount")
+  intlPriceCurrency     String?           @map("intl_price_currency")
+  weightGram            Int?              @map("weight_gram")
+  dimensions            Json?
+  shipsInternationally  Boolean           @default(false) @map("ships_internationally")
+  touristGift           Boolean           @default(false) @map("tourist_gift")
+  customEnabled         Boolean           @default(false) @map("custom_enabled")
+  status                String            @default("active")
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  materials             ProductMaterial[]
+  orderItems            OrderItem[]
+
+  @@index([shopId])
+  @@index([categoryId])
+  @@index([status])
+  @@map("products")
+}
+
+model ProductMaterial {
+  productId  String   @map("product_id")
+  materialId String   @map("material_id")
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@id([productId, materialId])
+  @@map("product_materials")
+}
+
+model Cart {
+  id        String     @id
+  buyerId   String     @map("buyer_id")
+  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  items     CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id              String @id
+  cartId          String @map("cart_id")
+  productId       String @map("product_id")
+  customRequestId String? @map("custom_request_id")
+  qty             Int
+  quotedAmount    BigInt? @map("quoted_amount")
+  quotedCurrency  String? @map("quoted_currency")
+  addedAt         DateTime @default(now()) @map("added_at") @db.Timestamptz(6)
+  cart            Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@map("cart_items")
+}
+
+model Order {
+  id                  String        @id
+  buyerId             String        @map("buyer_id")
+  buyer               User          @relation(fields: [buyerId], references: [id], onDelete: Restrict)
+  status              String        @default("paid")
+  currency            String
+  subtotalAmount      BigInt        @default(0) @map("subtotal_amount")
+  commissionAmount    BigInt        @default(0) @map("commission_amount")
+  sellerTotalAmount   BigInt        @default(0) @map("seller_total_amount")
+  discountAmount      BigInt        @default(0) @map("discount_amount")
+  couponCode          String?       @map("coupon_code")
+  paymentProvider     String?       @map("payment_provider")
+  paymentStatus       String?       @map("payment_status")
+  paymentRef          String?       @map("payment_ref")
+  escrowStatus        String        @default("held") @map("escrow_status")
+  destinationCountry  String        @default("MN") @map("destination_country")
+  shippingAddress     Json          @default("{}") @map("shipping_address")
+  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  shops               OrderShop[]
+  items               OrderItem[]
+  ledgerEntries       LedgerEntry[]
+
+  @@index([buyerId])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderShop {
+  id                       String      @id
+  orderId                  String      @map("order_id")
+  shopId                   String      @map("shop_id")
+  sellerId                 String      @map("seller_id")
+  order                    Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  shop                     Shop        @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  seller                   User        @relation("OrderShopSeller", fields: [sellerId], references: [id], onDelete: Restrict)
+  status                   String      @default("paid")
+  subtotalAmount           BigInt      @default(0) @map("subtotal_amount")
+  commissionAmount         BigInt      @default(0) @map("commission_amount")
+  sellerReceivableAmount   BigInt      @default(0) @map("seller_receivable_amount")
+  currency                 String
+  shippingMethod           String?     @map("shipping_method")
+  shippingFeeAmount        BigInt      @default(0) @map("shipping_fee_amount")
+  trackingCode             String?     @map("tracking_code")
+  items                    OrderItem[]
+
+  @@unique([orderId, shopId])
+  @@index([sellerId])
+  @@map("order_shops")
+}
+
+model OrderItem {
+  id                     String       @id
+  orderShopId            String       @map("order_shop_id")
+  orderId                String       @map("order_id")
+  productId              String?      @map("product_id")
+  customRequestId        String?      @map("custom_request_id")
+  sellerId               String?      @map("seller_id")
+  shopId                 String?      @map("shop_id")
+  orderShop              OrderShop    @relation(fields: [orderShopId], references: [id], onDelete: Cascade)
+  order                  Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product                Product?     @relation(fields: [productId], references: [id], onDelete: SetNull)
+  seller                 User?        @relation("OrderItemSeller", fields: [sellerId], references: [id], onDelete: SetNull)
+  name                   String
+  unitPriceAmount        BigInt       @map("unit_price_amount")
+  currency               String
+  qty                    Int
+  lineTotalAmount        BigInt       @map("line_total_amount")
+  commissionAmount       BigInt       @default(0) @map("commission_amount")
+  sellerReceivableAmount BigInt       @default(0) @map("seller_receivable_amount")
+  discountAmount         BigInt       @default(0) @map("discount_amount")
+  orderType              String?      @map("order_type")
+  productionDays         Int?         @map("production_days")
+  status                 String       @default("paid")
+  escrowStatus           String       @default("held") @map("escrow_status")
+  progressUpdates        Json         @default("[]") @map("progress_updates")
+  deliveredAt            DateTime?    @map("delivered_at") @db.Timestamptz(6)
+  createdAt              DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  ledgerEntries          LedgerEntry[]
+
+  @@index([orderId])
+  @@index([status])
+  @@map("order_items")
+}
+
+model LedgerEntry {
+  id          String    @id
+  orderId     String?   @map("order_id")
+  orderItemId String?   @map("order_item_id")
+  sellerId    String?   @map("seller_id")
+  order       Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  seller      User?     @relation(fields: [sellerId], references: [id], onDelete: SetNull)
+  kind        String
+  amount      BigInt
+  currency    String
+  note        String?
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([kind])
+  @@index([sellerId])
+  @@index([createdAt])
+  @@map("ledger_entries")
+}
+
+model Payout {
+  id          String    @id
+  sellerId    String    @map("seller_id")
+  seller      User      @relation("SellerPayouts", fields: [sellerId], references: [id], onDelete: Restrict)
+  amount      BigInt
+  currency    String
+  status      String    @default("requested")
+  bankAccount Json?     @map("bank_account")
+  requestedAt DateTime  @default(now()) @map("requested_at") @db.Timestamptz(6)
+  approvedBy  String?   @map("approved_by")
+  paidAt      DateTime? @map("paid_at") @db.Timestamptz(6)
+
+  @@map("payouts")
+}

@@ -244,7 +244,7 @@ export const dict: Dict = {
   // --- product detail ---
   "product.addToCart": { mn: "Сагсанд нэмэх", en: "Add to cart" },
   "product.added": { mn: "Сагсанд нэмэгдлээ", en: "Added to cart" },
-  "product.buyNow": { mn: "Шууд авах", en: "Buy now" },
+  "product.addAndViewCart": { mn: "Сагсанд нэмээд очих", en: "Add and view cart" },
   "product.favorite": { mn: "Хадгалах", en: "Save" },
   "product.unfavorite": { mn: "Хадгалснаас хасах", en: "Remove from saved" },
   "product.soldOut": { mn: "Зарагдсан", en: "Sold" },
@@ -286,7 +286,7 @@ export const dict: Dict = {
   "cart.emptyCta": { mn: "Бүтээл үзэх", en: "Browse crafts" },
   "cart.subtotal": { mn: "Дүн", en: "Subtotal" },
   "cart.remove": { mn: "Хасах", en: "Remove" },
-  "cart.checkout": { mn: "Төлбөр төлөх", en: "Pay now" },
+  "cart.checkout": { mn: "Сагсаас төлөх", en: "Pay from cart" },
   "cart.multiSeller": {
     mn: "Сагсанд олон урлаачийн бүтээл байна — захиалга урлаач тус бүрээр салж, тус бүр өөрийн хүргэлттэй.",
     en: "Your cart has several artisans — the order splits per artisan, each with its own shipping.",
@@ -301,8 +301,8 @@ export const dict: Dict = {
   "checkout.zip": { mn: "Шуудангийн код", en: "Postal code" },
   "checkout.payment": { mn: "Төлбөрийн хэрэгсэл", en: "Payment method" },
   "checkout.escrowNote": {
-    mn: "Төлбөр escrow-д хадгалагдана. Та бараагаа хүлээж авснаа баталгаажуулсны дараа урлаачид шилжинэ.",
-    en: "Your payment is held in escrow and released to the artisan once you confirm delivery.",
+    mn: "Төлбөр зөвхөн энэ сагсанд байгаа бүтээлүүдээр үүсэж, escrow-д хадгалагдана. Та бараагаа хүлээж авснаа баталгаажуулсны дараа урлаачид шилжинэ.",
+    en: "Payment is created only from this cart, held in escrow, and released to the artisan once you confirm delivery.",
   },
   "checkout.place": { mn: "Төлж захиалах", en: "Pay and place order" },
   "checkout.success": { mn: "Захиалга амжилттай!", en: "Order placed!" },
@@ -460,6 +460,9 @@ export const dict: Dict = {
   "messages.empty": { mn: "Харилцан яриа алга.", en: "No conversations yet." },
   "messages.live": { mn: "Шууд холбогдсон", en: "Live" },
   "messages.offline": { mn: "Холболт салсан", en: "Offline" },
+  "messages.online": { mn: "онлайн байна", en: "online" },
+  "messages.noPresence": { mn: "Одоогоор нөгөө тал офлайн байна", en: "The other participant is offline" },
+  "messages.typing": { mn: "бичиж байна…", en: "is typing…" },
 
   // --- favorites ---
   "favorites.title": { mn: "Хадгалсан бүтээл", en: "Saved crafts" },
@@ -504,6 +507,7 @@ export const dict: Dict = {
   "admin.activeDisputes": { mn: "Идэвхтэй маргаан", en: "Active disputes" },
   "admin.openReports": { mn: "Нээлттэй гомдол", en: "Open reports" },
   "admin.pendingPayouts": { mn: "Хүлээгдэж буй payout", en: "Pending payouts" },
+  "admin.slaAlerts": { mn: "SLA анхааруулга", en: "SLA alerts" },
   "admin.domesticOrders": { mn: "Дотоод захиалгууд", en: "Domestic orders" },
   "admin.internationalOrders": { mn: "Гадаад захиалгууд", en: "International orders" },
   "admin.ledgerTitle": { mn: "Төлбөрийн байр", en: "Ledger summary" },
@@ -561,7 +565,26 @@ export const dict: Dict = {
     mn: "Google нэвтрэлт одоогоор боломжгүй байна. Нууц үгээрээ нэвтэрнэ үү.",
     en: "Google sign-in is unavailable right now. Please sign in with your password.",
   },
-
+  "auth.googleConfigMissing": {
+    mn: "Google Client ID тохируулаагүй байна. Тохируулсны дараа жинхэнэ Gmail-ээр нэвтэрч, бүртгүүлнэ.",
+    en: "Google Client ID is not configured. After setup, users can sign in and register with a real Gmail account.",
+  },
+  "auth.googleOriginHint": {
+    mn: "Google товч ачаалсангүй. Google Console дээр {{origin}} хаягийг Authorized JavaScript origins-д нэмсэн эсэхээ шалгана уу.",
+    en: "Google button did not load. Check that {{origin}} is added to Authorized JavaScript origins in Google Console.",
+  },
+  "auth.googleOriginCurrent": {
+    mn: "Google Console → Authorized JavaScript origins хэсэгт яг энэ хаяг байх ёстой: {{origin}}",
+    en: "Google Console → Authorized JavaScript origins must include exactly this origin: {{origin}}",
+  },
+  "auth.googleRawIpOrigin": {
+    mn: "{{origin}} нь raw IP тул Google OAuth авахгүй. Доорх товчоор localhost дээр нээгээд Google-ээр нэвтэрнэ үү.",
+    en: "{{origin}} is a raw IP, which Google OAuth does not allow. Use the button below to open localhost and continue with Google.",
+  },
+  "auth.googleOpenLocalhost": {
+    mn: "Google-ээр нэвтрэхийн тулд localhost дээр нээх",
+    en: "Open localhost to continue with Google",
+  },
   "nav.tourist": { mn: "Жуулчдад", en: "For visitors" },
 
   // --- coupons ---

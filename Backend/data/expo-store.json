@@ -70,7 +70,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Nomad Felt Studio",
+      "name": "Нүүдэл Эсгий Урлан",
       "authProviders": [
         "email"
       ],
@@ -79,7 +79,7 @@
       "locale": "mn",
       "emailVerified": false,
       "createdAt": "2026-08-09T08:35:13.467Z",
-      "lastLoginAt": null
+      "lastLoginAt": "2026-08-10T02:40:09.928Z"
     },
     {
       "id": "usr_87fd7f0eb4256c19",
@@ -108,7 +108,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Steppe Woodcraft",
+      "name": "Талын Модон Урлал",
       "authProviders": [
         "email"
       ],
@@ -127,7 +127,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Altan Silver Line",
+      "name": "Алтан Мөнгөн Урлан",
       "authProviders": [
         "email"
       ],
@@ -146,7 +146,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Khuree Leather House",
+      "name": "Хүрээ Арьсан Урлан",
       "authProviders": [
         "email"
       ],
@@ -165,7 +165,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Deel Atelier",
+      "name": "Дээл Урлах Ателье",
       "authProviders": [
         "email"
       ],
@@ -184,7 +184,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Gobi Textile Studio",
+      "name": "Говийн Нэхмэл Урлан",
       "authProviders": [
         "email"
       ],
@@ -203,7 +203,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Khangai Brush",
+      "name": "Хангайн Бийр Урлан",
       "authProviders": [
         "email"
       ],
@@ -222,7 +222,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Tsagaan Bone Craft",
+      "name": "Цагаан Ясан Сийлбэр",
       "authProviders": [
         "email"
       ],
@@ -241,7 +241,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Blue Flame Ceramics",
+      "name": "Хөх Дөл Керамик",
       "authProviders": [
         "email"
       ],
@@ -260,7 +260,7 @@
         "seller"
       ],
       "role": "seller",
-      "name": "Little Nomad Toys",
+      "name": "Бяцхан Нүүдэлчин Тоглоом",
       "authProviders": [
         "email"
       ],
@@ -270,6 +270,63 @@
       "emailVerified": false,
       "createdAt": "2026-08-09T08:35:13.788Z",
       "lastLoginAt": null
+    },
+    {
+      "id": "usr_98af2ba0f073b096",
+      "email": "sra1@gmail.com",
+      "passwordHash": "56a21981184faec1ab2c29088dbece98:12b78255f5338f1069d6986e67014931bea6984d6f88e22ceaac7e9113a67d84bfa00755f1de18e44148bd9a1ecfa11612139b98f8a288b4050c0264c7799558",
+      "roles": [
+        "buyer"
+      ],
+      "role": "buyer",
+      "name": "saraa",
+      "authProviders": [
+        "email"
+      ],
+      "phone": "11111",
+      "country": "MN",
+      "locale": "mn",
+      "emailVerified": false,
+      "createdAt": "2026-08-09T10:18:16.346Z",
+      "lastLoginAt": null
+    },
+    {
+      "id": "usr_cfa11b55c54f17bd",
+      "email": "misheeltadiya@gmail.com",
+      "passwordHash": "8a3e7bd11739a3c27761952bb29e4583:cc1adcd10cad65a5c2f450b6f2ba0f141f750527b4dc72b84c06949872a465ea67fee477afda933b999487e832a63a628b8d03fe8a81466b7ccd3404c4940b97",
+      "roles": [
+        "buyer"
+      ],
+      "role": "buyer",
+      "name": "mishel",
+      "authProviders": [
+        "email"
+      ],
+      "phone": "+976 88776655",
+      "country": "MN",
+      "locale": "mn",
+      "emailVerified": false,
+      "createdAt": "2026-08-09T11:27:23.612Z",
+      "lastLoginAt": "2026-08-09T11:28:10.283Z"
+    },
+    {
+      "id": "usr_664d957affaa7df5",
+      "email": "saraa@gmail.com",
+      "passwordHash": "a0511002e67ab596f035af22f4f68d09:9303bef0e82b380d3757daadb2cf658a2ce79892518438a9a67487301189c640b8406171140d2d402caadea705ff32b1f342e10dc890aa657d096312951cc6f2",
+      "roles": [
+        "buyer"
+      ],
+      "role": "buyer",
+      "name": "saraa",
+      "authProviders": [
+        "email"
+      ],
+      "phone": "90059630",
+      "country": "MN",
+      "locale": "mn",
+      "emailVerified": false,
+      "createdAt": "2026-08-10T02:39:10.155Z",
+      "lastLoginAt": null
     }
   ],
   "shops": [
@@ -278,22 +335,22 @@
       "sellerId": "usr_acf903f0e1f52b36",
       "status": "verified",
       "slug": "nomad-felt-studio",
-      "displayName": "Nomad Felt Studio",
+      "displayName": "Нүүдэл Эсгий Урлан",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Уламжлалт эсгий урлалыг орчин үеийн хэрэглээнд нийцүүлэн хийдэг гэр бүлийн урлан.",
         "en": "A family studio making traditional Mongolian felt craft for modern homes."
       },
-      "city": "Ulaanbaatar",
-      "province": "Ulaanbaatar",
-      "district": "Sukhbaatar",
+      "city": "Улаанбаатар",
+      "province": "Улаанбаатар",
+      "district": "Сүхбаатар",
       "contact": {
         "phone": "+97699112233",
         "email": "seller@expocraft.mn"
       },
       "seo": {
-        "title": "Nomad Felt Studio | ExpoCraft",
+        "title": "Нүүдэл Эсгий Урлан | ExpoCraft",
         "description": "A family studio making traditional Mongolian felt craft for modern homes."
       },
       "stats": {
@@ -321,7 +378,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Nomad Felt Studio",
+        "accountName": "Нүүдэл Эсгий Урлан",
         "accountLast4": "2026"
       },
       "createdAt": "2026-08-09T08:35:13.499Z",
@@ -332,22 +389,22 @@
       "sellerId": "usr_35f2d087638d28e7",
       "status": "verified",
       "slug": "steppe-woodcraft",
-      "displayName": "Steppe Woodcraft",
+      "displayName": "Талын Модон Урлал",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Монгол хээ угалзыг модон эдлэл дээр гараар сийлдэг урлан.",
         "en": "A wood studio hand-carving Mongolian patterns into everyday objects."
       },
-      "city": "Ulaanbaatar",
-      "province": "Ulaanbaatar",
-      "district": "Bayangol",
+      "city": "Улаанбаатар",
+      "province": "Улаанбаатар",
+      "district": "Баянгол",
       "contact": {
         "phone": "+97699122233",
         "email": "wood@expocraft.mn"
       },
       "seo": {
-        "title": "Steppe Woodcraft | ExpoCraft",
+        "title": "Талын Модон Урлал | ExpoCraft",
         "description": "A wood studio hand-carving Mongolian patterns into everyday objects."
       },
       "stats": {
@@ -374,7 +431,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Steppe Woodcraft",
+        "accountName": "Талын Модон Урлал",
         "accountLast4": "2027"
       },
       "createdAt": "2026-08-09T08:35:13.529Z",
@@ -385,22 +442,22 @@
       "sellerId": "usr_9cfd3c77a401cee7",
       "status": "verified",
       "slug": "altan-silver-line",
-      "displayName": "Altan Silver Line",
+      "displayName": "Алтан Мөнгөн Урлан",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Мөнгөн гоёл, жижиг эдлэлийг уламжлалт дархны аргаар хийдэг.",
         "en": "A silversmith studio making jewelry with traditional techniques."
       },
-      "city": "Darkhan",
-      "province": "Darkhan",
-      "district": "Darkhan",
+      "city": "Дархан",
+      "province": "Дархан",
+      "district": "Дархан",
       "contact": {
         "phone": "+97699132233",
         "email": "silver@expocraft.mn"
       },
       "seo": {
-        "title": "Altan Silver Line | ExpoCraft",
+        "title": "Алтан Мөнгөн Урлан | ExpoCraft",
         "description": "A silversmith studio making jewelry with traditional techniques."
       },
       "stats": {
@@ -428,7 +485,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Altan Silver Line",
+        "accountName": "Алтан Мөнгөн Урлан",
         "accountLast4": "2028"
       },
       "createdAt": "2026-08-09T08:35:13.560Z",
@@ -439,22 +496,22 @@
       "sellerId": "usr_440cb55ec7c32d0c",
       "status": "verified",
       "slug": "khuree-leather-house",
-      "displayName": "Khuree Leather House",
+      "displayName": "Хүрээ Арьсан Урлан",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Арьсан цүнх, түрийвч, бүсийг гараар эсгэж оёдог жижиг урлан.",
         "en": "A small leather house cutting and stitching bags, wallets, and belts by hand."
       },
-      "city": "Ulaanbaatar",
-      "province": "Ulaanbaatar",
-      "district": "Khan-Uul",
+      "city": "Улаанбаатар",
+      "province": "Улаанбаатар",
+      "district": "Хан-Уул",
       "contact": {
         "phone": "+97699142233",
         "email": "leather@expocraft.mn"
       },
       "seo": {
-        "title": "Khuree Leather House | ExpoCraft",
+        "title": "Хүрээ Арьсан Урлан | ExpoCraft",
         "description": "A small leather house cutting and stitching bags, wallets, and belts by hand."
       },
       "stats": {
@@ -481,7 +538,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Khuree Leather House",
+        "accountName": "Хүрээ Арьсан Урлан",
         "accountLast4": "2029"
       },
       "createdAt": "2026-08-09T08:35:13.591Z",
@@ -492,22 +549,22 @@
       "sellerId": "usr_fd52cf0180fa0ed0",
       "status": "verified",
       "slug": "deel-atelier",
-      "displayName": "Deel Atelier",
+      "displayName": "Дээл Урлах Ателье",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Дээл, хантааз, торгон эдлэлийг захиалгаар урладаг ателье.",
         "en": "A made-to-order atelier for deels, vests, and silk pieces."
       },
-      "city": "Ulaanbaatar",
-      "province": "Ulaanbaatar",
-      "district": "Chingeltei",
+      "city": "Улаанбаатар",
+      "province": "Улаанбаатар",
+      "district": "Чингэлтэй",
       "contact": {
         "phone": "+97699152233",
         "email": "deel@expocraft.mn"
       },
       "seo": {
-        "title": "Deel Atelier | ExpoCraft",
+        "title": "Дээл Урлах Ателье | ExpoCraft",
         "description": "A made-to-order atelier for deels, vests, and silk pieces."
       },
       "stats": {
@@ -535,7 +592,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Deel Atelier",
+        "accountName": "Дээл Урлах Ателье",
         "accountLast4": "2030"
       },
       "createdAt": "2026-08-09T08:35:13.622Z",
@@ -546,22 +603,22 @@
       "sellerId": "usr_241a7301e931f61b",
       "status": "verified",
       "slug": "gobi-textile-studio",
-      "displayName": "Gobi Textile Studio",
+      "displayName": "Говийн Нэхмэл Урлан",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Ноос, даавуун гэр ахуйн эдлэлийг зөөлөн өнгө, уламжлалт хээгээр хийдэг.",
         "en": "A textile studio using wool, fabric, soft colors, and heritage patterns."
       },
-      "city": "Umnugovi",
-      "province": "Umnugovi",
-      "district": "Dalanzadgad",
+      "city": "Өмнөговь",
+      "province": "Өмнөговь",
+      "district": "Даланзадгад",
       "contact": {
         "phone": "+97699162233",
         "email": "textile@expocraft.mn"
       },
       "seo": {
-        "title": "Gobi Textile Studio | ExpoCraft",
+        "title": "Говийн Нэхмэл Урлан | ExpoCraft",
         "description": "A textile studio using wool, fabric, soft colors, and heritage patterns."
       },
       "stats": {
@@ -589,7 +646,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Gobi Textile Studio",
+        "accountName": "Говийн Нэхмэл Урлан",
         "accountLast4": "2031"
       },
       "createdAt": "2026-08-09T08:35:13.654Z",
@@ -600,22 +657,22 @@
       "sellerId": "usr_38cf298f681d9c78",
       "status": "verified",
       "slug": "khangai-brush",
-      "displayName": "Khangai Brush",
+      "displayName": "Хангайн Бийр Урлан",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Монгол байгаль, нүүдлийн ахуйг жижиг уран зурагт буулгадаг.",
         "en": "A painting studio capturing Mongolian nature and nomadic life."
       },
-      "city": "Arkhangai",
-      "province": "Arkhangai",
-      "district": "Tsetserleg",
+      "city": "Архангай",
+      "province": "Архангай",
+      "district": "Цэцэрлэг",
       "contact": {
         "phone": "+97699172233",
         "email": "paint@expocraft.mn"
       },
       "seo": {
-        "title": "Khangai Brush | ExpoCraft",
+        "title": "Хангайн Бийр Урлан | ExpoCraft",
         "description": "A painting studio capturing Mongolian nature and nomadic life."
       },
       "stats": {
@@ -643,7 +700,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Khangai Brush",
+        "accountName": "Хангайн Бийр Урлан",
         "accountLast4": "2032"
       },
       "createdAt": "2026-08-09T08:35:13.687Z",
@@ -654,22 +711,22 @@
       "sellerId": "usr_98b12b1d4249a36a",
       "status": "verified",
       "slug": "tsagaan-bone-craft",
-      "displayName": "Tsagaan Bone Craft",
+      "displayName": "Цагаан Ясан Сийлбэр",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Ясан болон эвэр эдлэлийг уламжлалт хэлбэрээр сийлдэг.",
         "en": "A bone and horn craft studio carving traditional forms."
       },
-      "city": "Khuvsgul",
-      "province": "Khuvsgul",
-      "district": "Murun",
+      "city": "Хөвсгөл",
+      "province": "Хөвсгөл",
+      "district": "Мөрөн",
       "contact": {
         "phone": "+97699182233",
         "email": "bone@expocraft.mn"
       },
       "seo": {
-        "title": "Tsagaan Bone Craft | ExpoCraft",
+        "title": "Цагаан Ясан Сийлбэр | ExpoCraft",
         "description": "A bone and horn craft studio carving traditional forms."
       },
       "stats": {
@@ -697,7 +754,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Tsagaan Bone Craft",
+        "accountName": "Цагаан Ясан Сийлбэр",
         "accountLast4": "2033"
       },
       "createdAt": "2026-08-09T08:35:13.722Z",
@@ -708,22 +765,22 @@
       "sellerId": "usr_f6844e787ea9ca6f",
       "status": "verified",
       "slug": "blue-flame-ceramics",
-      "displayName": "Blue Flame Ceramics",
+      "displayName": "Хөх Дөл Керамик",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Гараар хэвлэж шатаасан аяга, ваар, гоёлын жижиг эдлэл хийдэг.",
         "en": "A ceramic studio shaping and firing cups, vases, and decor by hand."
       },
-      "city": "Ulaanbaatar",
-      "province": "Ulaanbaatar",
-      "district": "Bayanzurkh",
+      "city": "Улаанбаатар",
+      "province": "Улаанбаатар",
+      "district": "Баянзүрх",
       "contact": {
         "phone": "+97699192233",
         "email": "ceramic@expocraft.mn"
       },
       "seo": {
-        "title": "Blue Flame Ceramics | ExpoCraft",
+        "title": "Хөх Дөл Керамик | ExpoCraft",
         "description": "A ceramic studio shaping and firing cups, vases, and decor by hand."
       },
       "stats": {
@@ -750,7 +807,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Blue Flame Ceramics",
+        "accountName": "Хөх Дөл Керамик",
         "accountLast4": "2034"
       },
       "createdAt": "2026-08-09T08:35:13.755Z",
@@ -761,22 +818,22 @@
       "sellerId": "usr_ff7a4a588066e9d0",
       "status": "verified",
       "slug": "little-nomad-toys",
-      "displayName": "Little Nomad Toys",
+      "displayName": "Бяцхан Нүүдэлчин Тоглоом",
       "logoUrl": null,
       "bannerUrl": null,
       "story": {
         "mn": "Хүүхдэд зориулсан эсгий тоглоом, амьтан, өлгөөтэй чимэглэл хийдэг.",
         "en": "A felt toy studio creating child-friendly toys and hanging ornaments."
       },
-      "city": "Ulaanbaatar",
-      "province": "Ulaanbaatar",
-      "district": "Songinokhairkhan",
+      "city": "Улаанбаатар",
+      "province": "Улаанбаатар",
+      "district": "Сонгинохайрхан",
       "contact": {
         "phone": "+97699202233",
         "email": "felttoy@expocraft.mn"
       },
       "seo": {
-        "title": "Little Nomad Toys | ExpoCraft",
+        "title": "Бяцхан Нүүдэлчин Тоглоом | ExpoCraft",
         "description": "A felt toy studio creating child-friendly toys and hanging ornaments."
       },
       "stats": {
@@ -804,7 +861,7 @@
       "processMedia": [],
       "payout": {
         "method": "bank",
-        "accountName": "Little Nomad Toys",
+        "accountName": "Бяцхан Нүүдэлчин Тоглоом",
         "accountLast4": "2035"
       },
       "createdAt": "2026-08-09T08:35:13.788Z",
@@ -869,8 +926,8 @@
         "en": "Felt ger ornament"
       },
       "story": {
-        "mn": "Nomad Felt Studio урлангийн wool, felt материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Nomad Felt Studio using wool, felt."
+        "mn": "Нүүдэл Эсгий Урлан урлангийн wool, felt материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Нүүдэл Эсгий Урлан using wool, felt."
       },
       "materials": [
         "wool",
@@ -884,7 +941,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_46457192754b.png"
+        "/uploads/product_felt_ger_ornament.jpeg"
       ],
       "price": {
         "amount": 45000,
@@ -922,7 +979,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.002Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -952,8 +1009,8 @@
         "en": "Felt wall hanging"
       },
       "story": {
-        "mn": "Nomad Felt Studio урлангийн wool, felt материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Nomad Felt Studio using wool, felt."
+        "mn": "Нүүдэл Эсгий Урлан урлангийн wool, felt материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Нүүдэл Эсгий Урлан using wool, felt."
       },
       "materials": [
         "wool",
@@ -967,7 +1024,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_8cb555060fa1.png"
+        "/uploads/product_felt_wall_hanging.avif"
       ],
       "price": {
         "amount": 78000,
@@ -1005,7 +1062,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1035,8 +1092,8 @@
         "en": "Personalized felt keychain"
       },
       "story": {
-        "mn": "Nomad Felt Studio урлангийн felt, thread материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Nomad Felt Studio using felt, thread."
+        "mn": "Нүүдэл Эсгий Урлан урлангийн felt, thread материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Нүүдэл Эсгий Урлан using felt, thread."
       },
       "materials": [
         "felt",
@@ -1050,7 +1107,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_dfc8156b268e.png"
+        "/uploads/product_personalized_felt_keychain.jpeg"
       ],
       "price": {
         "amount": 22000,
@@ -1092,7 +1149,7 @@
         "name"
       ],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1122,8 +1179,8 @@
         "en": "Carved wooden box"
       },
       "story": {
-        "mn": "Steppe Woodcraft урлангийн wood материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Steppe Woodcraft using wood."
+        "mn": "Талын Модон Урлал урлангийн wood материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Талын Модон Урлал using wood."
       },
       "materials": [
         "wood"
@@ -1136,7 +1193,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_857959bff867.png"
+        "/uploads/product_carved_wooden_box.avif"
       ],
       "price": {
         "amount": 145000,
@@ -1174,7 +1231,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1204,8 +1261,8 @@
         "en": "Handmade chess board"
       },
       "story": {
-        "mn": "Steppe Woodcraft урлангийн wood материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Steppe Woodcraft using wood."
+        "mn": "Талын Модон Урлал урлангийн wood материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Талын Модон Урлал using wood."
       },
       "materials": [
         "wood"
@@ -1218,7 +1275,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_da01f16c468e.png"
+        "/uploads/product_handmade_chess_board.avif"
       ],
       "price": {
         "amount": 320000,
@@ -1256,7 +1313,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1286,8 +1343,8 @@
         "en": "Mini morin khuur stand"
       },
       "story": {
-        "mn": "Steppe Woodcraft урлангийн wood материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Steppe Woodcraft using wood."
+        "mn": "Талын Модон Урлал урлангийн wood материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Талын Модон Урлал using wood."
       },
       "materials": [
         "wood"
@@ -1300,7 +1357,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_a8a453019cd5.png"
+        "/uploads/product_mini_morin_khuur_stand.webp"
       ],
       "price": {
         "amount": 68000,
@@ -1338,7 +1395,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1368,8 +1425,8 @@
         "en": "Silver ring with turquoise"
       },
       "story": {
-        "mn": "Altan Silver Line урлангийн silver, turquoise материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Altan Silver Line using silver, turquoise."
+        "mn": "Алтан Мөнгөн Урлан урлангийн silver, turquoise материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Алтан Мөнгөн Урлан using silver, turquoise."
       },
       "materials": [
         "silver",
@@ -1383,7 +1440,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_93098b030af9.png"
+        "/uploads/product_silver_ring.webp"
       ],
       "price": {
         "amount": 185000,
@@ -1421,7 +1478,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1451,8 +1508,8 @@
         "en": "Silver bracelet"
       },
       "story": {
-        "mn": "Altan Silver Line урлангийн silver материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Altan Silver Line using silver."
+        "mn": "Алтан Мөнгөн Урлан урлангийн silver материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Алтан Мөнгөн Урлан using silver."
       },
       "materials": [
         "silver"
@@ -1465,7 +1522,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_bfb2ae39f22d.png"
+        "/uploads/product_silver_bracelet.webp"
       ],
       "price": {
         "amount": 260000,
@@ -1503,7 +1560,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1533,8 +1590,8 @@
         "en": "Coral earrings"
       },
       "story": {
-        "mn": "Altan Silver Line урлангийн silver, coral материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Altan Silver Line using silver, coral."
+        "mn": "Алтан Мөнгөн Урлан урлангийн silver, coral материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Алтан Мөнгөн Урлан using silver, coral."
       },
       "materials": [
         "silver",
@@ -1548,7 +1605,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_28b8eb5c8dcd.png"
+        "/uploads/product_coral_earrings.jpeg"
       ],
       "price": {
         "amount": 98000,
@@ -1586,7 +1643,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1616,8 +1673,8 @@
         "en": "Leather handbag"
       },
       "story": {
-        "mn": "Khuree Leather House урлангийн leather материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Khuree Leather House using leather."
+        "mn": "Хүрээ Арьсан Урлан урлангийн leather материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Хүрээ Арьсан Урлан using leather."
       },
       "materials": [
         "leather"
@@ -1630,7 +1687,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_735bc465895c.png"
+        "/uploads/product_leather_handbag.webp"
       ],
       "price": {
         "amount": 285000,
@@ -1672,7 +1729,7 @@
         "name"
       ],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1702,8 +1759,8 @@
         "en": "Patterned wallet"
       },
       "story": {
-        "mn": "Khuree Leather House урлангийн leather материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Khuree Leather House using leather."
+        "mn": "Хүрээ Арьсан Урлан урлангийн leather материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Хүрээ Арьсан Урлан using leather."
       },
       "materials": [
         "leather"
@@ -1716,7 +1773,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_b0d07c615bcb.png"
+        "/uploads/product_patterned_wallet.jpg"
       ],
       "price": {
         "amount": 72000,
@@ -1754,7 +1811,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1784,8 +1841,8 @@
         "en": "Handmade belt"
       },
       "story": {
-        "mn": "Khuree Leather House урлангийн leather материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Khuree Leather House using leather."
+        "mn": "Хүрээ Арьсан Урлан урлангийн leather материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Хүрээ Арьсан Урлан using leather."
       },
       "materials": [
         "leather"
@@ -1798,7 +1855,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_630eb2df01d5.png"
+        "/uploads/product_handmade_belt.webp"
       ],
       "price": {
         "amount": 89000,
@@ -1840,7 +1897,7 @@
         "name"
       ],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1870,8 +1927,8 @@
         "en": "Silk deel"
       },
       "story": {
-        "mn": "Deel Atelier урлангийн silk, textile материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Deel Atelier using silk, textile."
+        "mn": "Дээл Урлах Ателье урлангийн silk, textile материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Дээл Урлах Ателье using silk, textile."
       },
       "materials": [
         "silk",
@@ -1885,7 +1942,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_39fca2a062f3.png"
+        "/uploads/product_silk_deel.jpg"
       ],
       "price": {
         "amount": 650000,
@@ -1927,7 +1984,7 @@
         "name"
       ],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -1957,8 +2014,8 @@
         "en": "Traditional vest"
       },
       "story": {
-        "mn": "Deel Atelier урлангийн textile материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Deel Atelier using textile."
+        "mn": "Дээл Урлах Ателье урлангийн textile материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Дээл Урлах Ателье using textile."
       },
       "materials": [
         "textile"
@@ -1971,7 +2028,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_1c51562a97bb.png"
+        "/uploads/product_traditional_vest.jpg"
       ],
       "price": {
         "amount": 240000,
@@ -2013,7 +2070,7 @@
         "name"
       ],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2043,8 +2100,8 @@
         "en": "Silk scarf"
       },
       "story": {
-        "mn": "Deel Atelier урлангийн silk материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Deel Atelier using silk."
+        "mn": "Дээл Урлах Ателье урлангийн silk материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Дээл Урлах Ателье using silk."
       },
       "materials": [
         "silk"
@@ -2057,7 +2114,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_622ab372e00d.png"
+        "/uploads/product_silk_scarf.avif"
       ],
       "price": {
         "amount": 58000,
@@ -2095,7 +2152,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2125,8 +2182,8 @@
         "en": "Wool table runner"
       },
       "story": {
-        "mn": "Gobi Textile Studio урлангийн wool, textile материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Gobi Textile Studio using wool, textile."
+        "mn": "Говийн Нэхмэл Урлан урлангийн wool, textile материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Говийн Нэхмэл Урлан using wool, textile."
       },
       "materials": [
         "wool",
@@ -2140,7 +2197,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_a75c94323c6d.png"
+        "/uploads/product_wool_table_runner.avif"
       ],
       "price": {
         "amount": 120000,
@@ -2178,7 +2235,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2208,8 +2265,8 @@
         "en": "Patterned cushion cover"
       },
       "story": {
-        "mn": "Gobi Textile Studio урлангийн textile материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Gobi Textile Studio using textile."
+        "mn": "Говийн Нэхмэл Урлан урлангийн textile материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Говийн Нэхмэл Урлан using textile."
       },
       "materials": [
         "textile"
@@ -2222,7 +2279,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_4e2537314903.png"
+        "/uploads/product_patterned_cushion_cover.webp"
       ],
       "price": {
         "amount": 46000,
@@ -2260,7 +2317,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2290,8 +2347,8 @@
         "en": "Khangai miniature painting"
       },
       "story": {
-        "mn": "Khangai Brush урлангийн canvas, paint материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Khangai Brush using canvas, paint."
+        "mn": "Хангайн Бийр Урлан урлангийн canvas, paint материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Хангайн Бийр Урлан using canvas, paint."
       },
       "materials": [
         "canvas",
@@ -2305,7 +2362,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_2dfbce22c7d1.png"
+        "/uploads/product_khangai_miniature_painting.jpg"
       ],
       "price": {
         "amount": 135000,
@@ -2343,7 +2400,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2373,8 +2430,8 @@
         "en": "Nomadic family painting"
       },
       "story": {
-        "mn": "Khangai Brush урлангийн canvas, paint материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Khangai Brush using canvas, paint."
+        "mn": "Хангайн Бийр Урлан урлангийн canvas, paint материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Хангайн Бийр Урлан using canvas, paint."
       },
       "materials": [
         "canvas",
@@ -2388,7 +2445,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_aa083edc252b.png"
+        "/uploads/product_nomadic_family_painting.jpeg"
       ],
       "price": {
         "amount": 220000,
@@ -2426,7 +2483,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2456,8 +2513,8 @@
         "en": "Bone snuff bottle spoon"
       },
       "story": {
-        "mn": "Tsagaan Bone Craft урлангийн bone материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Tsagaan Bone Craft using bone."
+        "mn": "Цагаан Ясан Сийлбэр урлангийн bone материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Цагаан Ясан Сийлбэр using bone."
       },
       "materials": [
         "bone"
@@ -2470,7 +2527,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_f3a7b8859c79.png"
+        "/uploads/product_bone_snuff_bottle_spoon.jpg"
       ],
       "price": {
         "amount": 52000,
@@ -2508,7 +2565,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2538,8 +2595,8 @@
         "en": "Horn carved comb"
       },
       "story": {
-        "mn": "Tsagaan Bone Craft урлангийн horn материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Tsagaan Bone Craft using horn."
+        "mn": "Цагаан Ясан Сийлбэр урлангийн horn материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Цагаан Ясан Сийлбэр using horn."
       },
       "materials": [
         "horn"
@@ -2552,7 +2609,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_6860fb543db2.png"
+        "/uploads/product_horn_carved_comb.jpeg"
       ],
       "price": {
         "amount": 64000,
@@ -2590,7 +2647,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2620,8 +2677,8 @@
         "en": "Handmade ceramic cup"
       },
       "story": {
-        "mn": "Blue Flame Ceramics урлангийн ceramic материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Blue Flame Ceramics using ceramic."
+        "mn": "Хөх Дөл Керамик урлангийн ceramic материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Хөх Дөл Керамик using ceramic."
       },
       "materials": [
         "ceramic"
@@ -2634,7 +2691,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_0ad3a2e8ed1d.png"
+        "/uploads/product_handmade_ceramic_cup.jpg"
       ],
       "price": {
         "amount": 38000,
@@ -2672,7 +2729,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2702,8 +2759,8 @@
         "en": "Blue glazed vase"
       },
       "story": {
-        "mn": "Blue Flame Ceramics урлангийн ceramic материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Blue Flame Ceramics using ceramic."
+        "mn": "Хөх Дөл Керамик урлангийн ceramic материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Хөх Дөл Керамик using ceramic."
       },
       "materials": [
         "ceramic"
@@ -2716,7 +2773,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_74dfccd038e4.png"
+        "/uploads/product_blue_glazed_vase.jpg"
       ],
       "price": {
         "amount": 92000,
@@ -2754,7 +2811,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2784,8 +2841,8 @@
         "en": "Felt camel toy"
       },
       "story": {
-        "mn": "Little Nomad Toys урлангийн felt, wool материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Little Nomad Toys using felt, wool."
+        "mn": "Бяцхан Нүүдэлчин Тоглоом урлангийн felt, wool материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Бяцхан Нүүдэлчин Тоглоом using felt, wool."
       },
       "materials": [
         "felt",
@@ -2799,7 +2856,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_4f41adcc7263.png"
+        "/uploads/product_felt_camel_toy.jpeg"
       ],
       "price": {
         "amount": 39000,
@@ -2837,7 +2894,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2867,8 +2924,8 @@
         "en": "Hanging felt star"
       },
       "story": {
-        "mn": "Little Nomad Toys урлангийн felt материалаар хийсэн гар урлалын бүтээл.",
-        "en": "A handmade piece from Little Nomad Toys using felt."
+        "mn": "Бяцхан Нүүдэлчин Тоглоом урлангийн felt материалаар хийсэн гар урлалын бүтээл.",
+        "en": "A handmade piece from Бяцхан Нүүдэлчин Тоглоом using felt."
       },
       "materials": [
         "felt"
@@ -2881,7 +2938,7 @@
         "souvenir"
       ],
       "images": [
-        "/uploads/img_seed_74627b5c6ceb.png"
+        "/uploads/product_hanging_felt_star.jpeg"
       ],
       "price": {
         "amount": 18000,
@@ -2919,7 +2976,7 @@
       "customEnabled": false,
       "customOptions": [],
       "createdAt": "2026-08-09T08:35:13.788Z",
-      "updatedAt": "2026-08-09T08:35:13.788Z",
+      "updatedAt": "2026-08-10T02:43:18.003Z",
       "techniqueDescription": {},
       "processMedia": [],
       "size": {
@@ -2937,9 +2994,240 @@
   ],
   "favorites": [],
   "follows": [],
-  "carts": [],
-  "orders": [],
-  "orderItems": [],
+  "carts": [
+    {
+      "id": "cart_4aa7a117e473c5de",
+      "buyerId": "usr_98af2ba0f073b096",
+      "items": [],
+      "updatedAt": "2026-08-09T10:18:28.023Z"
+    },
+    {
+      "id": "cart_12ad0cc6ab21cd7a",
+      "buyerId": "usr_cfa11b55c54f17bd",
+      "items": [],
+      "updatedAt": "2026-08-09T11:27:23.621Z"
+    },
+    {
+      "id": "cart_a36388e7ddaac045",
+      "buyerId": "usr_664d957affaa7df5",
+      "items": [],
+      "updatedAt": "2026-08-10T02:39:42.649Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ord_ab6dbd74ea8ab3fe",
+      "buyerId": "usr_98af2ba0f073b096",
+      "status": "paid",
+      "currency": "MNT",
+      "payment": {
+        "method": "qpay",
+        "status": "captured",
+        "providerRef": "qpay_f72f92fa14c1b484",
+        "capturedAt": "2026-08-09T10:18:28.022Z"
+      },
+      "escrowStatus": "held",
+      "lifecycle": [
+        "paid"
+      ],
+      "shippingAddress": {
+        "name": "saraa",
+        "phone": "11111",
+        "country": "MN",
+        "city": "Улаанбаатар",
+        "line1": "ff",
+        "zip": "1"
+      },
+      "destinationCountry": "MN",
+      "sellerGroups": [
+        {
+          "sellerId": "usr_440cb55ec7c32d0c",
+          "shopId": "shop_d26b9e4d50f29cf0",
+          "status": "paid",
+          "shippingOption": {
+            "code": "domestic_city",
+            "label": "Хот дотор хүргэлт"
+          },
+          "itemIds": [
+            "oi_6d43259d27e69971"
+          ],
+          "subtotal": {
+            "amount": 285000,
+            "currency": "MNT"
+          },
+          "commission": {
+            "amount": 34200,
+            "currency": "MNT"
+          },
+          "sellerReceivable": {
+            "amount": 250800,
+            "currency": "MNT"
+          }
+        }
+      ],
+      "subtotal": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "commissionTotal": {
+        "amount": 34200,
+        "currency": "MNT"
+      },
+      "sellerTotal": {
+        "amount": 250800,
+        "currency": "MNT"
+      },
+      "createdAt": "2026-08-09T10:18:28.022Z"
+    },
+    {
+      "id": "ord_c62714e83621062e",
+      "buyerId": "usr_664d957affaa7df5",
+      "status": "paid",
+      "currency": "MNT",
+      "payment": {
+        "method": "qpay",
+        "status": "captured",
+        "providerRef": "qpay_8b878e5d5e980f29",
+        "capturedAt": "2026-08-10T02:39:42.649Z"
+      },
+      "escrowStatus": "held",
+      "lifecycle": [
+        "paid"
+      ],
+      "shippingAddress": {
+        "name": "saraa",
+        "phone": "90059630",
+        "country": "MN",
+        "city": "Улаанбаатар",
+        "line1": "Indra cyber institute",
+        "zip": "0000"
+      },
+      "destinationCountry": "MN",
+      "sellerGroups": [
+        {
+          "sellerId": "usr_440cb55ec7c32d0c",
+          "shopId": "shop_d26b9e4d50f29cf0",
+          "status": "paid",
+          "shippingOption": {
+            "code": "domestic_city",
+            "label": "Хот дотор хүргэлт"
+          },
+          "itemIds": [
+            "oi_e0024215e13f9fa0"
+          ],
+          "subtotal": {
+            "amount": 285000,
+            "currency": "MNT"
+          },
+          "commission": {
+            "amount": 34200,
+            "currency": "MNT"
+          },
+          "sellerReceivable": {
+            "amount": 250800,
+            "currency": "MNT"
+          }
+        }
+      ],
+      "subtotal": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "commissionTotal": {
+        "amount": 34200,
+        "currency": "MNT"
+      },
+      "sellerTotal": {
+        "amount": 250800,
+        "currency": "MNT"
+      },
+      "createdAt": "2026-08-10T02:39:42.649Z"
+    }
+  ],
+  "orderItems": [
+    {
+      "id": "oi_6d43259d27e69971",
+      "orderId": "ord_ab6dbd74ea8ab3fe",
+      "sellerId": "usr_440cb55ec7c32d0c",
+      "shopId": "shop_d26b9e4d50f29cf0",
+      "productId": "prd_4eab735bc465895c",
+      "customRequestId": null,
+      "quantity": 1,
+      "orderType": "made_to_order",
+      "productionDays": 10,
+      "shippingOption": {
+        "code": "domestic_city",
+        "label": "Хот дотор хүргэлт"
+      },
+      "customization": null,
+      "unitPrice": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "lineTotal": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "commission": {
+        "amount": 34200,
+        "currency": "MNT"
+      },
+      "sellerReceivable": {
+        "amount": 250800,
+        "currency": "MNT"
+      },
+      "escrowStatus": "held",
+      "escrowHeldAt": "2026-08-09T10:18:28.022Z",
+      "escrowReleasedAt": null,
+      "status": "paid",
+      "progressUpdates": [],
+      "payoutId": null,
+      "createdAt": "2026-08-09T10:18:28.022Z",
+      "updatedAt": "2026-08-09T10:18:28.022Z",
+      "reviewIds": []
+    },
+    {
+      "id": "oi_e0024215e13f9fa0",
+      "orderId": "ord_c62714e83621062e",
+      "sellerId": "usr_440cb55ec7c32d0c",
+      "shopId": "shop_d26b9e4d50f29cf0",
+      "productId": "prd_4eab735bc465895c",
+      "customRequestId": null,
+      "quantity": 1,
+      "orderType": "made_to_order",
+      "productionDays": 10,
+      "shippingOption": {
+        "code": "domestic_city",
+        "label": "Хот дотор хүргэлт"
+      },
+      "customization": null,
+      "unitPrice": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "lineTotal": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "commission": {
+        "amount": 34200,
+        "currency": "MNT"
+      },
+      "sellerReceivable": {
+        "amount": 250800,
+        "currency": "MNT"
+      },
+      "escrowStatus": "held",
+      "escrowHeldAt": "2026-08-10T02:39:42.649Z",
+      "escrowReleasedAt": null,
+      "status": "paid",
+      "progressUpdates": [],
+      "payoutId": null,
+      "createdAt": "2026-08-10T02:39:42.649Z",
+      "updatedAt": "2026-08-10T02:39:42.649Z",
+      "reviewIds": []
+    }
+  ],
   "customRequests": [],
   "conversations": [],
   "reviews": [],
@@ -3711,11 +3999,375 @@
     }
   ],
   "learningResources": [],
-  "refreshTokens": [],
-  "emailVerificationTokens": [],
+  "refreshTokens": [
+    {
+      "id": "rt_a89ef269bcb7316e",
+      "userId": "usr_98af2ba0f073b096",
+      "tokenHash": "dd30f95608474a7cf2da01d9108d89b4b5cf15e61f280bfa05cff8eb3a974ed2",
+      "replacedTokenId": null,
+      "revokedAt": "2026-08-09T11:20:31.774Z",
+      "createdAt": "2026-08-09T10:18:16.347Z",
+      "expiresAt": "2026-09-08T10:18:16.347Z"
+    },
+    {
+      "id": "rt_8410db615fe3c0d6",
+      "userId": "usr_98af2ba0f073b096",
+      "tokenHash": "b2342aa9649e1cce7cfa2f7bb4970f31d34367c2f8f3300ddcd01a07743c7211",
+      "replacedTokenId": "rt_a89ef269bcb7316e",
+      "revokedAt": "2026-08-09T11:22:24.777Z",
+      "createdAt": "2026-08-09T11:20:31.774Z",
+      "expiresAt": "2026-09-08T11:20:31.774Z"
+    },
+    {
+      "id": "rt_c54ef3827c354839",
+      "userId": "usr_cfa11b55c54f17bd",
+      "tokenHash": "0514d1a142f53a6feb1159c08d7c32b61e6534dfbee6a029d5d025ed894bce93",
+      "replacedTokenId": null,
+      "revokedAt": "2026-08-09T11:27:29.304Z",
+      "createdAt": "2026-08-09T11:27:23.613Z",
+      "expiresAt": "2026-09-08T11:27:23.613Z"
+    },
+    {
+      "id": "rt_2ea3a8f34ca4ed3d",
+      "userId": "usr_cfa11b55c54f17bd",
+      "tokenHash": "4fa7cd72dfe39d2c08ced3d207fc645f8280cc49bcd6ba9e311c4b03a5415bd4",
+      "replacedTokenId": null,
+      "revokedAt": "2026-08-09T11:27:49.306Z",
+      "createdAt": "2026-08-09T11:27:44.030Z",
+      "expiresAt": "2026-09-08T11:27:44.030Z"
+    },
+    {
+      "id": "rt_40e5aed1f83cb7f9",
+      "userId": "usr_cfa11b55c54f17bd",
+      "tokenHash": "e64b30d7667bac3a8c6100f54a82a93474f636150c2af3907701f5a6bfb6d287",
+      "replacedTokenId": null,
+      "revokedAt": "2026-08-09T11:38:54.998Z",
+      "createdAt": "2026-08-09T11:28:10.283Z",
+      "expiresAt": "2026-09-08T11:28:10.283Z"
+    },
+    {
+      "id": "rt_018b313dc5b7a512",
+      "userId": "usr_664d957affaa7df5",
+      "tokenHash": "b7015495428bd871d062f7712e802ab9088d718c97405dac14fe511c1b2a47b5",
+      "replacedTokenId": null,
+      "revokedAt": "2026-08-10T02:39:52.669Z",
+      "createdAt": "2026-08-10T02:39:10.156Z",
+      "expiresAt": "2026-09-09T02:39:10.156Z"
+    },
+    {
+      "id": "rt_f035626526bc6ff1",
+      "userId": "usr_acf903f0e1f52b36",
+      "tokenHash": "9924f5442da8a78f0804b4eb72f8caa597bcc36439df2768047c776a829756e3",
+      "replacedTokenId": null,
+      "revokedAt": "2026-08-10T02:42:16.366Z",
+      "createdAt": "2026-08-10T02:40:09.930Z",
+      "expiresAt": "2026-09-09T02:40:09.930Z"
+    }
+  ],
+  "emailVerificationTokens": [
+    {
+      "id": "evt_81fce5bdc750b378",
+      "userId": "usr_98af2ba0f073b096",
+      "token": "VAX1t51SRKhmZcGElRwQ8eMFyC_fMEi0",
+      "createdAt": "2026-08-09T10:18:16.347Z",
+      "expiresAt": "2026-08-10T10:18:16.347Z",
+      "usedAt": null
+    },
+    {
+      "id": "evt_b9a1244d458adeb9",
+      "userId": "usr_cfa11b55c54f17bd",
+      "token": "__DbD-gellottNjDIqxjHxCPWiiJVHM3",
+      "createdAt": "2026-08-09T11:27:23.612Z",
+      "expiresAt": "2026-08-10T11:27:23.612Z",
+      "usedAt": null
+    },
+    {
+      "id": "evt_accf014049ccbee7",
+      "userId": "usr_664d957affaa7df5",
+      "token": "WTj5N2ETLvf_rxvFYVQTavHxxY79XVPG",
+      "createdAt": "2026-08-10T02:39:10.155Z",
+      "expiresAt": "2026-08-11T02:39:10.155Z",
+      "usedAt": null
+    }
+  ],
   "passwordResetTokens": [],
-  "escrowLedger": [],
+  "escrowLedger": [
+    {
+      "id": "esc_beb4c691d05815c4",
+      "orderId": "ord_ab6dbd74ea8ab3fe",
+      "orderItemId": "oi_6d43259d27e69971",
+      "sellerId": "usr_440cb55ec7c32d0c",
+      "type": "capture_qpay_payment",
+      "amount": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "currency": "MNT",
+      "note": "qpay payment captured by platform.",
+      "createdAt": "2026-08-09T10:18:28.023Z"
+    },
+    {
+      "id": "esc_8ad1eafeca8e8721",
+      "orderId": "ord_ab6dbd74ea8ab3fe",
+      "orderItemId": "oi_6d43259d27e69971",
+      "sellerId": "usr_440cb55ec7c32d0c",
+      "type": "hold_buyer_payment",
+      "amount": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "currency": "MNT",
+      "note": "Buyer payment captured and held by platform escrow.",
+      "createdAt": "2026-08-09T10:18:28.023Z"
+    },
+    {
+      "id": "esc_d7c5f84cba0a9da0",
+      "orderId": "ord_ab6dbd74ea8ab3fe",
+      "orderItemId": "oi_6d43259d27e69971",
+      "sellerId": "usr_440cb55ec7c32d0c",
+      "type": "reserve_platform_commission",
+      "amount": {
+        "amount": 34200,
+        "currency": "MNT"
+      },
+      "currency": "MNT",
+      "note": "Commission reserved from held funds.",
+      "createdAt": "2026-08-09T10:18:28.023Z"
+    },
+    {
+      "id": "esc_96bd2ced7532f68a",
+      "orderId": "ord_c62714e83621062e",
+      "orderItemId": "oi_e0024215e13f9fa0",
+      "sellerId": "usr_440cb55ec7c32d0c",
+      "type": "capture_qpay_payment",
+      "amount": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "currency": "MNT",
+      "note": "qpay payment captured by platform.",
+      "createdAt": "2026-08-10T02:39:42.649Z"
+    },
+    {
+      "id": "esc_b93cc064de2e71be",
+      "orderId": "ord_c62714e83621062e",
+      "orderItemId": "oi_e0024215e13f9fa0",
+      "sellerId": "usr_440cb55ec7c32d0c",
+      "type": "hold_buyer_payment",
+      "amount": {
+        "amount": 285000,
+        "currency": "MNT"
+      },
+      "currency": "MNT",
+      "note": "Buyer payment captured and held by platform escrow.",
+      "createdAt": "2026-08-10T02:39:42.649Z"
+    },
+    {
+      "id": "esc_28c1936af186c381",
+      "orderId": "ord_c62714e83621062e",
+      "orderItemId": "oi_e0024215e13f9fa0",
+      "sellerId": "usr_440cb55ec7c32d0c",
+      "type": "reserve_platform_commission",
+      "amount": {
+        "amount": 34200,
+        "currency": "MNT"
+      },
+      "currency": "MNT",
+      "note": "Commission reserved from held funds.",
+      "createdAt": "2026-08-10T02:39:42.649Z"
+    }
+  ],
   "payouts": [],
   "reconciliationSnapshots": [],
-  "auditLogs": []
+  "auditLogs": [
+    {
+      "id": "log_39876e7da117984e",
+      "actorId": "usr_98af2ba0f073b096",
+      "action": "register",
+      "entityType": "user",
+      "entityId": "usr_98af2ba0f073b096",
+      "metadata": {},
+      "createdAt": "2026-08-09T10:18:16.347Z"
+    },
+    {
+      "id": "log_fd7efac06e65e291",
+      "actorId": null,
+      "action": "view_product",
+      "entityType": "product",
+      "entityId": "prd_4eab735bc465895c",
+      "metadata": {
+        "locale": "mn",
+        "currency": "MNT"
+      },
+      "createdAt": "2026-08-09T10:18:19.827Z"
+    },
+    {
+      "id": "log_af2e4d8ac6eece97",
+      "actorId": "usr_98af2ba0f073b096",
+      "action": "add_cart_item",
+      "entityType": "cart",
+      "entityId": "cart_4aa7a117e473c5de",
+      "metadata": {
+        "productId": "prd_4eab735bc465895c",
+        "quantity": 1
+      },
+      "createdAt": "2026-08-09T10:18:21.774Z"
+    },
+    {
+      "id": "log_833c610093e0ae5f",
+      "actorId": "usr_98af2ba0f073b096",
+      "action": "checkout",
+      "entityType": "order",
+      "entityId": "ord_ab6dbd74ea8ab3fe",
+      "metadata": {
+        "itemCount": 1
+      },
+      "createdAt": "2026-08-09T10:18:28.023Z"
+    },
+    {
+      "id": "log_d399c3f7aae0ebb8",
+      "actorId": "usr_98af2ba0f073b096",
+      "action": "refresh_token_rotate",
+      "entityType": "refresh_token",
+      "entityId": "rt_a89ef269bcb7316e",
+      "metadata": {
+        "nextTokenId": "rt_8410db615fe3c0d6"
+      },
+      "createdAt": "2026-08-09T11:20:31.778Z"
+    },
+    {
+      "id": "log_51ce6bf777f04416",
+      "actorId": "usr_98af2ba0f073b096",
+      "action": "refresh_token_revoke",
+      "entityType": "refresh_token",
+      "entityId": "rt_8410db615fe3c0d6",
+      "metadata": {},
+      "createdAt": "2026-08-09T11:22:24.777Z"
+    },
+    {
+      "id": "log_1d33593dbbdde2b8",
+      "actorId": "usr_cfa11b55c54f17bd",
+      "action": "register",
+      "entityType": "user",
+      "entityId": "usr_cfa11b55c54f17bd",
+      "metadata": {},
+      "createdAt": "2026-08-09T11:27:23.613Z"
+    },
+    {
+      "id": "log_5ee0d9bec81ab69d",
+      "actorId": "usr_cfa11b55c54f17bd",
+      "action": "refresh_token_revoke",
+      "entityType": "refresh_token",
+      "entityId": "rt_c54ef3827c354839",
+      "metadata": {},
+      "createdAt": "2026-08-09T11:27:29.304Z"
+    },
+    {
+      "id": "log_8aa9156282db0786",
+      "actorId": "usr_cfa11b55c54f17bd",
+      "action": "login",
+      "entityType": "user",
+      "entityId": "usr_cfa11b55c54f17bd",
+      "metadata": {},
+      "createdAt": "2026-08-09T11:27:44.030Z"
+    },
+    {
+      "id": "log_44778ee94ed6c16e",
+      "actorId": "usr_cfa11b55c54f17bd",
+      "action": "refresh_token_revoke",
+      "entityType": "refresh_token",
+      "entityId": "rt_2ea3a8f34ca4ed3d",
+      "metadata": {},
+      "createdAt": "2026-08-09T11:27:49.306Z"
+    },
+    {
+      "id": "log_27adaaa03753026a",
+      "actorId": "usr_cfa11b55c54f17bd",
+      "action": "login",
+      "entityType": "user",
+      "entityId": "usr_cfa11b55c54f17bd",
+      "metadata": {},
+      "createdAt": "2026-08-09T11:28:10.283Z"
+    },
+    {
+      "id": "log_68eb16f5cc05df5a",
+      "actorId": "usr_cfa11b55c54f17bd",
+      "action": "refresh_token_revoke",
+      "entityType": "refresh_token",
+      "entityId": "rt_40e5aed1f83cb7f9",
+      "metadata": {},
+      "createdAt": "2026-08-09T11:38:54.999Z"
+    },
+    {
+      "id": "log_3cdf899e721bd823",
+      "actorId": "usr_664d957affaa7df5",
+      "action": "register",
+      "entityType": "user",
+      "entityId": "usr_664d957affaa7df5",
+      "metadata": {},
+      "createdAt": "2026-08-10T02:39:10.156Z"
+    },
+    {
+      "id": "log_6dd3202b94738e6e",
+      "actorId": null,
+      "action": "view_product",
+      "entityType": "product",
+      "entityId": "prd_4eab735bc465895c",
+      "metadata": {
+        "locale": "mn",
+        "currency": "MNT"
+      },
+      "createdAt": "2026-08-10T02:39:16.514Z"
+    },
+    {
+      "id": "log_9504ed4e79427b00",
+      "actorId": "usr_664d957affaa7df5",
+      "action": "add_cart_item",
+      "entityType": "cart",
+      "entityId": "cart_a36388e7ddaac045",
+      "metadata": {
+        "productId": "prd_4eab735bc465895c",
+        "quantity": 1
+      },
+      "createdAt": "2026-08-10T02:39:23.617Z"
+    },
+    {
+      "id": "log_228cc25f00894aeb",
+      "actorId": "usr_664d957affaa7df5",
+      "action": "checkout",
+      "entityType": "order",
+      "entityId": "ord_c62714e83621062e",
+      "metadata": {
+        "itemCount": 1
+      },
+      "createdAt": "2026-08-10T02:39:42.649Z"
+    },
+    {
+      "id": "log_ca811e89000659dd",
+      "actorId": "usr_664d957affaa7df5",
+      "action": "refresh_token_revoke",
+      "entityType": "refresh_token",
+      "entityId": "rt_018b313dc5b7a512",
+      "metadata": {},
+      "createdAt": "2026-08-10T02:39:52.669Z"
+    },
+    {
+      "id": "log_8101063253a47d25",
+      "actorId": "usr_acf903f0e1f52b36",
+      "action": "login",
+      "entityType": "user",
+      "entityId": "usr_acf903f0e1f52b36",
+      "metadata": {},
+      "createdAt": "2026-08-10T02:40:09.930Z"
+    },
+    {
+      "id": "log_ea2b2a7b2a390b31",
+      "actorId": "usr_acf903f0e1f52b36",
+      "action": "refresh_token_revoke",
+      "entityType": "refresh_token",
+      "entityId": "rt_f035626526bc6ff1",
+      "metadata": {},
+      "createdAt": "2026-08-10T02:42:16.367Z"
+    }
+  ]
 }

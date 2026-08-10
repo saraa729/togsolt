@@ -10,7 +10,7 @@ import { classNames, initials } from "@/lib/format";
 export default function Header() {
   const { t, locale, currency, setLocale, setCurrency } = useApp();
   const { user, hasRole, logout, cartCount, ready } = useAuth();
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
   const router = useRouter();
 
   const [menuOpen, setMenuOpen] = useState(false);

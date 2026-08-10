@@ -55,16 +55,18 @@ export default function ProductDetailClient({ product }: { product: Product }) {
       });
       await refreshCart();
       setMessage({ tone: "success", text: t("product.added") });
+      return true;
     } catch (error) {
       setMessage({ tone: "error", text: errorMessage(error) });
+      return false;
     } finally {
       setBusy(false);
     }
   }
 
-  async function buyNow() {
-    await addToCart();
-    router.push("/cart");
+  async function addAndOpenCart() {
+    const added = await addToCart();
+    if (added) router.push("/cart");
   }
 
   async function toggleFavorite() {
@@ -285,8 +287,8 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                   {busy ? <Spinner /> : null}
                   {t("product.addToCart")}
                 </button>
-                <button type="button" className="btn-dark px-6" disabled={busy} onClick={buyNow}>
-                  {t("product.buyNow")}
+                <button type="button" className="btn-dark px-6" disabled={busy} onClick={addAndOpenCart}>
+                  {t("product.addAndViewCart")}
                 </button>
                 <button type="button" className="btn-secondary" onClick={toggleFavorite}>
                   {favorite ? "♥" : "♡"} {favorite ? t("product.unfavorite") : t("product.favorite")}

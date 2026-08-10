@@ -1,11 +1,13 @@
 # ExpoCraft Backend
 
-Dependency-free Node.js backend prototype for a Mongolian handmade marketplace.
+TypeScript Node.js backend prototype for a Mongolian handmade marketplace.
 
 ## Run
 
 ```bash
-EXPOCRAFT_SEED=true node app.js
+npm install
+npm run build
+EXPOCRAFT_SEED=true npm start
 ```
 
 Server defaults to `http://localhost:4000`.
@@ -84,8 +86,13 @@ The full, always-accurate contract is served at `GET /docs/openapi.json` (genera
 - `POST /custom-requests/:requestId/messages`
 - `POST /conversations`
 - `GET /conversations`
-- `GET /conversations/stream` (SSE)
+- `GET /conversations/stream` (legacy SSE fallback)
 - `POST /conversations/:conversationId/messages`
+
+Realtime chat runs on Socket.io at `/socket.io` using the same JWT access token in
+`auth.token`. Clients join `conversation:{id}` rooms through the
+`conversation:join` event and receive `conversation:message`,
+`conversation:presence`, and `typing:update`.
 - `POST /reviews`
 - `POST /reports`
 - `PATCH /admin/reports/:reportId`
@@ -95,6 +102,7 @@ The full, always-accurate contract is served at `GET /docs/openapi.json` (genera
 - `PATCH /admin/payout-requests/:requestId`
 - `POST /admin/escrow/auto-release`
 - `POST /admin/jobs/:jobName/run`
+- `GET /admin/ops/alerts`
 - `GET /admin/escrow-ledger`
 - `GET /admin/balances`
 - `GET /admin/reconciliation/daily`
@@ -106,6 +114,7 @@ The full, always-accurate contract is served at `GET /docs/openapi.json` (genera
 - `GET /admin/disputes`
 - `PATCH /admin/settings`
 - `GET /admin/audit-logs`
+- `GET /admin/audit-logs/export`
 - `GET /admin/users`
 - `PATCH /admin/users/:userId`
 - `GET /admin/products`
@@ -125,6 +134,7 @@ The full, always-accurate contract is served at `GET /docs/openapi.json` (genera
 - `POST /webhooks/logistics/tracking`
 - `POST /ai/products/suggest`
 - `GET /recommendations`
+- `POST /shipping/estimate`
 - `POST /webhooks/payments/:provider`
 
 ### Uploads
@@ -142,13 +152,48 @@ Create a local environment file first:
 cp .env.example .env
 ```
 
+Production env checklist is in `../DEPLOY_ENV.md`. Before deploying, run:
+
+```bash
+npm run env:check
+```
+
+## PostgreSQL Runtime
+
+The backend now has a Prisma 7 schema for PostgreSQL in `prisma/schema.prisma`.
+The current route/service layer still uses the JSON-compatible in-memory state
+shape, but production should use `EXPOCRAFT_DB_PROVIDER=postgres`. In that mode
+every saved state is written to PostgreSQL `app_state`, and the normalized
+marketplace tables (`users`, `shops`, `products`, `orders`, `order_items`,
+`ledger_entries`, `payouts`, etc.) are rebuilt in the background for live
+reporting and the remaining table-by-table migration work.
+
+```bash
+npm run prisma:validate
+npm run prisma:generate
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/expocraft npm run db:push
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/expocraft npm run db:import
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/expocraft npm run db:status
+```
+
+Useful commands:
+
+- `npm run db:migrate`: runs Prisma `db push`, then imports `data/expo-store.json` into `app_state`.
+- `npm run db:export`: exports `app_state` back to the JSON store.
+- `npm run db:relational`: rebuilds the reporting/normalized PostgreSQL tables from the JSON state.
+
 ## Notes
 
-This is intentionally self-contained: it uses Node's `http`, `crypto`, and `fs` modules plus a JSON datastore at `data/expo-store.json`. It models the backend deeply enough for product validation and frontend integration, while staying easy to replace later with Express/Fastify + PostgreSQL.
+The route/service logic is intentionally kept compatible with the current state
+shape while PostgreSQL is introduced. Escrow, ledger, cart, checkout, and seller
+isolation remain covered by the existing integration tests before each deeper
+native relational repository migration step.
 
 ## Docker
 
-This backend can run in Docker with the local JSON state store.
+This backend can run in Docker with PostgreSQL-backed state, normalized
+relational table sync, and Redis-backed runtime state for login lockout/rate
+limit counters.
 
 To build and run from the repository root:
 
@@ -156,32 +201,43 @@ To build and run from the repository root:
 docker compose up --build
 ```
 
-The backend will be available at `http://localhost:4000` and the frontend is served at `http://localhost:4173`.
+The backend will be available at `http://localhost:4000` and the frontend is served at `http://localhost:3000`.
 
-To persist data between runs, the compose setup mounts `Backend/data` into the container.
+To persist data between runs, the compose setup mounts `Backend/data` into the container and keeps PostgreSQL data in the `postgres-data` volume.
+
+## Runtime Store
+
+Set `REDIS_URL` in production so short-lived runtime state is shared across all
+backend instances. The runtime store is used for login failure lockout/rate-limit
+state and is exposed on `GET /metrics` as `runtimeStore: "redis"`.
+
+If `REDIS_URL` is empty, the backend uses an in-memory store for local
+development only.
 
 ## Project Structure
 
-- `app.js`: tiny bootstrap/export entrypoint.
-- `src/bootstrap/server.js`: HTTP server startup.
-- `src/config/constants.js`: roles, statuses, payment providers, data paths, commission defaults.
-- `src/http/router.js`: dependency-free route registry, CORS, JSON response/error handling.
-- `src/utils/core.js`: common helpers for IDs, money, errors, localization, JSON parsing.
-- `src/auth/security.js`: password hashing and JWT signing/verification.
-- `src/auth/context.js`: auth guards, role checks, refresh-token session rotation.
-- `src/data/store.js`: JSON datastore setup, seed data, migration/backfill, user record creation.
-- `src/validators/index.js`: request validation, localized payload validation, inventory/payment constraints.
-- `src/services/ledger.js`: escrow ledger, balances, reconciliation, release/refund/freeze logic.
-- `src/services/catalog.js`: shop/product serializers, shipping options, inventory purchase rules.
-- `src/services/cart.js`: cart lookup, cart totals, multi-seller cart grouping.
-- `src/app.js`: composition root that wires services into route modules.
-- `src/routes/auth.js`: auth, refresh rotation, profile/role APIs.
-- `src/routes/discovery.js`: home, tourist mode, search discovery, favorites/follows, public shop.
-- `src/routes/catalog.js`: seller shop verification and product catalog management.
-- `src/routes/orders.js`: cart, checkout, order lifecycle, escrow confirmation, disputes, progress updates.
-- `src/routes/custom-trust.js`: custom requests, chat, conversations, reviews, reports.
-- `src/routes/admin.js`: payout, auto-release, ledger, balances, reconciliation, queues, settings, audit, dashboard.
-- `src/routes/phase2.js`: auctions, coupons, custom contracts, logistics tracking, AI suggestions, recommendations, seller payout requests, idempotent payment webhooks.
+- `app.ts`: bootstrap/export entrypoint compiled to `dist/app.js`.
+- `app.js`: compatibility shim for tools that still call `node app.js`.
+- `src/bootstrap/server.ts`: HTTP server startup.
+- `src/config/constants.ts`: roles, statuses, payment providers, data paths, commission defaults.
+- `src/http/router.ts`: dependency-free route registry, CORS, JSON response/error handling.
+- `src/utils/core.ts`: common helpers for IDs, money, errors, localization, JSON parsing.
+- `src/auth/security.ts`: password hashing and JWT signing/verification.
+- `src/auth/context.ts`: auth guards, role checks, refresh-token session rotation.
+- `src/data/store.ts`: JSON datastore setup, seed data, migration/backfill, user record creation.
+- `src/data/prisma.ts`: Prisma 7 PostgreSQL client factory.
+- `src/validators/index.ts`: request validation, localized payload validation, inventory/payment constraints.
+- `src/services/ledger.ts`: escrow ledger, balances, reconciliation, release/refund/freeze logic.
+- `src/services/catalog.ts`: shop/product serializers, shipping options, inventory purchase rules.
+- `src/services/cart.ts`: cart lookup, cart totals, multi-seller cart grouping.
+- `src/app.ts`: composition root that wires services into route modules.
+- `src/routes/auth.ts`: auth, refresh rotation, profile/role APIs.
+- `src/routes/discovery.ts`: home, tourist mode, search discovery, favorites/follows, public shop.
+- `src/routes/catalog.ts`: seller shop verification and product catalog management.
+- `src/routes/orders.ts`: cart, checkout, order lifecycle, escrow confirmation, disputes, progress updates.
+- `src/routes/custom-trust.ts`: custom requests, chat, conversations, reviews, reports.
+- `src/routes/admin.ts`: payout, auto-release, ledger, balances, reconciliation, queues, settings, audit, dashboard.
+- `src/routes/phase2.ts`: auctions, coupons, custom contracts, logistics tracking, AI suggestions, recommendations, seller payout requests, idempotent payment webhooks.
 
 ## Marketplace Principles In The Backend
 
@@ -231,7 +287,9 @@ To persist data between runs, the compose setup mounts `Backend/data` into the c
 - Promotions: sellers create coupons with `/seller/coupons`; buyers validate with `/coupons/validate`.
 - Made-to-order contracts: quoted custom requests can produce contracts with deposit schedules via `/seller/custom-requests/:requestId/contract`; buyers accept via `/contracts/:contractId/accept`.
 - Logistics: sellers attach carrier/tracking via `/seller/order-items/:itemId/shipment`; external tracking callbacks land at `/webhooks/logistics/tracking`.
-- AI helpers: `/ai/products/suggest` returns category/material/technique/tag/translation suggestions; `/recommendations` gives buyer-personalized product suggestions.
+- AI helpers: `/ai/products/suggest` returns category/material/technique/tag/translation suggestions; `/recommendations` uses a hybrid content/collaborative score from favorites, follows, purchases, views, shop quality, availability, freshness, and tourist fit.
+- International customs UX: `/shipping/estimate` returns package weight, shipping estimate, customs document list, HS code/default customs metadata, origin country, and a tax estimate note.
+- Admin operations: `/admin/queues` includes SLA alerts; `/admin/ops/alerts` summarizes critical/warning operations breaches; `/admin/audit-logs/export` exports CSV for reviews and investigations.
 - Payment NFR: `/webhooks/payments/:provider` records QPay/Stripe-style callbacks idempotently by event id.
 - Seller payout request: released seller balance can be requested through `/seller/payout-requests`.
 - IDOR coverage: seller order status changes are scoped to the owning seller and covered by integration tests.

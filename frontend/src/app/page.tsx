@@ -2,9 +2,11 @@ import Link from "next/link";
 import CraftShowcase from "@/components/CraftShowcase";
 import LandingShell from "@/components/LandingShell";
 import { serverGet } from "@/lib/api";
+import { demoArtisanImage, LANDING_HERO_IMAGE } from "@/lib/demo-images";
 import { resolveImageUrl } from "@/lib/format";
 import { translate } from "@/lib/i18n";
 import { readPreferences } from "@/lib/prefs";
+import { shopCraftLine, shopDisplayName, shopLocationText } from "@/lib/shop-display";
 import type { HomePayload, Product, Shop } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +40,11 @@ export default async function LandingPage() {
     <LandingShell>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative isolate overflow-hidden">
+        <img
+          src={LANDING_HERO_IMAGE}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-55"
+        />
         <svg className="absolute inset-0 h-full w-full" aria-hidden>
           <defs>
             <pattern id="lp-alkhan" width="64" height="64" patternUnits="userSpaceOnUse">
@@ -52,7 +59,7 @@ export default async function LandingPage() {
           </defs>
           <rect width="100%" height="100%" fill="url(#lp-alkhan)" />
         </svg>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_8%,var(--color-night)_76%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(26,23,20,0.2),rgba(26,23,20,0.82)),radial-gradient(ellipse_at_center,transparent_8%,var(--color-night)_78%)]" />
 
         <div className="page-wide relative flex min-h-[560px] flex-col items-center justify-center py-24 text-center lg:min-h-[640px]">
           <span className="h-px w-14 bg-sand" />
@@ -199,10 +206,10 @@ export default async function LandingPage() {
                   <div className="aspect-[4/5] overflow-hidden bg-night-soft">
                     <ArtisanImage shop={shop} />
                   </div>
-                  <p className="mt-3 text-sm">{shop.displayName}</p>
-                  <p className="mt-0.5 text-xs text-white/45">
-                    {[shop.province, shop.district].filter(Boolean).join(" · ") || shop.city}
-                  </p>
+                  <p className="mt-3 text-sm">{shop.artisanProfile?.makerName || shopDisplayName(shop)}</p>
+                  {shop.artisanProfile?.makerName ? <p className="mt-0.5 text-xs text-white/55">{shopDisplayName(shop)}</p> : null}
+                  {shopCraftLine(shop, 3) ? <p className="mt-1 line-clamp-1 text-xs text-sand">{shopCraftLine(shop, 3)}</p> : null}
+                  <p className="mt-0.5 text-xs text-white/45">{shopLocationText(shop)}</p>
                 </Link>
               ))}
             </div>
@@ -269,12 +276,12 @@ function PortraitPanel({ shop, tall }: { shop: Shop; tall: boolean }) {
 }
 
 function ArtisanImage({ shop }: { shop: Shop }) {
-  const src = resolveImageUrl(shop.artisanProfile?.portraitUrl || shop.logoUrl || shop.bannerUrl);
+  const src = resolveImageUrl(demoArtisanImage(shop) || shop.artisanProfile?.portraitUrl || shop.logoUrl || shop.bannerUrl);
 
   if (!src) {
     return (
       <div className="grid h-full w-full place-items-center bg-[linear-gradient(135deg,#8a3f2b,#b4533a_60%,#6d2f1f)]">
-        <span className="display text-3xl text-white/50">{shop.displayName.slice(0, 1)}</span>
+        <span className="display text-3xl text-white/50">{shopDisplayName(shop).slice(0, 1)}</span>
       </div>
     );
   }
@@ -282,7 +289,7 @@ function ArtisanImage({ shop }: { shop: Shop }) {
   return (
     <img
       src={src}
-      alt={shop.displayName}
+      alt={shopDisplayName(shop)}
       loading="lazy"
       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
     />

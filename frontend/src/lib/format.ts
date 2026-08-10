@@ -47,7 +47,8 @@ export function resolveImageUrl(url?: string | null): string | null {
   const value = url?.trim();
   if (!value) return null;
   if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:") || value.startsWith("blob:")) return value;
-  if (value.startsWith("/")) return `${API_URL}${value}`;
+  if (value.startsWith("/uploads/")) return `${API_URL}${value}`;
+  if (value.startsWith("/")) return value;
   return value;
 }
 

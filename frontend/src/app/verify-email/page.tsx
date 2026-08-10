@@ -10,7 +10,7 @@ import { useApp } from "@/lib/app-context";
 function VerifyEmailView() {
   const { t } = useApp();
   const params = useSearchParams();
-  const [token, setToken] = useState(params.get("token") || "");
+  const [token, setToken] = useState(params?.get("token") || "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -35,7 +35,7 @@ function VerifyEmailView() {
    */
   const autoRan = useRef(false);
   useEffect(() => {
-    const initial = params.get("token");
+    const initial = params?.get("token");
     if (initial && !autoRan.current) {
       autoRan.current = true;
       verify(initial);

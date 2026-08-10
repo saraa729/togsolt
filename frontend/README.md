@@ -78,7 +78,7 @@ SEO индексжилт (NFR-4, FR-2.2) хадгалагдана. Бүх хуу
 - **Хос хэл (P5):** MN/EN сэлгэх (cookie), MNT/USD валют сэлгэх; SSR хуудсууд cookie-г уншина
 - **Төлбөр:** QPay (₮) / Stripe ($) — валютаар автоматаар сонгогдоно
 - **Итгэл:** үнэлгээ, гомдол мэдүүлэх, баталгаажсан урлаачийн тэмдэг
-- **Realtime:** мессежийг backend-ийн SSE (`/conversations/stream`) -ээр шууд хүлээн авна
+- **Realtime:** мессежийг Socket.io (`/socket.io`) room/presence/typing event-ээр шууд хүлээн авна
 
 ## Дизайн (museum editorial)
 

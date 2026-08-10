@@ -9,7 +9,7 @@ import Header from "./Header";
  * Бусад бүх хуудсанд — нэвтэрсэн нүүр (`/home`) орно — стандарт бүрхүүл үйлчилнэ.
  */
 export default function Chrome({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
 
   if (pathname === "/") return <>{children}</>;
 

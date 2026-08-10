@@ -13,7 +13,7 @@ function ResetPasswordView() {
   const params = useSearchParams();
 
   // Токеныг и-мэйлийн холбоосоос авна, гэхдээ гараар ч оруулж болно.
-  const [token, setToken] = useState(params.get("token") || "");
+  const [token, setToken] = useState(params?.get("token") || "");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);

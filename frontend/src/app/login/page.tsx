@@ -14,7 +14,7 @@ function LoginView() {
   const { user, ready } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") || "";
+  const next = params?.get("next") || "";
 
   function defaultRedirect(user: User) {
     const roles = user.roles || [];

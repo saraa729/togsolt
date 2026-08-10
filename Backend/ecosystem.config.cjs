@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'expocraft-backend',
-      script: './app.js',
+      script: './dist/app.js',
       cwd: __dirname,
       instances: process.env.WEB_CONCURRENCY || 1,
       exec_mode: 'cluster',

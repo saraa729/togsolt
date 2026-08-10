@@ -13,6 +13,7 @@ type Queues = {
   disputes: unknown[];
   payoutQueue: { id: string; sellerId: string; amount: any; status: string; createdAt: string }[];
   payoutRequests: PayoutRequest[];
+  slaAlerts?: { severity: "warning" | "critical"; queue: string; entityId: string; ageHours: number; message: string }[];
 };
 
 export default function AdminPayoutsPage() {
@@ -20,6 +21,7 @@ export default function AdminPayoutsPage() {
   const [queues, setQueues] = useState<Queues | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [settlements, setSettlements] = useState<Record<string, { transactionRef: string; note: string }>>({});
   const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
 
   const load = useCallback(async () => {
@@ -41,7 +43,11 @@ export default function AdminPayoutsPage() {
     setBusy(requestId);
     setMessage(null);
     try {
-      await api.patch(`/admin/payout-requests/${requestId}`, { status });
+      const settlement = settlements[requestId] || { transactionRef: "", note: "" };
+      await api.patch(`/admin/payout-requests/${requestId}`, {
+        status,
+        ...(status === "paid" ? settlement : {}),
+      });
       setMessage({ tone: "success", text: t("common.saved") });
       await load();
     } catch (caught) {
@@ -49,6 +55,22 @@ export default function AdminPayoutsPage() {
     } finally {
       setBusy(null);
     }
+  }
+
+  function settlementValue(requestId: string) {
+    return settlements[requestId] || { transactionRef: "", note: "" };
+  }
+
+  function updateSettlement(requestId: string, patch: Partial<{ transactionRef: string; note: string }>) {
+    setSettlements((current) => ({
+      ...current,
+      [requestId]: { ...(current[requestId] || { transactionRef: "", note: "" }), ...patch },
+    }));
+  }
+
+  function bankText(request: PayoutRequest) {
+    const account = request.bankAccount || {};
+    return [account.bankName, account.accountNumber || account.accountLast4, account.accountName].filter(Boolean).join(" · ") || "-";
   }
 
   async function runBatch(action: "payouts" | "escrow") {
@@ -80,6 +102,29 @@ export default function AdminPayoutsPage() {
         <Stat label={t("admin.payouts")} value={queues?.payoutRequests.length ?? 0} hint={`${queues?.payoutQueue.length ?? 0} batch`} />
       </div>
 
+      {(queues?.slaAlerts?.length ?? 0) > 0 ? (
+        <section className="card">
+          <div className="flex items-center justify-between gap-3 pb-3">
+            <h2 className="font-medium">{t("admin.slaAlerts")}</h2>
+            <StatusPill status={`${queues?.slaAlerts?.filter((item) => item.severity === "critical").length || 0} critical`} />
+          </div>
+          <div className="grid gap-2">
+            {queues?.slaAlerts?.slice(0, 8).map((alert) => (
+              <div key={`${alert.queue}-${alert.entityId}`} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-line bg-paper px-3 py-2 text-sm">
+                <div>
+                  <p className="font-medium">{alert.queue}</p>
+                  <p className="muted text-xs">{alert.entityId}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="muted text-xs">{alert.ageHours}h</span>
+                  <StatusPill status={alert.severity} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <div className="flex flex-wrap gap-2">
         <button type="button" className="btn-primary" disabled={busy === "payouts"} onClick={() => runBatch("payouts")}>
           {busy === "payouts" ? <Spinner /> : null}
@@ -103,6 +148,7 @@ export default function AdminPayoutsPage() {
                   <th>ID</th>
                   <th>{t("common.seller")}</th>
                   <th>{t("common.total")}</th>
+                  <th>Банк</th>
                   <th>{t("common.status")}</th>
                   <th>{t("common.date")}</th>
                   <th>{t("common.actions")}</th>
@@ -114,16 +160,31 @@ export default function AdminPayoutsPage() {
                     <td className="font-mono text-xs">{request.id}</td>
                     <td className="font-mono text-xs">{request.sellerId}</td>
                     <td>{formatMoney(request.amount, locale)}</td>
+                    <td className="text-xs text-muted">{bankText(request)}</td>
                     <td>
                       <StatusPill status={request.status} />
                     </td>
                     <td className="text-xs text-muted">{formatDateTime(request.createdAt, locale)}</td>
                     <td>
-                      <div className="flex gap-2">
+                      <div className="grid min-w-72 gap-2">
+                        <input
+                          className="input"
+                          value={settlementValue(request.id).transactionRef}
+                          onChange={(event) => updateSettlement(request.id, { transactionRef: event.target.value })}
+                          placeholder="Гүйлгээний дугаар"
+                        />
+                        <input
+                          className="input"
+                          value={settlementValue(request.id).note}
+                          onChange={(event) => updateSettlement(request.id, { note: event.target.value })}
+                          placeholder={t("common.note")}
+                        />
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
                         <button
                           type="button"
                           className="btn-primary btn-sm"
-                          disabled={busy === request.id}
+                          disabled={busy === request.id || request.status !== "requested"}
                           onClick={() => review(request.id, "approved")}
                         >
                           {busy === request.id ? <Spinner className="h-3 w-3" /> : null}
@@ -132,10 +193,18 @@ export default function AdminPayoutsPage() {
                         <button
                           type="button"
                           className="btn-ghost btn-sm"
-                          disabled={busy === request.id}
+                          disabled={busy === request.id || request.status !== "requested"}
                           onClick={() => review(request.id, "rejected")}
                         >
                           {t("admin.reject")}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-dark btn-sm"
+                          disabled={busy === request.id || !settlementValue(request.id).transactionRef.trim()}
+                          onClick={() => review(request.id, "paid")}
+                        >
+                          {t("ostatus.paid")}
                         </button>
                       </div>
                     </td>

@@ -15,7 +15,7 @@ export default function RequireAuth({
 }) {
   const { t } = useApp();
   const { user, ready, hasRole } = useAuth();
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
 
   if (!ready) {
     return (
