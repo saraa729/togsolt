@@ -29,12 +29,14 @@ services:
         value: postgres
       - key: EXPOCRAFT_POSTGRES_RELATIONAL_SYNC
         value: true
+      - key: EXPOCRAFT_CHECKOUT_AUTO_CAPTURE
+        value: false
       - key: EXPOCRAFT_PAYMENT_MODE
         value: manual
       - key: EXPOCRAFT_BANK_TRANSFER_MODE
         value: manual
       - key: EXPOCRAFT_STORAGE_PROVIDER
-        value: local
+        value: r2
       - key: EXPOCRAFT_SEARCH_PROVIDER
         value: local
       - key: EXPOCRAFT_QUEUE_PROVIDER
@@ -85,7 +87,7 @@ services:
       - key: EXPOCRAFT_R2_BUCKET
         sync: false
       - key: EXPOCRAFT_R2_REGION
-        sync: false
+        value: auto
       - key: EXPOCRAFT_R2_ACCESS_KEY_ID
         sync: false
       - key: EXPOCRAFT_R2_SECRET_ACCESS_KEY
@@ -93,7 +95,7 @@ services:
       - key: EXPOCRAFT_STORAGE_PUBLIC_BASE_URL
         sync: false
       - key: EXPOCRAFT_VIRUS_SCAN_REQUIRED
-        sync: false
+        value: true
       - key: EXPOCRAFT_VIRUS_SCAN_URL
         sync: false
       - key: EXPOCRAFT_VIRUS_SCAN_TOKEN
