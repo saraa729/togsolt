@@ -18,29 +18,29 @@ services:
     autoDeploy: true
     envVars:
       - key: NODE_ENV
-        value: production
+        value: "production"
       - key: PORT
-        value: 4000
+        value: "4000"
       - key: EXPOCRAFT_SEED
-        value: false
+        value: "false"
       - key: EXPOCRAFT_JOBS
-        value: true
+        value: "true"
       - key: EXPOCRAFT_DB_PROVIDER
-        value: postgres
+        value: "postgres"
       - key: EXPOCRAFT_POSTGRES_RELATIONAL_SYNC
-        value: true
+        value: "true"
       - key: EXPOCRAFT_CHECKOUT_AUTO_CAPTURE
-        value: false
+        value: "false"
       - key: EXPOCRAFT_PAYMENT_MODE
-        value: manual
+        value: "manual"
       - key: EXPOCRAFT_BANK_TRANSFER_MODE
-        value: manual
+        value: "manual"
       - key: EXPOCRAFT_STORAGE_PROVIDER
-        value: r2
+        value: "r2"
       - key: EXPOCRAFT_SEARCH_PROVIDER
-        value: local
+        value: "local"
       - key: EXPOCRAFT_QUEUE_PROVIDER
-        value: local
+        value: "local"
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL
@@ -53,15 +53,15 @@ services:
           name: expocraft-redis
           property: connectionString
       - key: EXPOCRAFT_WEB_ORIGIN
-        sync: false
+        value: "https://togsolt-ecru.vercel.app"
       - key: FRONTEND_URL
-        sync: false
+        value: "https://togsolt-ecru.vercel.app"
       - key: EXPOCRAFT_PUBLIC_ORIGIN
         sync: false
       - key: BACKEND_URL
         sync: false
       - key: EXPOCRAFT_CORS_ORIGINS
-        sync: false
+        value: "https://togsolt-ecru.vercel.app,https://togsolt-6d2qkurt7-httpsgithubcomsaraa729indra419.vercel.app,https://togsolt-naifdb7ju-httpsgithubcomsaraa729indra419.vercel.app"
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
@@ -87,7 +87,7 @@ services:
       - key: EXPOCRAFT_R2_BUCKET
         sync: false
       - key: EXPOCRAFT_R2_REGION
-        value: auto
+        value: "auto"
       - key: EXPOCRAFT_R2_ACCESS_KEY_ID
         sync: false
       - key: EXPOCRAFT_R2_SECRET_ACCESS_KEY
@@ -95,7 +95,7 @@ services:
       - key: EXPOCRAFT_STORAGE_PUBLIC_BASE_URL
         sync: false
       - key: EXPOCRAFT_VIRUS_SCAN_REQUIRED
-        value: true
+        value: "true"
       - key: EXPOCRAFT_VIRUS_SCAN_URL
         sync: false
       - key: EXPOCRAFT_VIRUS_SCAN_TOKEN
@@ -111,7 +111,7 @@ services:
       - key: RABBITMQ_URL
         sync: false
       - key: GOOGLE_CLIENT_ID
-        sync: false
+        value: "727216094961-nmhhimemqnqopfe440u5d7rd53rpae83.apps.googleusercontent.com"
       - key: SMTP_HOST
         sync: false
       - key: SMTP_USER

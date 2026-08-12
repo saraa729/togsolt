@@ -25,6 +25,16 @@ function securityHeaders(): Record<string, string> {
 function corsOrigin(req?: Request | { headers?: Record<string, any> }) {
   const origin = String(req?.headers?.origin || '').replace(/\/$/, '');
   if (origin && CORS_ORIGINS.includes(origin)) return origin;
+  if (origin && NODE_ENV === 'production') {
+    try {
+      const { hostname } = new URL(origin);
+      const isExpocraftDomain = hostname === 'expocraft.mn' || hostname === 'www.expocraft.mn';
+      const isVercelPreview = hostname.endsWith('.vercel.app') && hostname.startsWith('togsolt-');
+      if (isExpocraftDomain || isVercelPreview) return origin;
+    } catch {
+      return CORS_ORIGINS[0] || '*';
+    }
+  }
   if (origin && NODE_ENV !== 'production') {
     try {
       const { hostname } = new URL(origin);
