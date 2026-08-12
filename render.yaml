@@ -2,7 +2,7 @@ services:
   - type: keyvalue
     name: expocraft-redis
     region: singapore
-    plan: starter
+    plan: free
     ipAllowList: []
     maxmemoryPolicy: allkeys-lru
 
@@ -10,120 +10,169 @@ services:
     name: expocraft-backend
     runtime: node
     region: singapore
-    plan: starter
+    plan: free
     rootDir: Backend
     buildCommand: npm ci && npm run prisma:generate && npm run build
     startCommand: npm start
     healthCheckPath: /health
     autoDeploy: true
+
     envVars:
       - key: NODE_ENV
         value: "production"
+
       - key: PORT
         value: "4000"
+
       - key: EXPOCRAFT_SEED
         value: "false"
+
       - key: EXPOCRAFT_JOBS
         value: "true"
+
       - key: EXPOCRAFT_DB_PROVIDER
         value: "postgres"
+
       - key: EXPOCRAFT_POSTGRES_RELATIONAL_SYNC
         value: "true"
+
       - key: EXPOCRAFT_CHECKOUT_AUTO_CAPTURE
         value: "false"
+
       - key: EXPOCRAFT_PAYMENT_MODE
         value: "manual"
+
       - key: EXPOCRAFT_BANK_TRANSFER_MODE
         value: "manual"
+
       - key: EXPOCRAFT_STORAGE_PROVIDER
         value: "r2"
+
       - key: EXPOCRAFT_SEARCH_PROVIDER
         value: "local"
+
       - key: EXPOCRAFT_QUEUE_PROVIDER
         value: "local"
+
       - key: JWT_SECRET
         generateValue: true
+
       - key: DATABASE_URL
         fromDatabase:
           name: expocraft-postgres
           property: connectionString
+
       - key: REDIS_URL
         fromService:
           type: keyvalue
           name: expocraft-redis
           property: connectionString
+
       - key: EXPOCRAFT_WEB_ORIGIN
         value: "https://togsolt-ecru.vercel.app"
+
       - key: FRONTEND_URL
         value: "https://togsolt-ecru.vercel.app"
+
       - key: EXPOCRAFT_PUBLIC_ORIGIN
         sync: false
+
       - key: BACKEND_URL
         sync: false
+
       - key: EXPOCRAFT_CORS_ORIGINS
         value: "https://togsolt-ecru.vercel.app,https://togsolt-6d2qkurt7-httpsgithubcomsaraa729indra419.vercel.app,https://togsolt-naifdb7ju-httpsgithubcomsaraa729indra419.vercel.app"
+
       - key: STRIPE_SECRET_KEY
         sync: false
+
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+
       - key: STRIPE_PUBLISHABLE_KEY
         sync: false
+
       - key: QPAY_MERCHANT_ID
         sync: false
+
       - key: QPAY_CLIENT_ID
         sync: false
+
       - key: QPAY_CLIENT_SECRET
         sync: false
+
       - key: QPAY_INVOICE_CODE
         sync: false
+
       - key: QPAY_WEBHOOK_SECRET
         sync: false
+
       - key: EXPOCRAFT_BANK_API_URL
         sync: false
+
       - key: EXPOCRAFT_BANK_API_KEY
         sync: false
+
       - key: EXPOCRAFT_R2_ENDPOINT
         sync: false
+
       - key: EXPOCRAFT_R2_BUCKET
         sync: false
+
       - key: EXPOCRAFT_R2_REGION
         value: "auto"
+
       - key: EXPOCRAFT_R2_ACCESS_KEY_ID
         sync: false
+
       - key: EXPOCRAFT_R2_SECRET_ACCESS_KEY
         sync: false
+
       - key: EXPOCRAFT_STORAGE_PUBLIC_BASE_URL
         sync: false
+
       - key: EXPOCRAFT_VIRUS_SCAN_REQUIRED
         value: "true"
+
       - key: EXPOCRAFT_VIRUS_SCAN_URL
         sync: false
+
       - key: EXPOCRAFT_VIRUS_SCAN_TOKEN
         sync: false
+
       - key: EXPOCRAFT_CARRIER_API_URL
         sync: false
+
       - key: EXPOCRAFT_CARRIER_API_KEY
         sync: false
+
       - key: EXPOCRAFT_AI_SUGGEST_URL
         sync: false
+
       - key: EXPOCRAFT_AI_API_KEY
         sync: false
+
       - key: RABBITMQ_URL
         sync: false
+
       - key: GOOGLE_CLIENT_ID
         value: "727216094961-nmhhimemqnqopfe440u5d7rd53rpae83.apps.googleusercontent.com"
+
       - key: SMTP_HOST
         sync: false
+
       - key: SMTP_USER
         sync: false
+
       - key: SMTP_PASS
         sync: false
+
       - key: SMTP_FROM
         sync: false
 
 databases:
   - name: expocraft-postgres
     region: singapore
-    plan: starter
+    plan: free
     databaseName: expocraft
     user: expocraft
