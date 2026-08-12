@@ -250,11 +250,9 @@ export default function GoogleSignInButton({
         <div ref={holder} className={pendingCredential ? "hidden" : "flex min-h-11 justify-center"} />
       ) : null}
 
-      {CLIENT_ID && currentOrigin ? (
+      {CLIENT_ID && currentOrigin && isRawIpOrigin ? (
         <p className="rounded-xl border border-line bg-paper px-3 py-2 text-xs text-muted">
-          {isRawIpOrigin
-            ? t("auth.googleRawIpOrigin", { origin: currentOrigin })
-            : t("auth.googleOriginCurrent", { origin: currentOrigin })}
+          {t("auth.googleRawIpOrigin", { origin: currentOrigin })}
         </p>
       ) : null}
 
