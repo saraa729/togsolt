@@ -39,6 +39,8 @@ body {
   background: var(--color-paper);
   color: var(--color-ink);
   min-height: 100vh;
+  overscroll-behavior-x: none;
+  overflow-x: clip;
 }
 
 html:has(.landing-shell),
@@ -59,6 +61,234 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   line-height: 1.65;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes live-pulse {
+    0%,
+    100% {
+      opacity: 0.45;
+      transform: scale(0.82);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes soft-sheen {
+    from {
+      transform: translateX(-120%);
+    }
+    to {
+      transform: translateX(220%);
+    }
+  }
+
+  @keyframes gentle-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes lp-hero-breathe {
+    0%,
+    100% {
+      transform: scale(1) translate3d(0, 0, 0);
+    }
+    50% {
+      transform: scale(1.045) translate3d(0, -8px, 0);
+    }
+  }
+
+  @keyframes lp-pattern-drift {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(32px, 32px, 0);
+    }
+  }
+
+  @keyframes lp-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes lp-line-grow {
+    from {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    to {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes lp-stat-pop {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes lp-section-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes lp-portrait-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-rise {
+    animation: rise-in 520ms ease both;
+  }
+
+  .animate-gentle-float {
+    animation: gentle-float 4.5s ease-in-out infinite;
+  }
+
+  .live-dot {
+    animation: live-pulse 1.8s ease-in-out infinite;
+  }
+
+  .sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 38%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+    animation: soft-sheen 5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .craft-hover-lift {
+    transition:
+      transform 220ms ease,
+      border-color 220ms ease,
+      background-color 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .craft-hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 36px rgba(34, 28, 21, 0.1);
+  }
+
+  .lp-hero-image {
+    animation: lp-hero-breathe 18s ease-in-out infinite;
+    transform-origin: center;
+    will-change: transform;
+  }
+
+  .lp-pattern {
+    animation: lp-pattern-drift 28s linear infinite;
+    will-change: transform;
+  }
+
+  .lp-line {
+    animation: lp-line-grow 680ms ease both;
+    transform-origin: center;
+  }
+
+  .lp-fade-up {
+    animation: lp-fade-up 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .lp-delay-1 {
+    animation-delay: 120ms;
+  }
+
+  .lp-delay-2 {
+    animation-delay: 240ms;
+  }
+
+  .lp-delay-3 {
+    animation-delay: 360ms;
+  }
+
+  .lp-delay-4 {
+    animation-delay: 520ms;
+  }
+
+  .lp-stat,
+  .lp-step,
+  .lp-craft-card,
+  .lp-artisan-card,
+  .lp-portrait {
+    animation: lp-stat-pop 620ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .lp-portrait {
+    animation-name: lp-portrait-in;
+  }
+
+  .lp-section-copy {
+    animation: lp-fade-up 720ms ease both;
+  }
+
+  .lp-chip {
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .lp-chip:hover {
+    transform: translateY(-2px);
+    background-color: rgba(34, 28, 21, 0.04);
+  }
+
+  .lp-reveal {
+    animation: lp-section-reveal 760ms ease both;
+  }
+
+  @supports (animation-timeline: view()) {
+    .lp-reveal {
+      animation-timeline: view();
+      animation-range: entry 0% cover 32%;
+    }
+  }
 }
 
 @utility page {

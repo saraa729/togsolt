@@ -69,7 +69,8 @@ function CraftCard({
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group flex flex-col border border-ink/12 bg-surface p-3 transition-all duration-300 hover:-translate-y-1 hover:border-ink/35 hover:shadow-[0_18px_40px_-24px_rgba(34,28,21,0.55)]"
+      className="lp-craft-card group flex flex-col border border-ink/12 bg-surface p-3 transition-all duration-300 hover:-translate-y-1 hover:border-ink/35 hover:shadow-[0_18px_40px_-24px_rgba(34,28,21,0.55)]"
+      style={{ animationDelay: `${Math.min(index, 7) * 70}ms` }}
     >
       <div className="relative overflow-hidden">
         <CraftTile product={product} ratio="aspect-[4/5]" showTitle={false} />

@@ -45,9 +45,9 @@ export default async function LandingPage() {
         <img
           src={LANDING_HERO_IMAGE}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-55"
+          className="lp-hero-image absolute inset-0 h-full w-full object-cover opacity-55"
         />
-        <svg className="absolute inset-0 h-full w-full" aria-hidden>
+        <svg className="lp-pattern absolute inset-0 h-full w-full" aria-hidden>
           <defs>
             <pattern id="lp-alkhan" width="64" height="64" patternUnits="userSpaceOnUse">
               <path
@@ -64,10 +64,10 @@ export default async function LandingPage() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(26,23,20,0.2),rgba(26,23,20,0.82)),radial-gradient(ellipse_at_center,transparent_8%,var(--color-night)_78%)]" />
 
         <div className="page-wide landing-hero-inner relative flex flex-col items-center justify-center py-14 text-center sm:py-16 lg:py-20">
-          <span className="h-px w-14 bg-sand" />
-          <p className="eyebrow mt-5 text-sand">{t("lp.hero.eyebrow")}</p>
+          <span className="lp-line h-px w-14 bg-sand" />
+          <p className="lp-fade-up eyebrow mt-5 text-sand">{t("lp.hero.eyebrow")}</p>
 
-          <h1 className="display mt-6 max-w-4xl text-4xl leading-[1.12] sm:text-5xl lg:text-[68px]">
+          <h1 className="lp-fade-up lp-delay-1 display mt-6 max-w-4xl text-4xl leading-[1.12] sm:text-5xl lg:text-[68px]">
             {t("lp.hero.title")
               .split("\n")
               .map((line) => (
@@ -77,9 +77,9 @@ export default async function LandingPage() {
               ))}
           </h1>
 
-          <p className="mt-7 max-w-xl text-sm leading-relaxed text-white/60">{t("lp.hero.sub")}</p>
+          <p className="lp-fade-up lp-delay-2 mt-7 max-w-xl text-sm leading-relaxed text-white/60">{t("lp.hero.sub")}</p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <div className="lp-fade-up lp-delay-3 mt-10 flex flex-wrap items-center justify-center gap-3">
             <Link href="/login" className="btn-pill-sand">
               {t("lp.hero.login")}
             </Link>
@@ -91,13 +91,13 @@ export default async function LandingPage() {
             </Link>
           </div>
 
-          <dl className="mt-16 grid w-full max-w-2xl grid-cols-3 gap-6 border-t border-white/15 pt-6">
+          <dl className="lp-fade-up lp-delay-4 mt-16 grid w-full max-w-2xl grid-cols-3 gap-6 border-t border-white/15 pt-6">
             {[
               { value: artisans.length, label: t("nav.artisans") },
               { value: products.length, label: t("nav.products") },
               { value: categories.length, label: t("common.category") },
-            ].map((stat) => (
-              <div key={stat.label}>
+            ].map((stat, index) => (
+              <div key={stat.label} className="lp-stat" style={{ animationDelay: `${900 + index * 120}ms` }}>
                 <dt className="display text-3xl">{stat.value}</dt>
                 <dd className="eyebrow mt-1 text-white/45">{stat.label}</dd>
               </div>
@@ -108,8 +108,8 @@ export default async function LandingPage() {
 
       {/* ── Бидний тухай ─────────────────────────────────── */}
       <section id="about" className="scroll-mt-16 bg-cream text-ink">
-        <div className="page-wide grid gap-12 py-20 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:py-24">
-          <div>
+        <div className="page-wide lp-reveal grid gap-12 py-20 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:py-24">
+          <div className="lp-section-copy">
             <p className="eyebrow text-ink/50">{t("lp.about.eyebrow")}</p>
             <h2 className="display mt-4 text-3xl leading-snug sm:text-4xl">
               {t("lp.about.title")
@@ -129,13 +129,14 @@ export default async function LandingPage() {
           {/* Урлаачдын хөрөг — гурван хэмжээт цомог */}
           <div className="grid grid-cols-3 gap-3 sm:gap-4">
             {artisans.slice(0, 3).map((shop, index) => (
-              <PortraitPanel key={shop.id} shop={shop} tall={index === 1} />
+              <PortraitPanel key={shop.id} shop={shop} tall={index === 1} index={index} />
             ))}
             {artisans.length === 0
               ? [0, 1, 2].map((index) => (
                   <div
                     key={index}
-                    className={`${index === 1 ? "aspect-[3/5]" : "mt-6 aspect-[3/4]"} bg-[linear-gradient(135deg,#e0d6c6,#cbbca6)]`}
+                    className={`lp-portrait ${index === 1 ? "aspect-[3/5]" : "mt-6 aspect-[3/4]"} bg-[linear-gradient(135deg,#e0d6c6,#cbbca6)]`}
+                    style={{ animationDelay: `${index * 140}ms` }}
                   />
                 ))
               : null}
@@ -145,13 +146,17 @@ export default async function LandingPage() {
 
       {/* ── Хэрхэн ажилладаг ─────────────────────────────── */}
       <section id="how" className="scroll-mt-16">
-        <div className="page-wide py-20 lg:py-24">
+        <div className="page-wide lp-reveal py-20 lg:py-24">
           <p className="eyebrow text-sand">{t("lp.how.eyebrow")}</p>
           <h2 className="display mt-4 text-3xl sm:text-4xl">{t("lp.how.title")}</h2>
 
           <div className="mt-12 grid gap-10 md:grid-cols-3">
-            {steps.map((step) => (
-              <div key={step.n} className="border-t border-white/20 pt-6">
+            {steps.map((step, index) => (
+              <div
+                key={step.n}
+                className="lp-step craft-hover-lift border-t border-white/20 pt-6"
+                style={{ animationDelay: `${index * 110}ms` }}
+              >
                 <span className="display text-sand text-2xl">{step.n}</span>
                 <h3 className="display mt-3 text-xl">{step.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/60">{step.body}</p>
@@ -163,7 +168,7 @@ export default async function LandingPage() {
 
       {/* ── Цуглуулгаас ──────────────────────────────────── */}
       <section id="crafts" className="scroll-mt-16 bg-paper text-ink">
-        <div className="page-wide py-20 lg:py-24">
+        <div className="page-wide lp-reveal py-20 lg:py-24">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="eyebrow text-ink/50">{t("lp.crafts.eyebrow")}</p>
@@ -185,7 +190,7 @@ export default async function LandingPage() {
                 <Link
                   key={category.id}
                   href={`/products?categoryId=${category.id}`}
-                  className="rounded-full border border-ink/20 px-4 py-2 text-[11px] tracking-[0.16em] uppercase transition-colors hover:border-ink/60"
+                  className="lp-chip rounded-full border border-ink/20 px-4 py-2 text-[11px] tracking-[0.16em] uppercase transition-colors hover:border-ink/60"
                 >
                   {category.nameText}
                 </Link>
@@ -198,13 +203,18 @@ export default async function LandingPage() {
       {/* ── Урлаачид ─────────────────────────────────────── */}
       {artisans.length ? (
         <section id="artisans" className="scroll-mt-16">
-          <div className="page-wide py-20 lg:py-24">
+          <div className="page-wide lp-reveal py-20 lg:py-24">
             <p className="eyebrow text-sand">{t("lp.artisans.eyebrow")}</p>
             <h2 className="display mt-4 text-3xl sm:text-4xl">{t("lp.artisans.title")}</h2>
 
             <div className="mt-12 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-              {artisans.slice(0, 4).map((shop) => (
-                <Link key={shop.id} href={`/shop/${shop.slug}`} className="group block">
+              {artisans.slice(0, 4).map((shop, index) => (
+                <Link
+                  key={shop.id}
+                  href={`/shop/${shop.slug}`}
+                  className="lp-artisan-card group craft-hover-lift block rounded-sm"
+                  style={{ animationDelay: `${index * 90}ms` }}
+                >
                   <div className="aspect-[4/5] overflow-hidden bg-night-soft">
                     <ArtisanImage shop={shop} />
                   </div>
@@ -246,9 +256,12 @@ function pickOnePerCategory(items: Product[], limit: number): Product[] {
   return picked;
 }
 
-function PortraitPanel({ shop, tall }: { shop: Shop; tall: boolean }) {
+function PortraitPanel({ shop, tall, index }: { shop: Shop; tall: boolean; index: number }) {
   return (
-    <div className={tall ? "aspect-[3/5] overflow-hidden bg-night" : "mt-6 aspect-[3/4] overflow-hidden bg-night"}>
+    <div
+      className={`lp-portrait ${tall ? "aspect-[3/5] overflow-hidden bg-night" : "mt-6 aspect-[3/4] overflow-hidden bg-night"}`}
+      style={{ animationDelay: `${index * 140}ms` }}
+    >
       <ArtisanImage shop={shop} />
     </div>
   );

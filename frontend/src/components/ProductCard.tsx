@@ -11,8 +11,8 @@ export default function ProductCard({ product, compact = false }: { product: Pro
   const sold = product.status === "sold" || (product.inventoryType !== "made_to_order" && product.stock === 0);
 
   return (
-    <Link href={`/products/${product.id}`} className="group block">
-      <div className="relative">
+    <Link href={`/products/${product.id}`} className="group craft-hover-lift block rounded-2xl">
+      <div className="relative overflow-hidden rounded-2xl">
         <CraftTile product={product} ratio="aspect-[4/5]" showTitle={false} />
 
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">

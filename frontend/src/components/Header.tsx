@@ -73,7 +73,6 @@ export default function Header() {
     ...(user ? accountLinks : []),
     ...(isAdmin ? [{ href: "/admin", label: t("nav.admin") }] : []),
   ]);
-
   function submitSearch(event: React.FormEvent) {
     event.preventDefault();
     const value = query.trim();

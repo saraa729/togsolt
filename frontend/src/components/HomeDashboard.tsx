@@ -64,14 +64,14 @@ function Dashboard({ recommended, fresh, categories, artisans }: Props) {
   }
 
   return (
-    <div className="page-wide space-y-12 py-8">
+    <div className="page-wide space-y-10 py-8">
       {/*
        * ── Хувийн мөр ───────────────────────────────────
        * Хар градиент самбар байсныг цайвар editorial мөр болгов: цөцгий өнгийн
        * хуудсан дээр бараан хавтан хамгийн чанга элемент болчихдог байсан ч
        * дотор нь мэндчилгээнээс өөр юу ч байгаагүй. Одоо жин нь агуулгад очно.
        */}
-      <section className="flex flex-col gap-5 border-b border-line pb-7 lg:flex-row lg:items-end lg:justify-between">
+      <section className="animate-rise flex flex-col gap-5 border-b border-line pb-7 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="eyebrow text-muted">{roleChip}</p>
           <h1 className="display mt-2 truncate text-[1.75rem] leading-tight sm:text-4xl">
@@ -114,7 +114,7 @@ function Dashboard({ recommended, fresh, categories, artisans }: Props) {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center justify-between gap-3 rounded-2xl border border-clay/25 bg-clay-soft px-5 py-4 transition-colors hover:border-clay/50"
+              className="craft-hover-lift flex items-center justify-between gap-3 rounded-2xl border border-clay/25 bg-clay-soft px-5 py-4 hover:border-clay/50"
             >
               <span className="truncate text-sm font-medium text-clay-dark">{item.label}</span>
               <span className="shrink-0 text-clay-dark">⟶</span>
@@ -132,7 +132,7 @@ function Dashboard({ recommended, fresh, categories, artisans }: Props) {
               <Link
                 key={category.id}
                 href={`/products?categoryId=${category.id}`}
-                className="rounded-full border border-line bg-surface px-5 py-2.5 text-sm transition-colors hover:border-clay/50 hover:bg-clay-soft hover:text-clay-dark"
+                className="craft-hover-lift rounded-full border border-line bg-surface px-5 py-2.5 text-sm hover:border-clay/50 hover:bg-clay-soft hover:text-clay-dark"
               >
                 {category.nameText || category.name?.mn}
               </Link>
@@ -162,7 +162,7 @@ function Dashboard({ recommended, fresh, categories, artisans }: Props) {
               <Link
                 key={product.id}
                 href={`/products/${product.id}`}
-                className="group flex gap-4 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-clay/40 hover:bg-paper"
+                className="group craft-hover-lift flex gap-4 rounded-2xl border border-line bg-surface p-4 hover:border-clay/40 hover:bg-paper"
               >
                 <div className="w-20 shrink-0 overflow-hidden rounded-xl">
                   <CraftTile product={product} ratio="aspect-square" showTitle={false} />
@@ -190,7 +190,7 @@ function Dashboard({ recommended, fresh, categories, artisans }: Props) {
               <Link
                 key={shop.id}
                 href={`/shop/${shop.slug}`}
-                className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-clay/40 hover:bg-paper"
+                className="craft-hover-lift flex items-start gap-3 rounded-2xl border border-line bg-surface p-4 hover:border-clay/40 hover:bg-paper"
               >
                 <Avatar shop={shop} />
                 <span className="min-w-0 flex-1">
@@ -208,7 +208,7 @@ function Dashboard({ recommended, fresh, categories, artisans }: Props) {
       ) : null}
 
       {/* ── Escrow тайлбар — нимгэн бүтэн өргөний зурвас ── */}
-      <section className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5 sm:flex-row sm:items-center sm:gap-6">
+      <section className="craft-hover-lift flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5 sm:flex-row sm:items-center sm:gap-6">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium">{t("hp.escrowTitle")}</p>
           <p className="mt-1 text-xs leading-relaxed text-muted">{t("hp.escrowBody")}</p>
@@ -305,7 +305,7 @@ function ProductRail({
           <Link
             key={product.id}
             href={`/products/${product.id}`}
-            className="group w-[calc(50%-0.5rem)] shrink-0 snap-start sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] xl:w-[calc(20%-0.8rem)]"
+            className="group craft-hover-lift w-[calc(50%-0.5rem)] shrink-0 snap-start rounded-2xl sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] xl:w-[calc(20%-0.8rem)]"
           >
             <div className="overflow-hidden rounded-2xl border border-line transition-shadow group-hover:shadow-md">
               <CraftTile product={product} ratio="aspect-[4/5]" showTitle={false} />

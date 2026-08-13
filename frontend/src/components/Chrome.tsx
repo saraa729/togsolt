@@ -6,12 +6,14 @@ import Header from "./Header";
 
 /**
  * Танилцуулга хуудас (`/`) өөрийн nav, хөлтэй тул ерөнхий толгой/хөлийг харуулахгүй.
+ * Auth хуудсууд өөрийн төвлөрсөн дэлгэцтэй тул navbar/footer-гүй харагдана.
  * Бусад бүх хуудсанд — нэвтэрсэн нүүр (`/home`) орно — стандарт бүрхүүл үйлчилнэ.
  */
 export default function Chrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "";
+  const bareRoutes = ["/", "/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
 
-  if (pathname === "/") return <>{children}</>;
+  if (bareRoutes.includes(pathname)) return <>{children}</>;
 
   return (
     <div className="flex min-h-screen flex-col">
