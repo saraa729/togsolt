@@ -24,6 +24,9 @@ Google-ийн ID токеныг Google дээр шалгаад зөвхөн ба
      Google OAuth нь `192.168...` шиг raw/private IP-г origin дээр авахгүй.
      Жинхэнэ Google login-ийг local дээр шалгах бол browser-оо яг
      `http://localhost:3000` дээр нээ.
+     Энэ repo-ийн `npm run dev`, `npm run dev:lan`, `./dev.sh` бүгд frontend-ийг
+     `3000` порт дээр барьдаг. Хэрэв browser `3001` рүү үсэрсэн байвал хуучин
+     dev server ажиллаж байна гэсэн үг — зогсоогоод `./dev.sh`-ээр дахин асаа.
    - **Create** дар
 5. Гарч ирэх **Client ID**-г хуулж ав
    (`123456789-abc123.apps.googleusercontent.com` хэлбэртэй)
@@ -36,6 +39,7 @@ backend рүү автоматаар дамжуулна.
 `frontend/.env.local`:
 ```
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=<өөрийн-client-id>
+NEXT_PUBLIC_GOOGLE_LOCAL_ORIGIN=http://localhost:3000
 ```
 
 Backend-ийг `./dev.sh`-гүй дангаар нь асаавал `Backend/.env` дээр мөн ижил
@@ -81,6 +85,7 @@ http://localhost:3000
 
 `/login`, `/register` гэх мэт path нэмэхгүй. Зөвхөн origin нэмнэ. Хадгалсны
 дараа 1-2 минут хүлээгээд browser дээр hard refresh (`Cmd + Shift + R`) хийнэ.
+`http://localhost:3001` дээр ажиллуулбал Google үүнийг өөр origin гэж үзнэ.
 
 **Өөр төхөөрөмжөөс үзүүлэх хэрэгтэй бол** raw IP биш public HTTPS origin ашигла:
 өөрийн domain, Vercel deploy URL, Cloudflare Tunnel, ngrok гэх мэт. Тэр үед

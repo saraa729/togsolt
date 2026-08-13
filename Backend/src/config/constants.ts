@@ -41,14 +41,17 @@ const ROLES = {
   BUYER: 'buyer'
 };
 
-const ORDER_ITEM_STATUS = ['paid', 'accepted', 'making', 'shipped', 'delivered', 'completed', 'cancelled', 'disputed'];
+// `pending_payment` — мөр үүссэн ч төлбөр батлагдаагүй; урлаач хараахан хөндөхгүй.
+const ORDER_ITEM_STATUS = ['pending_payment', 'paid', 'accepted', 'making', 'shipped', 'delivered', 'completed', 'cancelled', 'disputed'];
 const CUSTOM_STATUS = ['requested', 'quoted', 'accepted', 'rejected', 'expired'];
 const INVENTORY_TYPES = ['ready_made', 'limited_stock', 'one_of_one', 'made_to_order'];
 const PRODUCT_STATUS = ['active', 'sold', 'hidden'];
-const ESCROW_STATUS = ['not_required', 'held', 'released', 'refunded', 'disputed'];
+// `pending` — захиалга үүссэн ч provider төлбөрийг батлаагүй байгаа үе.
+const ESCROW_STATUS = ['pending', 'not_required', 'held', 'released', 'refunded', 'disputed'];
+// `simulated` — тохируулсан provider байхгүй үеийн dev горим (live үед хоригдоно).
 const PAYMENT_PROVIDERS = {
-  MNT: ['qpay'],
-  USD: ['stripe']
+  MNT: ['qpay', 'simulated'],
+  USD: ['stripe', 'simulated']
 };
 const DISPUTE_STATUS = ['open', 'frozen', 'resolved_refund', 'resolved_release', 'rejected'];
 const REPORT_STATUS = ['open', 'reviewing', 'resolved', 'dismissed'];

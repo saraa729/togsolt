@@ -10,8 +10,11 @@
 cd Backend
 npm test
 npm run env:check
+npm run smoke:providers
+npm run smoke:monitoring
 
 cd ../frontend
+npm run lint
 npm run build
 ```
 
@@ -23,6 +26,7 @@ Minimum production env:
 - `REDIS_URL` managed Redis
 - `EXPOCRAFT_WEB_ORIGIN=https://expocraft.mn`
 - `EXPOCRAFT_PUBLIC_ORIGIN=https://api.expocraft.mn`
+- `EXPOCRAFT_PUBLIC_API_URL=https://api.expocraft.mn`
 - `EXPOCRAFT_CORS_ORIGINS=https://expocraft.mn`
 - `EXPOCRAFT_STORAGE_PROVIDER=r2` эсвэл S3-compatible object storage
 - `EXPOCRAFT_VIRUS_SCAN_REQUIRED=true`
@@ -49,18 +53,21 @@ Repo root дээр [render.yaml](render.yaml) орсон. Render дээр Bluepr
 1. `expocraft-backend` web service үүснэ.
 2. `expocraft-postgres` managed PostgreSQL үүснэ.
 3. `expocraft-redis` Render Key Value буюу Redis-compatible store үүснэ.
-4. Backend build command: `npm ci && npm run prisma:generate && npm run build`.
-5. Backend start command: `npm start`.
-6. Health check: `GET /health`.
-7. Domain: `api.expocraft.mn`.
-8. SSL: hosting platform automatic TLS.
-9. Autoscale хийвэл `REDIS_URL` Render Key Value-оос автоматаар орно.
+4. `expocraft-worker` worker service үүснэ.
+5. Backend build command: `npm ci && npm run prisma:generate && npm run build`.
+6. Backend start command: `npm start`.
+7. Worker start command: `npm run worker:queue`.
+8. Health check: `GET /health`.
+9. Domain: `api.expocraft.mn`.
+10. SSL: hosting platform automatic TLS.
+11. Autoscale хийвэл `REDIS_URL` Render Key Value-оос автоматаар орно.
 
 Blueprint дээр secret/public domain env-үүдийг `sync: false` болгосон тул Render Dashboard дээр initial sync хийхдээ дараахыг бөглөнө:
 
 - `EXPOCRAFT_WEB_ORIGIN=https://expocraft.mn`
 - `FRONTEND_URL=https://expocraft.mn`
 - `EXPOCRAFT_PUBLIC_ORIGIN=https://api.expocraft.mn`
+- `EXPOCRAFT_PUBLIC_API_URL=https://api.expocraft.mn`
 - `BACKEND_URL=https://api.expocraft.mn`
 - `EXPOCRAFT_CORS_ORIGINS=https://expocraft.mn`
 - Payment/bank/Google/SMTP secret-үүдийг live хэрэглэх үед бөглөнө.
@@ -72,6 +79,13 @@ Managed Postgres automatic backup-ийг асаана. Нэмэлт logical back
 ```bash
 cd Backend
 DATABASE_URL=... BACKUP_DIR=/secure/backups npm run backup:postgres
+```
+
+Restore drill:
+
+```bash
+cd Backend
+DATABASE_URL=... BACKUP_FILE=/secure/backups/expocraft-YYYY-MM-DD.sql.gz npm run restore:postgres
 ```
 
 Recommended:
@@ -89,6 +103,13 @@ Expose:
 - `GET /metrics/prometheus`
 
 Alert rules: [Backend/monitoring/alerts.yml](Backend/monitoring/alerts.yml)
+
+Local config smoke:
+
+```bash
+cd Backend
+npm run smoke:monitoring
+```
 
 Minimum alerts:
 
@@ -161,9 +182,11 @@ Carrier provider холбох env:
 
 - `EXPOCRAFT_CARRIER_API_URL`
 - `EXPOCRAFT_CARRIER_API_KEY`
+- `EXPOCRAFT_PROVIDER_TIMEOUT_MS=10000`
 
 Эдгээр байвал backend `/shipping/estimate` дээр provider-ийн `/rates`
 endpoint рүү хүсэлт явуулж, үгүй бол demo fallback estimate буцаана.
+Provider contract: [Backend/PROVIDER_CONTRACTS.md](Backend/PROVIDER_CONTRACTS.md)
 
 ## 10. Mobile Native
 
@@ -206,9 +229,11 @@ External AI suggestion provider холбох env:
 
 - `EXPOCRAFT_AI_SUGGEST_URL`
 - `EXPOCRAFT_AI_API_KEY`
+- `EXPOCRAFT_PROVIDER_TIMEOUT_MS=10000`
 
 Эдгээр байвал `/ai/products/suggest` provider рүү явна, үгүй бол rule-based
 fallback санал буцаана.
+Provider contract: [Backend/PROVIDER_CONTRACTS.md](Backend/PROVIDER_CONTRACTS.md)
 
 ## 13. RabbitMQ
 
@@ -217,9 +242,24 @@ queue migration хийхэд:
 
 - `EXPOCRAFT_QUEUE_PROVIDER=rabbitmq`
 - `RABBITMQ_URL`
-- worker service
+- `EXPOCRAFT_WORKER_INTERVAL_MS=60000`
+- worker service: `npm run worker:queue`
 - escrow auto-release, reconciliation, email/notification jobs-ыг consumer
   болгож салгах migration хэрэгтэй.
 
 Энэ нь deployment config биш, backend architecture migration тул тусдаа
 ажлын үе шат гэж тооцно.
+
+Repo-д worker entrypoint болон Render worker blueprint бэлэн:
+
+- `Backend/scripts/queue-worker.ts`
+- `Backend/QUEUE_MIGRATION.md`
+- `render.yaml`
+
+## 14. Render/Vercel Dashboard Order
+
+Exact dashboard order and env paste list:
+
+```text
+DEPLOY_STEPS.md
+```

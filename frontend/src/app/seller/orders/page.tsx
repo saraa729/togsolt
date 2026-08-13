@@ -1,26 +1,30 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import OrderTimeline, { nextSellerStatuses } from "@/components/OrderTimeline";
 import { Alert, EmptyState, Spinner, StatusPill } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { formatDateTime, formatMoney, imageOrPlaceholder } from "@/lib/format";
 import type { Order, OrderItem, Product } from "@/lib/types";
 
-const SELLER_STATUSES = ["accepted", "making", "shipped", "delivered", "cancelled"] as const;
+/** Төлөв нь дуусч, урлаач цаашид өөрчилж чадахгүй мөрүүд. */
+const LOCKED_STATUSES = ["completed", "cancelled", "disputed"];
+
+type CatalogEntry = { title: string; image?: string };
 
 export default function SellerOrdersPage() {
   const { t, locale } = useApp();
   const { user } = useAuth();
   const [items, setItems] = useState<{ item: OrderItem; order: Order }[]>([]);
-  const [titles, setTitles] = useState<Record<string, string>>({});
+  const [catalog, setCatalog] = useState<Record<string, CatalogEntry>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
-      const [data, catalog] = await Promise.all([
+      const [data, products] = await Promise.all([
         api.get<{ orders: Order[] }>("/orders"),
         api.get<{ products: Product[] }>("/seller/products", { query: { locale } }).catch(() => ({ products: [] })),
       ]);
@@ -32,7 +36,14 @@ export default function SellerOrdersPage() {
       }
       rows.sort((a, b) => new Date(b.item.createdAt).getTime() - new Date(a.item.createdAt).getTime());
       setItems(rows);
-      setTitles(Object.fromEntries((catalog.products || []).map((product) => [product.id, product.titleText])));
+      setCatalog(
+        Object.fromEntries(
+          (products.products || []).map((product) => [
+            product.id,
+            { title: product.titleText, image: product.images?.[0] },
+          ])
+        )
+      );
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
@@ -60,7 +71,7 @@ export default function SellerOrdersPage() {
               key={item.id}
               item={item}
               order={order}
-              title={titles[item.productId]}
+              entry={catalog[item.productId]}
               onChanged={load}
             />
           ))}
@@ -73,12 +84,12 @@ export default function SellerOrdersPage() {
 function SellerOrderCard({
   item,
   order,
-  title,
+  entry,
   onChanged,
 }: {
   item: OrderItem;
   order: Order;
-  title?: string;
+  entry?: CatalogEntry;
   onChanged: () => void;
 }) {
   const { t, locale } = useApp();
@@ -136,23 +147,38 @@ function SellerOrderCard({
     }
   }
 
+  /*
+   * Урлаач зөвхөн урагш явна. Эхнийх нь ердийн дараагийн алхам (тод товч),
+   * үлдсэн нь алгасах сонголт — бэлэн бүтээл "хийж байна"-г алгасаж шууд
+   * илгээгддэг тул алгасахыг хаахгүй, зүгээр л хоёрдогч байдлаар харуулна.
+   */
+  const forward = LOCKED_STATUSES.includes(item.status) ? [] : nextSellerStatuses(item.status);
+  const [nextStatus, ...skipStatuses] = forward;
+  const canCancel = !LOCKED_STATUSES.includes(item.status) && item.status !== "delivered";
+
   return (
     <article className="card overflow-hidden">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-paper px-5 py-3">
-        <div className="min-w-0">
-          <p className="truncate font-medium">{title || item.productId}</p>
-          <p className="muted text-xs">
-            {order.id} · {formatDateTime(item.createdAt, locale)} · ×{item.quantity}
-          </p>
+      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-line bg-paper px-5 py-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <img
+            src={imageOrPlaceholder(entry?.image)}
+            alt=""
+            className="h-12 w-12 shrink-0 rounded-xl border border-line/70 object-cover"
+          />
+          <div className="min-w-0">
+            <p className="truncate font-medium">{entry?.title || item.productId}</p>
+            <p className="muted truncate text-xs">
+              {order.id} · {formatDateTime(item.createdAt, locale)} · ×{item.quantity}
+            </p>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <StatusPill status={item.status} label={t(`ostatus.${item.status}`)} />
-          <StatusPill status={item.escrowStatus} />
           <span className="font-semibold">{formatMoney(item.sellerReceivable, locale)}</span>
         </div>
       </header>
 
-      <div className="space-y-3 p-5">
+      <div className="space-y-4 p-5">
         <div className="grid gap-2 text-xs text-muted sm:grid-cols-3">
           <span>
             {t("cart.shippingOption")}: {item.shippingOption?.label}
@@ -165,34 +191,72 @@ function SellerOrderCard({
           </span>
         </div>
 
+        <OrderTimeline status={item.status} />
+
         {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
 
-        <div className="flex flex-wrap gap-2">
-          {SELLER_STATUSES.map((status) => (
+        {LOCKED_STATUSES.includes(item.status) ? (
+          <p className="muted text-xs">{t("seller.statusLocked")}</p>
+        ) : item.status === "delivered" ? (
+          <p className="rounded-2xl border border-line bg-paper px-4 py-3 text-xs text-muted">
+            {t("seller.awaitingBuyer")}
+          </p>
+        ) : (
+          <div className="flex flex-wrap items-center gap-2">
             <button
-              key={status}
               type="button"
-              className={status === "cancelled" ? "btn-danger btn-sm" : "btn-secondary btn-sm"}
-              disabled={busy || item.status === status || ["completed", "cancelled"].includes(item.status)}
-              onClick={() => setStatus(status)}
+              className="btn-primary btn-sm"
+              disabled={busy}
+              onClick={() => setStatus(nextStatus)}
             >
-              {t(`ostatus.${status}`)}
+              {busy ? <Spinner className="h-3 w-3" /> : null}
+              {t("seller.nextStep")}: {t(`ostatus.${nextStatus}`)}
             </button>
-          ))}
+
+            {skipStatuses.length ? (
+              <>
+                <span className="text-[11px] text-muted">{t("seller.skipTo")}</span>
+                {skipStatuses.map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    className="btn-secondary btn-sm"
+                    disabled={busy}
+                    onClick={() => setStatus(status)}
+                  >
+                    {t(`ostatus.${status}`)}
+                  </button>
+                ))}
+              </>
+            ) : null}
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-2">
           <button type="button" className="btn-ghost btn-sm" onClick={() => setOpen((value) => !value)}>
             {open ? t("common.close") : t("seller.addProgress")}
           </button>
+          {canCancel ? (
+            <button
+              type="button"
+              className="btn-danger btn-sm"
+              disabled={busy}
+              onClick={() => setStatus("cancelled")}
+            >
+              {t("ostatus.cancelled")}
+            </button>
+          ) : null}
         </div>
 
         {open ? (
-          <div className="space-y-3 rounded-xl border border-line p-4">
+          <div className="space-y-3 rounded-2xl border border-line p-4">
             <textarea
               className="textarea"
               placeholder={t("common.note")}
               value={note}
               onChange={(event) => setNote(event.target.value)}
             />
-            <button type="button" className="btn-primary btn-sm" disabled={busy} onClick={addProgress}>
+            <button type="button" className="btn-primary btn-sm" disabled={busy || !note.trim()} onClick={addProgress}>
               {busy ? <Spinner className="h-3 w-3" /> : null}
               {t("seller.addProgress")}
             </button>
@@ -218,14 +282,18 @@ function SellerOrderCard({
         ) : null}
 
         {item.progressUpdates?.length ? (
-          <ul className="space-y-1 rounded-xl bg-paper p-3 text-xs text-muted">
-            {item.progressUpdates.map((update) => (
-              <li key={update.id}>
-                <span className="font-medium text-ink">{t(`ostatus.${update.status}`) || update.status}</span> —{" "}
-                {update.note || "—"} · {formatDateTime(update.createdAt, locale)}
-              </li>
-            ))}
-          </ul>
+          <div className="rounded-2xl border border-line/70 bg-paper p-4">
+            <p className="label mb-0">{t("orders.progress")}</p>
+            <ul className="mt-3 space-y-3">
+              {item.progressUpdates.map((update) => (
+                <li key={update.id} className="border-l-2 border-clay/30 pl-3 text-xs text-muted">
+                  <span className="font-medium text-ink">{t(`ostatus.${update.status}`) || update.status}</span>
+                  {update.note ? ` — ${update.note}` : ""}
+                  <span className="mt-0.5 block text-[11px]">{formatDateTime(update.createdAt, locale)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : null}
       </div>
     </article>

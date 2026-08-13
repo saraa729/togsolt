@@ -3,8 +3,9 @@
 const logger = require('../observability/logger');
 const metrics = require('../observability/metrics');
 
-function createJobScheduler({ db, now, id, audit, saveState, releaseEscrowForOrderItem, syncOrderEscrowStatus, reconciliationForDate }) {
+function createJobScheduler({ db, now, id, audit, saveState, releaseEscrowForOrderItem, syncOrderEscrowStatus, reconciliationForDate, queue }) {
   const timers = [];
+  const queueProvider = queue?.provider || 'inline';
 
   async function runJob(name, fn) {
     const started = Date.now();
@@ -53,14 +54,14 @@ function createJobScheduler({ db, now, id, audit, saveState, releaseEscrowForOrd
     if (process.env.NODE_ENV === 'test' || process.env.EXPOCRAFT_JOBS === 'false') return;
     timers.push(setInterval(autoReleaseEscrow, Number(process.env.ESCROW_JOB_INTERVAL_MS || 60 * 60 * 1000)));
     timers.push(setInterval(dailyReconciliation, Number(process.env.RECONCILIATION_JOB_INTERVAL_MS || 24 * 60 * 60 * 1000)));
-    logger.info('jobs.started', { count: timers.length });
+    logger.info('jobs.started', { count: timers.length, queueProvider });
   }
 
   function stop() {
     while (timers.length) clearInterval(timers.pop());
   }
 
-  return { start, stop, autoReleaseEscrow, dailyReconciliation };
+  return { provider: queueProvider, start, stop, autoReleaseEscrow, dailyReconciliation };
 }
 
 module.exports = { createJobScheduler };

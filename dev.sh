@@ -13,9 +13,10 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_PORT="${BACKEND_PORT:-4000}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
-DATABASE_URL="${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/expocraft}"
-EXPOCRAFT_DB_PROVIDER="${EXPOCRAFT_DB_PROVIDER:-postgres}"
+DATABASE_URL="${DATABASE_URL:-}"
+EXPOCRAFT_DB_PROVIDER="${EXPOCRAFT_DB_PROVIDER:-json}"
 EXPOCRAFT_POSTGRES_RELATIONAL_SYNC="${EXPOCRAFT_POSTGRES_RELATIONAL_SYNC:-true}"
+DEV_DATA_DIR="${EXPOCRAFT_DATA_DIR:-$ROOT/.dev-data/backend}"
 
 read_env_value() {
   local file="$1"
@@ -75,11 +76,16 @@ DEV_CORS_ORIGINS="${EXPOCRAFT_CORS_ORIGINS:-${LOCAL_FRONTEND_URL},${PUBLIC_FRONT
 
 # Өмнөх ажиллаж байгаа процесс портыг эзэлсэн бол Next өөр порт руу үсэрч,
 # frontend буруу хаяг руу ханддаг. Тиймээс эхлэхээсээ өмнө шалгана.
-for stale_port in 4001 3001 "$FRONTEND_PORT"; do
+for stale_port in "$BACKEND_PORT" 4001 3001 "$FRONTEND_PORT"; do
   stale_pids="$(lsof -ti:"$stale_port" 2>/dev/null || true)"
   if [ -n "$stale_pids" ]; then
     echo "→ Хуучин dev порт $stale_port цэвэрлэж байна"
     kill $stale_pids 2>/dev/null || true
+    sleep 0.5
+    stale_pids="$(lsof -ti:"$stale_port" 2>/dev/null || true)"
+    if [ -n "$stale_pids" ]; then
+      kill -9 $stale_pids 2>/dev/null || true
+    fi
   fi
 done
 
@@ -92,11 +98,12 @@ for port in "$BACKEND_PORT" "$FRONTEND_PORT"; do
 done
 
 # Next dev cache эвдэрвэл `page.js`, `_document.js`, webpack chunk ENOENT
-# маягийн алдаанууд бүх хуудсан дээр зэрэг гардаг. Dev server эхлэх бүрт
-# generated output-ийг цэвэрлээд Next-ээр шинээр үүсгүүлнэ.
+# маягийн алдаанууд бүх хуудсан дээр зэрэг гардаг. Dev output `.next-dev`
+# дээр тусдаа тул `next build` ажилласан ч browser дээр нээлттэй dev server
+# chunk-ээ алдахгүй.
 if [ "${EXPOCRAFT_KEEP_NEXT_CACHE:-}" != "true" ]; then
   echo "→ Frontend cache цэвэрлэж байна"
-  rm -rf "$ROOT/frontend/.next"
+  rm -rf "$ROOT/frontend/.next-dev"
 fi
 
 BACKEND_PID=""
@@ -134,6 +141,7 @@ echo "→ Backend  ${PUBLIC_BACKEND_URL}"
   PORT="$BACKEND_PORT" \
   DATABASE_URL="$DATABASE_URL" \
   EXPOCRAFT_DB_PROVIDER="$EXPOCRAFT_DB_PROVIDER" \
+  EXPOCRAFT_DATA_DIR="$DEV_DATA_DIR" \
   EXPOCRAFT_POSTGRES_RELATIONAL_SYNC="$EXPOCRAFT_POSTGRES_RELATIONAL_SYNC" \
   EXPOCRAFT_WEB_ORIGIN="$LOCAL_FRONTEND_URL" \
   EXPOCRAFT_CORS_ORIGINS="$DEV_CORS_ORIGINS" \
@@ -145,7 +153,7 @@ echo "→ Frontend http://localhost:${FRONTEND_PORT}"
 echo "→ Frontend ${PUBLIC_FRONTEND_URL}"
 (
   cd "$ROOT/frontend" &&
-  NEXT_PUBLIC_API_URL="${NEXT_PUBLIC_API_URL:-$PUBLIC_BACKEND_URL}" \
+  NEXT_PUBLIC_API_URL="${NEXT_PUBLIC_API_URL:-http://localhost:${BACKEND_PORT}}" \
   API_URL="${API_URL:-http://localhost:${BACKEND_PORT}}" \
   NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-$PUBLIC_FRONTEND_URL}" \
   npm run dev -- -H 0.0.0.0 -p "$FRONTEND_PORT"

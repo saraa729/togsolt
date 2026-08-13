@@ -33,6 +33,7 @@ const ROUTE_TABLE = [
   ['post', '/favorites/products/:productId', 'Favorite a product', 'Discovery', true],
   ['delete', '/favorites/products/:productId', 'Unfavorite a product', 'Discovery', true],
   ['get', '/favorites/products', 'List favorited products', 'Discovery', true],
+  ['get', '/follows/shops', 'List followed shops', 'Discovery', true],
   ['post', '/follows/shops/:shopId', 'Follow a shop', 'Discovery', true],
   ['delete', '/follows/shops/:shopId', 'Unfollow a shop', 'Discovery', true],
 

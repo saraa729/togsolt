@@ -2,14 +2,65 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const os = require('node:os');
 const path = require('node:path');
 const { request: appRequest } = require('./helpers');
 
+process.env.NODE_ENV = 'test';
 process.env.EXPOCRAFT_DATA_DIR = path.join(os.tmpdir(), `expocraft-test-${Date.now()}`);
 process.env.EXPOCRAFT_SEED = 'true';
+process.env.EXPOCRAFT_PAYMENT_MODE = 'manual';
+delete process.env.STRIPE_SECRET_KEY;
+delete process.env.STRIPE_WEBHOOK_SECRET;
+delete process.env.STRIPE_API_URL;
+delete process.env.QPAY_CLIENT_ID;
+delete process.env.QPAY_CLIENT_SECRET;
+delete process.env.QPAY_INVOICE_CODE;
+delete process.env.QPAY_WEBHOOK_SECRET;
+delete process.env.QPAY_API_URL;
 
 const { handle } = require('../app');
+
+function qpayCallbackPath(orderId: string) {
+  const secret = process.env.QPAY_WEBHOOK_SECRET || process.env.JWT_SECRET || 'dev-secret-change-me';
+  const token = crypto.createHmac('sha256', secret).update(`qpay:${orderId}`).digest('hex').slice(0, 32);
+  return `/webhooks/payments/qpay?order=${encodeURIComponent(orderId)}&token=${token}`;
+}
+
+function installQpayPaymentCheckMock() {
+  const previousFetch = globalThis.fetch;
+  process.env.QPAY_CLIENT_ID = 'test-qpay-client';
+  process.env.QPAY_CLIENT_SECRET = 'test-qpay-secret';
+  process.env.QPAY_INVOICE_CODE = 'EXPOCRAFT_TEST';
+
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    if (url.endsWith('/auth/token')) {
+      return new Response(JSON.stringify({ access_token: 'test-qpay-access-token' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+    if (url.endsWith('/payment/check')) {
+      return new Response(JSON.stringify({
+        paid_amount: 45000,
+        rows: [{ payment_id: 'qpay_evt_1', payment_status: 'PAID' }]
+      }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+    return previousFetch(input, init);
+  }) as typeof fetch;
+
+  return () => {
+    globalThis.fetch = previousFetch;
+    delete process.env.QPAY_CLIENT_ID;
+    delete process.env.QPAY_CLIENT_SECRET;
+    delete process.env.QPAY_INVOICE_CODE;
+  };
+}
 
 function startServer() {
   return Promise.resolve({
@@ -23,6 +74,14 @@ function startServer() {
 
 async function request(_baseUrl: string, method: string, pathName: string, body?: unknown, token?: string | null, headers = {}) {
   return appRequest(handle, { method, pathName, body, token, headers });
+}
+
+async function captureDemoPayment(baseUrl: string, orderId: string, token: string) {
+  const capture = await request(baseUrl, 'POST', `/orders/${orderId}/payment/demo-capture`, {}, token);
+  assert.equal(capture.status, 200);
+  assert.equal(capture.body.order.status, 'paid');
+  assert.equal(capture.body.order.escrowStatus, 'held');
+  return capture;
 }
 
 test('auth aliases return 200 for login and register routes', async () => {
@@ -95,11 +154,22 @@ test('buyer payment is held in escrow, released after delivery, then paid out', 
       shippingAddress: { country: 'MN', city: 'Ulaanbaatar', line1: 'Demo address' }
     }, login.body.token);
     assert.equal(checkout.status, 200);
-    assert.equal(checkout.body.order.status, 'paid');
-    assert.equal(checkout.body.order.escrowStatus, 'held');
+    assert.equal(checkout.body.order.status, 'pending_payment');
+    assert.equal(checkout.body.order.escrowStatus, 'pending');
     assert.equal(checkout.body.orderItems.length, 1);
-    assert.equal(checkout.body.orderItems[0].escrowStatus, 'held');
+    assert.equal(checkout.body.orderItems[0].escrowStatus, 'pending');
     assert.equal(checkout.body.order.commissionTotal.amount, 10800);
+
+    const sellerPendingOrders = await request(baseUrl, 'GET', '/orders', null, sellerLogin.body.token);
+    assert.equal(sellerPendingOrders.status, 200);
+    assert.equal(sellerPendingOrders.body.orders.some((order) => order.id === checkout.body.order.id), false);
+
+    const capture = await captureDemoPayment(baseUrl, checkout.body.order.id, login.body.token);
+    assert.equal(capture.body.orderItems[0].escrowStatus, 'held');
+
+    const sellerPaidOrders = await request(baseUrl, 'GET', '/orders', null, sellerLogin.body.token);
+    assert.equal(sellerPaidOrders.status, 200);
+    assert.equal(sellerPaidOrders.body.orders.some((order) => order.id === checkout.body.order.id), true);
 
     const itemId = checkout.body.orderItems[0].id;
     const delivered = await request(baseUrl, 'PATCH', `/seller/order-items/${itemId}/status`, { status: 'delivered' }, sellerLogin.body.token);
@@ -143,6 +213,7 @@ test('disputes freeze escrow and admin can refund with ledger reconciliation', a
       currency: 'MNT',
       shippingAddress: { country: 'MN', city: 'Ulaanbaatar', line1: 'Demo address' }
     }, buyerLogin.body.token);
+    await captureDemoPayment(baseUrl, checkout.body.order.id, buyerLogin.body.token);
     const itemId = checkout.body.orderItems[0].id;
     await request(baseUrl, 'PATCH', `/seller/order-items/${itemId}/status`, { status: 'delivered' }, sellerLogin.body.token);
 
@@ -187,6 +258,7 @@ test('chat reviews reports moderation and admin dashboard are available', async 
       currency: 'MNT',
       shippingAddress: { country: 'MN', city: 'Ulaanbaatar', line1: 'Demo address' }
     }, buyerLogin.body.token);
+    await captureDemoPayment(baseUrl, checkout.body.order.id, buyerLogin.body.token);
     const itemId = checkout.body.orderItems[0].id;
 
     const conversation = await request(baseUrl, 'POST', '/conversations', {
@@ -275,6 +347,10 @@ test('discovery supports search filters, tourist mode, favorites, and follows', 
     const follow = await request(baseUrl, 'POST', `/follows/shops/${product.shopId}`, {}, buyerLogin.body.token);
     assert.equal(follow.status, 200);
 
+    const follows = await request(baseUrl, 'GET', '/follows/shops?locale=en', null, buyerLogin.body.token);
+    assert.equal(follows.status, 200);
+    assert.ok(follows.body.shops.some((item) => item.id === product.shopId));
+
     const tourist = await request(baseUrl, 'GET', '/tourist/home');
     assert.equal(tourist.status, 200);
     assert.equal(tourist.body.locale, 'en');
@@ -353,6 +429,7 @@ test('cart groups multiple sellers and seller can add made-to-order progress med
       shippingAddress: { country: 'MN', city: 'Ulaanbaatar', line1: 'Demo address' }
     }, buyerLogin.body.token);
     assert.equal(checkout.status, 200);
+    await captureDemoPayment(baseUrl, checkout.body.order.id, buyerLogin.body.token);
     assert.equal(checkout.body.orderItems.length, 2);
     assert.ok(checkout.body.orderItems.some((item) => item.orderType === 'made_to_order' && item.productionDays === 14));
 
@@ -733,8 +810,10 @@ test('FR-2 through FR-8 MVP acceptance flow is covered end to end', async () => 
       shippingAddress: { country: 'US', city: 'Seattle', line1: 'Demo international address' }
     }, buyerLogin.body.token);
     assert.equal(checkout.status, 200);
-    assert.equal(checkout.body.order.payment.method, 'stripe');
-    assert.equal(checkout.body.order.escrowStatus, 'held');
+    assert.equal(checkout.body.payment.provider, 'simulated');
+    assert.equal(checkout.body.order.payment.method, checkout.body.payment.provider);
+    assert.equal(checkout.body.order.escrowStatus, 'pending');
+    await captureDemoPayment(baseUrl, checkout.body.order.id, buyerLogin.body.token);
     assert.equal(checkout.body.order.sellerGroups.length, 1);
     assert.ok(checkout.body.orderItems.some((item) => item.orderType === 'custom' && item.productionDays === 12));
 
@@ -858,6 +937,7 @@ test('phase two APIs cover coupons contracts logistics AI and idempotent payment
       shippingAddress: { country: 'MN', city: 'Ulaanbaatar', line1: 'Demo address' }
     }, buyerLogin.body.token);
     assert.equal(checkout.status, 200);
+    await captureDemoPayment(baseUrl, checkout.body.order.id, buyerLogin.body.token);
     const itemId = checkout.body.orderItems[0].id;
 
     const shipment = await request(baseUrl, 'PATCH', `/seller/order-items/${itemId}/shipment`, {
@@ -881,24 +961,30 @@ test('phase two APIs cover coupons contracts logistics AI and idempotent payment
     assert.equal(ai.status, 200);
     assert.equal(ai.body.suggestions.categorySlug, 'felt-craft');
 
-    const webhookOne = await request(baseUrl, 'POST', '/webhooks/payments/qpay', {
-      eventId: 'qpay_evt_1',
-      orderId: checkout.body.order.id,
-      amount: 45000,
-      currency: 'MNT',
-      status: 'paid'
-    });
-    const webhookTwo = await request(baseUrl, 'POST', '/webhooks/payments/qpay', {
-      eventId: 'qpay_evt_1',
-      orderId: checkout.body.order.id,
-      amount: 45000,
-      currency: 'MNT',
-      status: 'paid'
-    });
-    assert.equal(webhookOne.status, 200);
-    assert.equal(webhookOne.body.idempotent, false);
-    assert.equal(webhookTwo.status, 200);
-    assert.equal(webhookTwo.body.idempotent, true);
+    const restoreQpay = installQpayPaymentCheckMock();
+    try {
+      const webhookPath = qpayCallbackPath(checkout.body.order.id);
+      const webhookOne = await request(baseUrl, 'POST', webhookPath, {
+        eventId: 'qpay_evt_1',
+        orderId: checkout.body.order.id,
+        amount: 45000,
+        currency: 'MNT',
+        status: 'paid'
+      });
+      const webhookTwo = await request(baseUrl, 'POST', webhookPath, {
+        eventId: 'qpay_evt_1',
+        orderId: checkout.body.order.id,
+        amount: 45000,
+        currency: 'MNT',
+        status: 'paid'
+      });
+      assert.equal(webhookOne.status, 200);
+      assert.equal(webhookOne.body.idempotent, false);
+      assert.equal(webhookTwo.status, 200);
+      assert.equal(webhookTwo.body.idempotent, true);
+    } finally {
+      restoreQpay();
+    }
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
@@ -928,6 +1014,7 @@ test('seller income is isolated and payout request uses released balance', async
       currency: 'MNT',
       shippingAddress: { country: 'MN', city: 'Ulaanbaatar', line1: 'Demo address' }
     }, buyerLogin.body.token);
+    await captureDemoPayment(baseUrl, checkout.body.order.id, buyerLogin.body.token);
     const itemId = checkout.body.orderItems[0].id;
 
     const forbidden = await request(baseUrl, 'PATCH', `/seller/order-items/${itemId}/status`, { status: 'accepted' }, otherSeller.body.token);

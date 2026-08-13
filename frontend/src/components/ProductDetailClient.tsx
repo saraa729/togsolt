@@ -112,45 +112,57 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     }
   }
 
+  const availability =
+    product.inventoryType === "made_to_order"
+      ? `${t("product.leadTime")}: ${product.productionDays || 0} ${t("product.days")}`
+      : product.inventoryType === "one_of_one"
+        ? t("inv.one_of_one")
+        : `${product.stock} ${t("product.stockLeft")}`;
+
   return (
-    <div className="page-wide py-10">
+    <div className="page-wide py-8">
       <nav className="muted mb-6 flex flex-wrap items-center gap-2 text-xs">
-        <Link href="/" className="hover:text-ink">
+        <Link href="/" className="transition-colors hover:text-ink">
           {t("nav.home")}
         </Link>
-        <span>/</span>
-        <Link href="/products" className="hover:text-ink">
+        <span className="text-line">/</span>
+        <Link href="/products" className="transition-colors hover:text-ink">
           {t("nav.products")}
         </Link>
         {product.category ? (
           <>
-            <span>/</span>
-            <Link href={`/products?categoryId=${product.category.id}`} className="hover:text-ink">
+            <span className="text-line">/</span>
+            <Link href={`/products?categoryId=${product.category.id}`} className="transition-colors hover:text-ink">
               {product.category.name}
             </Link>
           </>
         ) : null}
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-2">
-        {/* Gallery */}
-        <div>
-          <div className="card overflow-hidden">
+      <div className="mx-auto grid max-w-6xl items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] xl:gap-12">
+        {/* Зургийн галерей — багана богино тул том дэлгэц дээр наалдана */}
+        <section className="w-full space-y-3 lg:sticky lg:top-24">
+          <div className="overflow-hidden rounded-3xl border border-line bg-surface shadow-sm">
             <img
               src={imageOrPlaceholder(images[activeImage])}
               alt={product.titleText}
-              className="aspect-square w-full object-cover"
+              className="aspect-[5/4] max-h-135 w-full object-contain"
             />
           </div>
+
           {images.length > 1 ? (
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-2.5 overflow-x-auto pb-1">
               {images.map((image, index) => (
                 <button
                   key={`${image}-${index}`}
                   type="button"
                   onClick={() => setActiveImage(index)}
-                  className={`h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 ${
-                    index === activeImage ? "border-clay" : "border-line"
+                  aria-label={`${index + 1}`}
+                  aria-current={index === activeImage}
+                  className={`h-18 w-18 shrink-0 cursor-pointer overflow-hidden rounded-2xl border bg-surface transition ${
+                    index === activeImage
+                      ? "border-clay ring-2 ring-clay/25"
+                      : "border-line opacity-70 hover:opacity-100"
                   }`}
                 >
                   <img src={imageOrPlaceholder(image)} alt="" className="h-full w-full object-cover" />
@@ -160,10 +172,10 @@ export default function ProductDetailClient({ product }: { product: Product }) {
           ) : null}
 
           {product.processMedia?.length ? (
-            <div className="mt-6">
-              <h3 className="font-medium">{t("shop.process")}</h3>
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {product.processMedia.map((media, index) => (
+            <div className="rounded-3xl border border-line bg-surface p-4">
+              <h3 className="label mb-0">{t("shop.process")}</h3>
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {product.processMedia.slice(0, 4).map((media, index) => (
                   <img
                     key={index}
                     src={imageOrPlaceholder(media.url)}
@@ -175,135 +187,182 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               </div>
             </div>
           ) : null}
-        </div>
+        </section>
 
-        {/* Info */}
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="badge-clay">{t(`inv.${product.inventoryType}`)}</span>
-            {product.shipsInternationally ? <span className="badge-pine">✈ {t("home.trustGlobal")}</span> : null}
-          </div>
-
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">{product.titleText}</h1>
-
-          {product.shop ? (
-            <Link href={`/shop/${product.shop.slug}`} className="mt-3 inline-flex items-center gap-2 text-sm">
-              <span className="grid h-8 w-8 place-items-center overflow-hidden rounded-full bg-pine text-xs font-semibold text-white">
-                {product.shop.artisanProfile?.portraitUrl ? (
-                  <img
-                    src={imageOrPlaceholder(product.shop.artisanProfile.portraitUrl)}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  (product.shop.displayName || "?").slice(0, 1)
-                )}
-              </span>
-              <span className="font-medium hover:underline">{product.shop.displayName}</span>
-              {product.shop.verified ? <span className="badge bg-emerald-50 text-emerald-700">✓</span> : null}
-              <Stars value={product.shop.stats?.ratingAverage || 0} />
-            </Link>
-          ) : null}
-
-          <p className="mt-5 text-3xl font-semibold">{formatMoney(product.price, locale)}</p>
-          {product.internationalPrice && currency === "MNT" ? (
-            <p className="muted mt-1 text-xs">
-              {t("seller.priceUsd")}: {formatMoney(product.internationalPrice, locale)}
-            </p>
-          ) : null}
-
-          <p className="mt-4 whitespace-pre-line text-sm leading-relaxed">{product.descriptionText}</p>
-
-          <div className="mt-5 grid gap-2 text-sm">
-            {product.inventoryType === "made_to_order" ? (
-              <Row label={t("product.leadTime")} value={`${product.productionDays || 0} ${t("product.days")}`} />
-            ) : product.inventoryType === "one_of_one" ? (
-              <Row label={t("products.filters.inventory")} value={t("inv.one_of_one")} />
-            ) : (
-              <Row label={t("products.filters.inventory")} value={`${product.stock} ${t("product.stockLeft")}`} />
-            )}
-            {product.materials?.length ? <Row label={t("product.materials")} value={product.materials.join(", ")} /> : null}
-            {product.techniques?.length ? <Row label={t("common.technique")} value={product.techniques.join(", ")} /> : null}
-            {formatSize(product.size) ? <Row label={t("product.size")} value={formatSize(product.size)} /> : null}
-            {product.weightGram ? <Row label={t("product.weight")} value={`${product.weightGram} g`} /> : null}
-          </div>
-
-          {/* Shipping */}
-          {product.shippingInfo?.length ? (
-            <div className="mt-6">
-              <p className="label">{t("product.shipping")}</p>
-              <div className="grid gap-2">
-                {product.shippingInfo.map((option) => (
-                  <label
-                    key={option.code}
-                    className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition-colors ${
-                      shippingOption === option.code ? "border-clay bg-clay-soft/40" : "border-line"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="shipping"
-                      className="mt-0.5 h-4 w-4 accent-[var(--color-clay)]"
-                      checked={shippingOption === option.code}
-                      onChange={() => setShippingOption(option.code)}
-                    />
-                    <span>
-                      <span className="block font-medium">{option.label}</span>
-                      {option.customsNote ? <span className="muted block text-xs">{option.customsNote}</span> : null}
-                    </span>
-                  </label>
-                ))}
-              </div>
+        <section className="w-full space-y-5">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="badge-clay">{t(`inv.${product.inventoryType}`)}</span>
+              {product.shipsInternationally ? <span className="badge-pine">✈ {t("home.trustGlobal")}</span> : null}
             </div>
-          ) : null}
 
-          {/* Actions */}
-          <div className="mt-6 space-y-3">
-            {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
+            <h1 className="display mt-3 text-[28px] leading-[1.15] tracking-tight sm:text-[34px]">{product.titleText}</h1>
 
-            {soldOut ? (
-              <Alert tone="warn">{t("product.soldOut")}</Alert>
-            ) : (
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center rounded-full border border-line bg-surface">
-                  <button
-                    type="button"
-                    className="cursor-pointer px-3 py-2 text-lg leading-none"
-                    onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                  >
-                    −
-                  </button>
-                  <span className="w-8 text-center text-sm">{quantity}</span>
-                  <button
-                    type="button"
-                    className="cursor-pointer px-3 py-2 text-lg leading-none disabled:opacity-40"
-                    disabled={quantity >= maxQuantity}
-                    onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
-                  >
-                    +
-                  </button>
-                </div>
-                <button type="button" className="btn-primary px-6" disabled={busy} onClick={addToCart}>
-                  {busy ? <Spinner /> : null}
-                  {t("product.addToCart")}
-                </button>
-                <button type="button" className="btn-dark px-6" disabled={busy} onClick={addAndOpenCart}>
-                  {t("product.addAndViewCart")}
-                </button>
-                <button type="button" className="btn-secondary" onClick={toggleFavorite}>
-                  {favorite ? "♥" : "♡"} {favorite ? t("product.unfavorite") : t("product.favorite")}
-                </button>
-              </div>
-            )}
-
-            {!user ? <p className="muted text-xs">{t("product.loginToBuy")}</p> : null}
+            {product.shop ? (
+              <Link
+                href={`/shop/${product.shop.slug}`}
+                className="group mt-4 inline-flex items-center gap-2.5 text-sm transition-colors hover:text-clay-dark"
+              >
+                <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-pine text-xs font-semibold text-white">
+                  {product.shop.artisanProfile?.portraitUrl ? (
+                    <img
+                      src={imageOrPlaceholder(product.shop.artisanProfile.portraitUrl)}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    (product.shop.displayName || "?").slice(0, 1)
+                  )}
+                </span>
+                <span className="font-medium underline-offset-4 group-hover:underline">{product.shop.displayName}</span>
+                {product.shop.verified ? (
+                  <span className="text-emerald-700" title="verified">
+                    ✓
+                  </span>
+                ) : null}
+                <Stars value={product.shop.stats?.ratingAverage || 0} />
+              </Link>
+            ) : null}
           </div>
 
-          {/* Custom order */}
+          <div className="rounded-3xl border border-line bg-surface p-5 shadow-sm sm:p-6">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <p className="text-[32px] leading-none font-semibold tracking-tight">{formatMoney(product.price, locale)}</p>
+              <span className="rounded-full bg-paper px-3 py-1 text-[11px] font-medium text-muted">{availability}</span>
+            </div>
+            {product.internationalPrice && currency === "MNT" ? (
+              <p className="muted mt-2 text-xs">
+                {t("seller.priceUsd")}: {formatMoney(product.internationalPrice, locale)}
+              </p>
+            ) : null}
+
+            <p className="mt-4 border-t border-line/70 pt-4 text-sm leading-relaxed whitespace-pre-line text-ink/80">
+              {product.descriptionText}
+            </p>
+
+            {product.materials?.length || product.techniques?.length || formatSize(product.size) || product.weightGram ? (
+              <dl className="mt-4 divide-y divide-line/60 border-t border-line/70 text-xs">
+                {product.materials?.length ? <Row label={t("product.materials")} value={formatTerms(product.materials)} /> : null}
+                {product.techniques?.length ? <Row label={t("common.technique")} value={formatTerms(product.techniques)} /> : null}
+                {formatSize(product.size) ? <Row label={t("product.size")} value={formatSize(product.size)} /> : null}
+                {product.weightGram ? <Row label={t("product.weight")} value={`${product.weightGram} g`} /> : null}
+              </dl>
+            ) : null}
+
+            {product.shippingInfo?.length ? (
+              <div className="mt-5 border-t border-line/70 pt-4">
+                <p className="label">{t("product.shipping")}</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {product.shippingInfo.map((option) => {
+                    const selected = shippingOption === option.code;
+                    return (
+                      <label
+                        key={option.code}
+                        className={`flex cursor-pointer items-start gap-2.5 rounded-2xl border px-3 py-2.5 text-xs transition-colors ${
+                          selected ? "border-clay bg-clay-soft/45" : "border-line bg-paper hover:border-clay/40 hover:bg-paper"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="shipping"
+                          className="sr-only"
+                          checked={selected}
+                          onChange={() => setShippingOption(option.code)}
+                        />
+                        <span
+                          aria-hidden
+                          className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border transition-colors ${
+                            selected ? "border-clay bg-clay" : "border-line bg-surface"
+                          }`}
+                        >
+                          {selected ? <span className="h-1.5 w-1.5 rounded-full bg-white" /> : null}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block font-medium">{option.label}</span>
+                          {option.customsNote ? (
+                            <span className="muted mt-0.5 block text-[11px] leading-snug">{option.customsNote}</span>
+                          ) : null}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
+            <div className="mt-5 space-y-3 border-t border-line/70 pt-5">
+              {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
+
+              {soldOut ? (
+                <Alert tone="warn">{t("product.soldOut")}</Alert>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-12 shrink-0 items-center gap-1 rounded-full border border-line bg-paper px-1.5">
+                      <button
+                        type="button"
+                        className="grid h-9 w-9 cursor-pointer place-items-center rounded-full text-lg leading-none transition-colors hover:bg-surface disabled:opacity-40"
+                        disabled={quantity <= 1}
+                        onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                        aria-label="Decrease quantity"
+                      >
+                        −
+                      </button>
+                      <span className="w-6 text-center text-sm font-semibold tabular-nums">{quantity}</span>
+                      <button
+                        type="button"
+                        className="grid h-9 w-9 cursor-pointer place-items-center rounded-full text-lg leading-none transition-colors hover:bg-surface disabled:opacity-40"
+                        disabled={quantity >= maxQuantity}
+                        onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn-primary h-12 flex-1 px-4 text-sm"
+                      disabled={busy}
+                      onClick={addToCart}
+                    >
+                      {busy ? <Spinner /> : null}
+                      {t("product.addToCart")}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`grid h-12 w-12 shrink-0 cursor-pointer place-items-center rounded-full border transition-colors ${
+                        favorite ? "border-clay bg-clay-soft text-clay-dark" : "border-line bg-surface text-muted hover:text-clay"
+                      }`}
+                      onClick={toggleFavorite}
+                      aria-pressed={favorite}
+                      aria-label={favorite ? t("product.unfavorite") : t("product.favorite")}
+                      title={favorite ? t("product.unfavorite") : t("product.favorite")}
+                    >
+                      <HeartIcon filled={favorite} />
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn-dark h-11 w-full text-sm"
+                    disabled={busy}
+                    onClick={addAndOpenCart}
+                  >
+                    {t("product.addAndViewCart")}
+                  </button>
+                </>
+              )}
+
+              {!user ? <p className="muted text-center text-xs">{t("product.loginToBuy")}</p> : null}
+            </div>
+          </div>
+
           {product.customEnabled ? (
-            <div className="card-pad mt-6 bg-clay-soft/40">
+            <div className="rounded-3xl border border-clay/20 bg-clay-soft/35 p-5 text-sm">
               <p className="font-medium">{t("product.customTitle")}</p>
-              <p className="muted mt-1">{t("product.customHint")}</p>
+              <p className="muted mt-1 text-xs leading-relaxed">{t("product.customHint")}</p>
               {customOpen ? (
                 <div className="mt-3 space-y-3">
                   <textarea
@@ -313,89 +372,109 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                     placeholder={t("custom.messagePlaceholder")}
                   />
                   <div className="flex gap-2">
-                    <button type="button" className="btn-primary" disabled={busy} onClick={sendCustomRequest}>
+                    <button type="button" className="btn-primary btn-sm" disabled={busy} onClick={sendCustomRequest}>
                       {busy ? <Spinner /> : null}
                       {t("product.customSend")}
                     </button>
-                    <button type="button" className="btn-ghost" onClick={() => setCustomOpen(false)}>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => setCustomOpen(false)}>
                       {t("common.cancel")}
                     </button>
                   </div>
                 </div>
               ) : (
-                <button type="button" className="btn-secondary mt-3" onClick={() => setCustomOpen(true)}>
+                <button type="button" className="btn-secondary btn-sm mt-3" onClick={() => setCustomOpen(true)}>
                   {t("product.customTitle")}
                 </button>
               )}
             </div>
           ) : null}
 
-          {/* Story / technique */}
-          {product.storyText ? (
-            <section className="mt-8">
-              <h2 className="font-medium">{t("product.story")}</h2>
-              <p className="muted mt-2 whitespace-pre-line">{product.storyText}</p>
-            </section>
-          ) : null}
-          {product.techniqueText ? (
-            <section className="mt-6">
-              <h2 className="font-medium">{t("product.technique")}</h2>
-              <p className="muted mt-2 whitespace-pre-line">{product.techniqueText}</p>
-            </section>
-          ) : null}
+          {reportOpen ? (
+            <div className="space-y-3 rounded-3xl border border-line bg-surface p-4">
+              <input
+                className="input"
+                placeholder={t("common.reason")}
+                value={reportReason}
+                onChange={(event) => setReportReason(event.target.value)}
+              />
+              <div className="flex gap-2">
+                <button type="button" className="btn-danger btn-sm" disabled={busy} onClick={sendReport}>
+                  {t("common.send")}
+                </button>
+                <button type="button" className="btn-ghost btn-sm" onClick={() => setReportOpen(false)}>
+                  {t("common.cancel")}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" className="btn-ghost btn-sm -ml-3" onClick={() => setReportOpen(true)}>
+              ⚑ {t("product.report")}
+            </button>
+          )}
+        </section>
+      </div>
 
-          {/* Artisan */}
+      {product.storyText || product.techniqueText || product.shop ? (
+        <section className="mx-auto mt-14 grid max-w-6xl gap-4 lg:grid-cols-3">
+          {product.storyText ? <DetailBlock title={t("product.story")} body={product.storyText} /> : null}
+          {product.techniqueText ? <DetailBlock title={t("product.technique")} body={product.techniqueText} /> : null}
           {product.shop ? (
-            <section className="card-pad mt-8">
-              <h2 className="font-medium">{t("product.aboutArtisan")}</h2>
-              <p className="muted mt-2 line-clamp-4">{product.shop.storyText}</p>
-              <Link href={`/shop/${product.shop.slug}`} className="btn-secondary mt-4">
+            <article className="flex flex-col rounded-3xl border border-line bg-surface p-5">
+              <h2 className="text-base font-medium">{t("product.aboutArtisan")}</h2>
+              <p className="muted mt-2 line-clamp-4 flex-1 text-sm leading-relaxed">{product.shop.storyText}</p>
+              <Link href={`/shop/${product.shop.slug}`} className="btn-secondary btn-sm mt-4 self-start">
                 {t("product.visitShop")}
               </Link>
-            </section>
+            </article>
           ) : null}
-
-          {/* Report */}
-          <div className="mt-6">
-            {reportOpen ? (
-              <div className="card-pad space-y-3">
-                <input
-                  className="input"
-                  placeholder={t("common.reason")}
-                  value={reportReason}
-                  onChange={(event) => setReportReason(event.target.value)}
-                />
-                <div className="flex gap-2">
-                  <button type="button" className="btn-danger btn-sm" disabled={busy} onClick={sendReport}>
-                    {t("common.send")}
-                  </button>
-                  <button type="button" className="btn-ghost btn-sm" onClick={() => setReportOpen(false)}>
-                    {t("common.cancel")}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button type="button" className="btn-ghost btn-sm" onClick={() => setReportOpen(true)}>
-                ⚑ {t("product.report")}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+        </section>
+      ) : null}
 
       <ProductReviews productId={product.id} summary={product.reviewSummary} />
 
-      {product.relatedProducts?.length ? (
-        <section className="mt-16">
-          <h2 className="section-title pb-5">{t("product.related")}</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {product.relatedProducts.map((item) => (
-              <ProductCard key={item.id} product={item} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+      {product.relatedProducts?.length ? <RelatedProducts product={product} className="mt-16" /> : null}
     </div>
+  );
+}
+
+function RelatedProducts({ product, className = "" }: { product: Product; className?: string }) {
+  const { t } = useApp();
+
+  return (
+    <section className={`scroll-mt-24 ${className}`}>
+      <h2 className="section-title pb-5">{t("product.related")}</h2>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+        {product.relatedProducts?.slice(0, 4).map((item) => (
+          <ProductCard key={item.id} product={item} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function DetailBlock({ title, body }: { title: string; body: string }) {
+  return (
+    <article className="rounded-3xl border border-line bg-surface p-5">
+      <h2 className="text-base font-medium">{title}</h2>
+      <p className="muted mt-2 text-sm leading-relaxed whitespace-pre-line">{body}</p>
+    </article>
+  );
+}
+
+function HeartIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className="h-5 w-5"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20.5 4.4 13a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l1.1 1.1 1.1-1.1a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z" />
+    </svg>
   );
 }
 
@@ -439,7 +518,7 @@ function ProductReviews({
   if (!reviews.length) return null;
 
   return (
-    <section className="mt-16">
+    <section className="mt-16 scroll-mt-24">
       <div className="flex flex-wrap items-baseline gap-3 pb-5">
         <h2 className="section-title">{t("product.reviews")}</h2>
         <span className="flex items-center gap-2 text-sm text-muted">
@@ -448,15 +527,15 @@ function ProductReviews({
         </span>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {reviews.map((review) => (
-          <article key={review.id} className="card-pad">
+          <article key={review.id} className="rounded-3xl border border-line/70 bg-surface p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm font-medium">{review.reviewerName}</span>
               <Stars value={review.rating} />
             </div>
             {review.comment ? <p className="mt-2 text-sm leading-relaxed">{review.comment}</p> : null}
-            <p className="muted mt-2 text-xs">{formatDate(review.createdAt, locale)}</p>
+            <p className="muted mt-3 text-xs">{formatDate(review.createdAt, locale)}</p>
           </article>
         ))}
       </div>
@@ -466,9 +545,18 @@ function ProductReviews({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex gap-3 border-b border-line/60 pb-2">
-      <span className="w-40 shrink-0 text-muted">{label}</span>
-      <span className="font-medium">{value}</span>
+    <div className="grid gap-1 py-2.5 sm:grid-cols-[118px_1fr] sm:gap-3">
+      <dt className="text-muted">{label}</dt>
+      <dd className="font-medium text-ink">{value}</dd>
     </div>
   );
+}
+
+function formatTerms(values: string[]): string {
+  return values.map((value) => formatTerm(value)).join(", ");
+}
+
+function formatTerm(value: string): string {
+  const text = value.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  return text ? text[0].toUpperCase() + text.slice(1) : value;
 }

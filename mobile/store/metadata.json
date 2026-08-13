@@ -1,0 +1,13 @@
+{
+  "appName": "ExpoCraft",
+  "subtitle": "Mongolian handmade marketplace",
+  "shortDescription": "Discover, customize, and order handmade Mongolian crafts.",
+  "fullDescription": "ExpoCraft connects buyers with verified Mongolian artisans. Browse handmade crafts, request custom pieces, follow order progress, and manage secure marketplace purchases.",
+  "keywords": ["handmade", "mongolia", "craft", "artisan", "souvenir"],
+  "category": "Shopping",
+  "contentRating": "4+",
+  "privacyPolicyUrl": "https://expocraft.mn/privacy",
+  "supportUrl": "https://expocraft.mn/support",
+  "marketingUrl": "https://expocraft.mn",
+  "contactEmail": "support@expocraft.mn"
+}

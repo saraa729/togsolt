@@ -56,7 +56,13 @@ module.exports = function registerOrders(ctx) {
     shopResponse,
     getOrCreateCart,
     cartResponse,
-    normalizeBankAccount
+    normalizeBankAccount,
+    paymentProviderFor,
+    assertPaymentProviderUsable,
+    createPayment,
+    capturePayment,
+    failPayment,
+    checkQpayInvoice
   } = ctx;
 
   route('POST', '/cart/items', async (ctx) => {
@@ -188,22 +194,29 @@ module.exports = function registerOrders(ctx) {
     const currency = assertSupportedCurrency(body.currency || 'MNT');
     const shippingAddress = body.shippingAddress || {};
     const destinationCountry = shippingAddress.country || 'MN';
-    const paymentMethod = body.paymentMethod || (currency === 'MNT' ? 'qpay' : 'stripe');
-    assertPaymentProvider(currency, paymentMethod);
+    /*
+     * Provider-ыг ХЭРЭГЛЭГЧ биш, тохиргоо шийднэ: USD→stripe, MNT→qpay,
+     * тохируулаагүй бол dev-ийн simulated. Ингэснээр хэрэглэгч хүсэлтдээ
+     * дурын `paymentMethod` бичээд өөр суваг сонгож чадахгүй.
+     */
+    const paymentMethod = paymentProviderFor(currency);
+    // Захиалга үүсгэхийн ӨМНӨ шалгана — эс бөгөөс дэмий `payment_failed` мөр үлдэнэ.
+    assertPaymentProviderUsable(paymentMethod, currency);
     const shippingSelections = body.shippingSelections || {};
     const order: any = {
       id: id('ord'),
       buyerId: user.id,
-      status: 'paid',
+      // Мөнгө ирээгүй байна — provider баталгаажуулах хүртэл `pending_payment`.
+      status: 'pending_payment',
       currency,
       payment: {
         method: paymentMethod,
-        status: 'captured',
-        providerRef: id(paymentMethod === 'stripe' ? 'pi' : 'qpay'),
-        capturedAt: now()
+        status: 'pending',
+        providerRef: null,
+        capturedAt: null
       },
-      escrowStatus: 'held',
-      lifecycle: ['paid'],
+      escrowStatus: 'pending',
+      lifecycle: ['pending_payment'],
       shippingAddress,
       destinationCountry,
       sellerGroups: [],
@@ -242,10 +255,11 @@ module.exports = function registerOrders(ctx) {
         lineTotal,
         commission,
         sellerReceivable,
-        escrowStatus: 'held',
-        escrowHeldAt: now(),
+        // Төлбөр батлагдтал escrow-д орохгүй — `capturePayment` эдгээрийг шинэчилнэ.
+        escrowStatus: 'pending',
+        escrowHeldAt: null,
         escrowReleasedAt: null,
-        status: 'paid',
+        status: 'pending_payment',
         progressUpdates: [],
         payoutId: null,
         createdAt: now(),
@@ -330,42 +344,103 @@ module.exports = function registerOrders(ctx) {
 
     db.orders.push(order);
     db.orderItems.push(...orderItems);
-    for (const item of orderItems) {
-      addEscrowEntry(order.id, item.id, item.sellerId, `capture_${paymentMethod}_payment`, item.lineTotal, `${paymentMethod} payment captured by platform.`);
-      addEscrowEntry(order.id, item.id, item.sellerId, 'hold_buyer_payment', item.lineTotal, 'Buyer payment captured and held by platform escrow.');
-      addEscrowEntry(order.id, item.id, item.sellerId, 'reserve_platform_commission', item.commission, 'Commission reserved from held funds.');
-    }
-    /*
-     * Гэрээтэй захиалга: төлбөр хийгдмэгц гэрээ хэрэгжиж эхэлнэ. Урьдчилгааны
-     * үе шатыг төлөгдсөнд тооцно — мөнгө нь escrow-д аль хэдийн орсон.
-     */
-    for (const item of orderItems.filter((candidate) => candidate.customRequestId)) {
-      const contract = db.contracts.find((candidate) => candidate.customRequestId === item.customRequestId);
-      if (!contract || contract.status === 'cancelled') continue;
-      contract.status = 'in_progress';
-      contract.orderId = order.id;
-      contract.orderItemId = item.id;
-      const deposit = (contract.depositSchedule || []).find((milestone) => milestone.due === 'on_acceptance');
-      if (deposit) {
-        deposit.status = 'paid';
-        deposit.paidAt = now();
-      }
-      contract.updatedAt = now();
-      audit(user.id, 'contract_in_progress', 'contract', contract.id, { orderId: order.id });
-    }
 
     cart.items = [];
     cart.updatedAt = now();
-    audit(user.id, 'checkout', 'order', order.id, { itemCount: orderItems.length });
+    audit(user.id, 'checkout', 'order', order.id, { itemCount: orderItems.length, provider: paymentMethod });
     saveState(db);
-    return { order, orderItems };
+
+    /*
+     * Escrow бичилт, гэрээний эхлэл БҮГД `capturePayment`-д шилжсэн — мөнгө
+     * бодитоор ирснийг provider баталгаажуулах хүртэл ledger-т юу ч бичихгүй.
+     * Нэхэмжлэх үүсгэхэд алдвал захиалгыг цуцалж, нөөцөлсөн үлдэгдлийг буцаана.
+     */
+    let payment;
+    try {
+      payment = await createPayment(order);
+    } catch (error) {
+      failPayment(order, 'payment_session_failed');
+      throw error;
+    }
+
+    order.payment = { ...order.payment, providerRef: payment.providerRef, session: payment };
+    saveState(db);
+
+    return { order, orderItems, payment };
+  });
+
+  /**
+   * Төлбөрийн явцыг асуух. QPay QR-ыг уншсаны дараа frontend үүгээр тандана;
+   * Stripe-д webhook саатвал буцаж ирсэн хэрэглэгчид зөв төлөв харуулна.
+   */
+  route('GET', '/orders/:orderId/payment', async (ctx) => {
+    const user = requireRole(ctx, ROLES.BUYER);
+    const order = db.orders.find((candidate) => candidate.id === ctx.params.orderId && candidate.buyerId === user.id);
+    if (!order) throw httpError(404, 'order_not_found', 'Order was not found.');
+
+    // QPay callback хүрч ирээгүй байж болзошгүй тул эх сурвалжаас нь дахин асууна.
+    if (order.status === 'pending_payment' && order.payment?.method === 'qpay' && order.payment?.providerRef) {
+      const check = await checkQpayInvoice(order.payment.providerRef).catch(() => null);
+      if (check?.paid) capturePayment(order, { provider: 'qpay', providerRef: order.payment.providerRef, raw: check.raw });
+    }
+
+    return {
+      orderId: order.id,
+      status: order.status,
+      escrowStatus: order.escrowStatus,
+      payment: {
+        method: order.payment?.method,
+        status: order.payment?.status,
+        redirectUrl: order.payment?.session?.redirectUrl || null,
+        qrText: order.payment?.session?.qrText || null,
+        qrImage: order.payment?.session?.qrImage || null,
+        deepLinks: order.payment?.session?.deepLinks || []
+      }
+    };
+  });
+
+  /**
+   * Demo/дипломын төлбөр баталгаажуулах endpoint. Live provider байхгүй үед
+   * checkout шууд төлөгдөхгүй; buyer энэ үйлдлийг хийсний дараа л `paid`
+   * болж escrow-д орно. Production live горимд simulated capture хориглогдоно.
+   */
+  route('POST', '/orders/:orderId/payment/demo-capture', async (ctx) => {
+    const user = requireRole(ctx, ROLES.BUYER);
+    const body = await readJson(ctx.req);
+    const demoMethod = ['qpay', 'bank_app', 'card', 'bank_transfer'].includes(body.demoMethod)
+      ? body.demoMethod
+      : 'qpay';
+    const order = db.orders.find((candidate) => candidate.id === ctx.params.orderId && candidate.buyerId === user.id);
+    if (!order) throw httpError(404, 'order_not_found', 'Order was not found.');
+    if (order.payment?.method !== 'simulated' && !order.payment?.session?.simulated) {
+      throw httpError(409, 'not_demo_payment', 'This order is not using the demo payment provider.');
+    }
+    if (String(process.env.EXPOCRAFT_PAYMENT_MODE || 'manual').toLowerCase() === 'live') {
+      throw httpError(403, 'demo_payment_disabled', 'Demo payment capture is disabled in live payment mode.');
+    }
+    const result = capturePayment(order, {
+      provider: 'simulated',
+      providerRef: order.payment?.providerRef || order.payment?.session?.providerRef,
+      raw: { confirmedBy: user.id, source: 'demo-capture', demoMethod }
+    });
+    audit(user.id, 'demo_capture_payment', 'order', order.id, { demoMethod });
+    saveState(db);
+    return {
+      order: result.order,
+      alreadyCaptured: result.alreadyCaptured,
+      orderItems: db.orderItems.filter((item) => item.orderId === order.id)
+    };
   });
   
   route('GET', '/orders', async (ctx) => {
     const user = requireAuth(ctx);
     let orders = db.orders;
     if (!hasRole(user, ROLES.ADMIN) && hasRole(user, ROLES.SELLER)) {
-      const sellerOrderIds = new Set(db.orderItems.filter((item) => item.sellerId === user.id).map((item) => item.orderId));
+      const sellerOrderIds = new Set(
+        db.orderItems
+          .filter((item) => item.sellerId === user.id && item.status !== 'pending_payment')
+          .map((item) => item.orderId)
+      );
       orders = orders.filter((order) => order.buyerId === user.id || sellerOrderIds.has(order.id));
     } else if (!hasRole(user, ROLES.ADMIN) && hasRole(user, ROLES.BUYER)) {
       orders = orders.filter((order) => order.buyerId === user.id);
@@ -373,7 +448,12 @@ module.exports = function registerOrders(ctx) {
     return {
       orders: orders.map((order) => ({
         ...order,
-        items: db.orderItems.filter((item) => item.orderId === order.id && (!hasRole(user, ROLES.SELLER) || hasRole(user, ROLES.ADMIN) || item.sellerId === user.id))
+        items: db.orderItems.filter((item) => {
+          if (item.orderId !== order.id) return false;
+          if (!hasRole(user, ROLES.SELLER) || hasRole(user, ROLES.ADMIN)) return true;
+          if (order.buyerId === user.id) return true;
+          return item.sellerId === user.id && item.status !== 'pending_payment';
+        })
       }))
     };
   });
@@ -431,6 +511,16 @@ module.exports = function registerOrders(ctx) {
   
   const SELLER_SETTABLE_ORDER_ITEM_STATUS = ORDER_ITEM_STATUS.filter((status) => !['completed', 'disputed'].includes(status));
 
+  /*
+   * Урлаачийн явцын дараалал. Бэлэн бүтээл `making` шатгүйгээр шууд `shipped`
+   * болж болох тул АЛХАМ АЛГАСАХЫГ зөвшөөрнө, харин УХРАХЫГ хориглоно — эс
+   * бөгөөс хүргэгдсэн захиалга дахин "хийж байна" болж, худалдан авагчийн
+   * явцын мөр худал мэдээлэл харуулна.
+   */
+  const SELLER_FLOW = ['paid', 'accepted', 'making', 'shipped', 'delivered'];
+  /** Эцсийн төлөвүүд: escrow аль хэдийн шийдэгдсэн тул урлаач хөндөхгүй. */
+  const LOCKED_ORDER_ITEM_STATUS = ['completed', 'cancelled', 'disputed'];
+
   route('PATCH', '/seller/order-items/:itemId/status', async (ctx) => {
     const user = requireRole(ctx, ROLES.SELLER);
     const body = await readJson(ctx.req);
@@ -438,6 +528,19 @@ module.exports = function registerOrders(ctx) {
     if (!item) throw httpError(404, 'order_item_not_found', 'Seller order item was not found.');
     if (!SELLER_SETTABLE_ORDER_ITEM_STATUS.includes(body.status)) {
       throw httpError(422, 'invalid_status', 'Sellers cannot set this status directly; completion requires buyer confirmation and disputes must go through /disputes.');
+    }
+    if (item.status === 'pending_payment') {
+      throw httpError(409, 'order_not_paid', 'This order has not been paid yet; wait for the payment to be confirmed.');
+    }
+    if (LOCKED_ORDER_ITEM_STATUS.includes(item.status)) {
+      throw httpError(409, 'order_item_locked', `Order item is already ${item.status}; its status can no longer be changed.`);
+    }
+    if (body.status === 'cancelled') {
+      if (item.status === 'delivered') {
+        throw httpError(409, 'cancel_not_allowed', 'A delivered item cannot be cancelled; open a dispute instead.');
+      }
+    } else if (SELLER_FLOW.indexOf(body.status) <= SELLER_FLOW.indexOf(item.status)) {
+      throw httpError(409, 'invalid_status_transition', `Order item cannot move from ${item.status} back to ${body.status}.`);
     }
     item.status = body.status;
     item.tracking = body.tracking || item.tracking || null;

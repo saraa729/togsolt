@@ -20,6 +20,11 @@
     "db:status": "npm run build && node dist/scripts/prisma-state.js status",
     "backup": "bash scripts/backup.sh",
     "backup:postgres": "bash scripts/backup-postgres.sh",
+    "restore:postgres": "bash scripts/restore-postgres.sh",
+    "smoke:monitoring": "npm run build && node dist/scripts/monitoring-smoke.js",
+    "smoke:production": "npm run build && node dist/scripts/production-smoke.js",
+    "smoke:providers": "npm run build && node dist/scripts/provider-config-smoke.js",
+    "worker:queue": "npm run build && node dist/scripts/queue-worker.js",
     "db:relational": "npm run build && node dist/scripts/export-relational.js",
     "products:images": "npm run build && node dist/scripts/assign-product-images.js"
   },

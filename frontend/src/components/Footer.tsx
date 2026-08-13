@@ -24,7 +24,6 @@ export default function Footer() {
         { href: "/register?role=seller", label: t("auth.asSeller") },
         { href: "/seller", label: t("nav.seller") },
         { href: "/orders", label: t("nav.orders") },
-        { href: "/custom-requests", label: t("nav.custom") },
       ],
     },
     {

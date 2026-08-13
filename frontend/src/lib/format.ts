@@ -19,6 +19,39 @@ function defaultApiUrl(): string {
 
 export const API_URL = defaultApiUrl();
 
+function isLoopbackHost(hostname: string): boolean {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0";
+}
+
+function isPrivateIpv4(hostname: string): boolean {
+  return /^(10|192\.168|172\.(1[6-9]|2\d|3[0-1]))\./.test(hostname);
+}
+
+export function getApiUrl(): string {
+  if (typeof window === "undefined" || process.env.NODE_ENV === "production") return API_URL;
+
+  try {
+    const currentHost = window.location.hostname;
+    const currentIsLoopback = isLoopbackHost(currentHost);
+    const target = new URL(API_URL);
+    const targetIsLoopback = isLoopbackHost(target.hostname);
+
+    if (currentIsLoopback && isPrivateIpv4(target.hostname)) {
+      target.hostname = "localhost";
+      return target.toString().replace(/\/$/, "");
+    }
+
+    if (!currentIsLoopback && (targetIsLoopback || isPrivateIpv4(target.hostname))) {
+      target.hostname = currentHost;
+      return target.toString().replace(/\/$/, "");
+    }
+  } catch {
+    return API_URL;
+  }
+
+  return API_URL;
+}
+
 export function formatMoney(money: Money | null | undefined, locale: Locale = "mn"): string {
   if (!money) return "—";
   const amount = Number(money.amount || 0);
@@ -58,13 +91,13 @@ export function formatDateTime(value?: string | null, locale: Locale = "mn"): st
 
 /**
  * Backend нь байршуулсан зургийг `/uploads/…` гэсэн харьцангуй замаар буцаадаг.
- * Frontend өөр порт дээр ажилладаг тул API-гийн origin-той нийлүүлж өгнө.
+ * Hydration зөрөхөөс сэргийлж зурагны src-г server/client дээр ижил relative
+ * хэвээр үлдээнэ. Next rewrite `/uploads/*`-ийг backend рүү proxy хийнэ.
  */
 export function resolveImageUrl(url?: string | null): string | null {
   const value = url?.trim();
   if (!value) return null;
   if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:") || value.startsWith("blob:")) return value;
-  if (value.startsWith("/uploads/")) return `${API_URL}${value}`;
   if (value.startsWith("/")) return value;
   return value;
 }

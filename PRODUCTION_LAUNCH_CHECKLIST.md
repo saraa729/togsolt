@@ -20,7 +20,9 @@ repo дотроос бүрэн автоматаар хийж болохгүй.
 | Stripe/QPay live mode | Blocked | User | Merchant/API key хэрэгтэй |
 | Cloudflare R2 upload | Blocked | User | R2 bucket/access key хэрэгтэй |
 | Legal/escrow approval | Blocked | User + lawyer | Draft байгаа, мэргэжлийн баталгаажуулалт хэрэгтэй |
-| Monitoring/security gate | Partial | Codex + User | Code/config байгаа, external dashboards хэрэгтэй |
+| Monitoring/security gate | Done repo-side | Codex + User | Smoke/config байгаа, external dashboards хэрэгтэй |
+| Provider contracts | Done repo-side | Codex | `Backend/PROVIDER_CONTRACTS.md` |
+| Render/Vercel env steps | Done repo-side | Codex | `DEPLOY_STEPS.md` |
 
 ## 1. Render Backend
 
@@ -42,6 +44,7 @@ Render дээр заавал бөглөх env:
 EXPOCRAFT_WEB_ORIGIN=https://<vercel-frontend-domain>
 FRONTEND_URL=https://<vercel-frontend-domain>
 EXPOCRAFT_PUBLIC_ORIGIN=https://<render-backend-domain>
+EXPOCRAFT_PUBLIC_API_URL=https://<render-backend-domain>
 BACKEND_URL=https://<render-backend-domain>
 EXPOCRAFT_CORS_ORIGINS=https://<vercel-frontend-domain>
 GOOGLE_CLIENT_ID=727216094961-nmhhimemqnqopfe440u5d7rd53rpae83.apps.googleusercontent.com
@@ -74,6 +77,7 @@ NEXT_PUBLIC_API_URL=https://<render-backend-domain>
 API_URL=https://<render-backend-domain>
 NEXT_PUBLIC_SITE_URL=https://<vercel-frontend-domain>
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=727216094961-nmhhimemqnqopfe440u5d7rd53rpae83.apps.googleusercontent.com
+NEXT_PUBLIC_GOOGLE_LOCAL_ORIGIN=https://<vercel-frontend-domain>
 ```
 
 Deploy дуусмагц:
@@ -204,8 +208,19 @@ Repo-д байгаа:
 
 - `Backend/monitoring/alerts.yml`
 - `Backend/scripts/backup-postgres.sh`
+- `Backend/scripts/restore-postgres.sh`
+- `Backend/scripts/monitoring-smoke.ts`
+- `Backend/scripts/provider-config-smoke.ts`
 - `Backend/scripts/production-readiness.ts`
 - `SECURITY_MONITORING_CHECKLIST.md`
+
+Repo-side checks:
+
+```bash
+cd Backend
+npm run smoke:monitoring
+npm run smoke:providers
+```
 
 ## 9. Final Launch Smoke Test
 
@@ -226,4 +241,3 @@ Upload image works with R2
 Metrics endpoint reachable by monitoring
 Backup job completes
 ```
-

@@ -68,6 +68,12 @@ const createLedgerService: ServiceFactory<LedgerServiceInput, LedgerService> = f
     if (!order) return null;
     const items = db.orderItems.filter((item) => item.orderId === orderId);
     if (items.length === 0) return order;
+    /*
+     * Төлбөр батлагдаагүй захиалгыг "төлөгдсөн" болгож болохгүй — доорх
+     * `else` салбар бүх тодорхойгүй тохиолдлыг `held/paid` болгодог тул
+     * хүлээгдэж буй захиалгыг эндээс эрт гаргана.
+     */
+    if (items.every((item) => item.escrowStatus === 'pending')) return order;
     if (items.every((item) => item.escrowStatus === 'released')) {
       order.escrowStatus = 'released';
       order.status = 'completed';

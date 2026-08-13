@@ -199,7 +199,7 @@ export type Order = {
   buyerId: string;
   status: string;
   currency: Currency;
-  payment: { method: string; status: string; providerRef: string; capturedAt: string };
+  payment: { method: string; status: string; providerRef: string | null; capturedAt: string | null };
   escrowStatus: string;
   lifecycle: string[];
   shippingAddress: Record<string, any>;
@@ -213,6 +213,22 @@ export type Order = {
   buyer?: User;
   /** Купон хэрэглэсэн бол — `subtotal` нь хөнгөлөлт хассан дүн. */
   coupon?: { id: string; code: string; sellerId: string; discount: Money } | null;
+};
+
+/**
+ * `/checkout` болон `/orders/:id/payment`-аас ирэх төлбөрийн заавар.
+ * `redirectUrl` — Stripe hosted хуудас, `qrImage/qrText` — QPay,
+ * `simulated` — provider тохируулаагүй demo горим (хэрэглэгч баталгаажуулсны дараа төлөгдөнө).
+ */
+export type PaymentInstruction = {
+  provider: string;
+  providerRef?: string | null;
+  status: string;
+  redirectUrl?: string | null;
+  qrText?: string | null;
+  qrImage?: string | null;
+  deepLinks?: { name?: string; description?: string; link?: string; logo?: string }[];
+  simulated?: boolean;
 };
 
 export type CustomRequestMessage = {

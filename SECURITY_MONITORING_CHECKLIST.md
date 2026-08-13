@@ -41,6 +41,9 @@
 - [ ] Backup storage encrypted.
 - [ ] Monthly restore drill scheduled.
 - [ ] Restore runbook owner assigned.
+- [ ] `npm run smoke:monitoring` pass.
+- [ ] `npm run smoke:providers` pass.
+- [ ] `npm run restore:postgres` drill tested against non-production restore DB.
 
 ## Release Gate
 
@@ -48,9 +51,10 @@
 - [ ] Frontend build pass.
 - [ ] Backend env check pass.
 - [ ] Production readiness reviewed.
+- [ ] `DEPLOY_STEPS.md` followed for Render/Vercel env values.
+- [ ] `Backend/PROVIDER_CONTRACTS.md` matched by external provider contracts.
 - [ ] Domain SSL valid.
 - [ ] Google OAuth production origins added.
 - [ ] Payment test transaction passed.
 - [ ] R2 image upload test passed.
 - [ ] Legal docs approved.
-

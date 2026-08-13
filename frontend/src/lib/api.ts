@@ -1,4 +1,4 @@
-import { API_URL } from "./format";
+import { getApiUrl } from "./format";
 
 export class ApiError extends Error {
   status: number;
@@ -103,7 +103,7 @@ async function request<T>(path: string, options: RequestOptions = {}, isRetry = 
 
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}${buildQuery(query)}`, {
+    response = await fetch(`${getApiUrl()}${path}${buildQuery(query)}`, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -183,7 +183,8 @@ export async function uploadImage(file: File, isRetry = false): Promise<string> 
   const body = new FormData();
   body.append("file", file);
 
-  const response = await fetch(`${API_URL}/uploads/images`, {
+  const apiUrl = getApiUrl();
+  const response = await fetch(`${apiUrl}/uploads/images`, {
     method: "POST",
     headers: {
       ...(token ? { authorization: `Bearer ${token}` } : {}),
@@ -204,7 +205,7 @@ export async function uploadImage(file: File, isRetry = false): Promise<string> 
 
   const url = payload?.upload?.url as string | undefined;
   if (!url) throw new ApiError(500, "upload_failed", "Upload did not return a URL.");
-  return url.startsWith("http") ? url : `${API_URL}${url}`;
+  return url.startsWith("http") ? url : `${apiUrl}${url}`;
 }
 
 export function errorMessage(error: unknown, fallback = "Алдаа гарлаа / Something went wrong"): string {

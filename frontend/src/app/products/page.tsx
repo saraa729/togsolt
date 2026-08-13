@@ -4,13 +4,13 @@ import ProductFilters from "@/components/ProductFilters";
 import { serverGet } from "@/lib/api";
 import { translate } from "@/lib/i18n";
 import { readPreferences } from "@/lib/prefs";
-import type { Category, Product } from "@/lib/types";
+import type { Product } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Бүх бүтээл / All crafts",
-  description: "Монголын гар урлаачдын бүтээлүүдийг ангилал, материал, техник, үнээр шүүж хайна.",
+  description: "Монголын гар урлаачдын бүтээлүүдийг хайж үзнэ.",
 };
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -39,17 +39,9 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     if (typeof value === "string" && value) query[key] = value;
   }
 
-  const [productsPayload, categoriesPayload, allPayload] = await Promise.all([
-    serverGet<{ products: Product[] }>("/products", query),
-    serverGet<{ categories: Category[] }>("/categories", { locale }),
-    serverGet<{ products: Product[] }>("/products", { locale, currency }),
-  ]);
+  const productsPayload = await serverGet<{ products: Product[] }>("/products", query);
 
   const products = productsPayload?.products ?? [];
-  const categories = categoriesPayload?.categories ?? [];
-  const all = allPayload?.products ?? [];
-  const materials = [...new Set(all.flatMap((product) => product.materials || []))].sort();
-  const techniques = [...new Set(all.flatMap((product) => product.techniques || []))].sort();
 
   return (
     <div className="page-wide py-10">
@@ -60,27 +52,23 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        <aside>
-          <Suspense fallback={<div className="card h-96 skeleton" />}>
-            <ProductFilters categories={categories} materials={materials} techniques={techniques} />
-          </Suspense>
-        </aside>
+      <Suspense fallback={<div className="card h-20 skeleton" />}>
+        <ProductFilters />
+      </Suspense>
 
-        <section>
-          {products.length === 0 ? (
-            <div className="card grid place-items-center px-6 py-20 text-center">
-              <p className="muted max-w-sm">{t("products.empty")}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
+      <section className="mt-8">
+        {products.length === 0 ? (
+          <div className="card grid place-items-center px-6 py-20 text-center">
+            <p className="muted max-w-sm">{t("products.empty")}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

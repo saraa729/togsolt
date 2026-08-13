@@ -164,6 +164,17 @@ module.exports = function registerDiscovery(ctx) {
     const ids = new Set(db.favorites.filter((item) => item.userId === user.id).map((item) => item.productId));
     return { products: db.products.filter((product) => ids.has(product.id)).map((product) => productResponse(product, locale, currency)) };
   });
+
+  route('GET', '/follows/shops', async (ctx) => {
+    const user = requireRole(ctx, ROLES.BUYER);
+    const locale = assertSupportedLocale(ctx.url.searchParams.get('locale') || user.locale || 'mn');
+    const followedShopIds = new Set(db.follows.filter((item) => item.userId === user.id).map((item) => item.shopId));
+    return {
+      shops: db.shops
+        .filter((shop) => followedShopIds.has(shop.id) && shop.status === 'verified')
+        .map((shop) => shopResponse(shop, locale))
+    };
+  });
   
   route('POST', '/follows/shops/:shopId', async (ctx) => {
     const user = requireRole(ctx, ROLES.BUYER);

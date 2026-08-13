@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "ExpoCraft",
+    "slug": "expocraft",
+    "scheme": "expocraft",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "privacy": "public",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "bundleIdentifier": "mn.expocraft.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "ExpoCraft uses the camera only when a seller or buyer chooses to attach craft or order images.",
+        "NSPhotoLibraryUsageDescription": "ExpoCraft uses photo library access only when a user chooses images to upload."
+      }
+    },
+    "android": {
+      "package": "mn.expocraft.app",
+      "permissions": ["CAMERA", "READ_MEDIA_IMAGES"]
+    },
+    "extra": {
+      "privacyPolicyUrl": "https://expocraft.mn/privacy",
+      "supportUrl": "https://expocraft.mn/support",
+      "eas": {
+        "projectId": "replace-with-eas-project-id"
+      }
+    }
+  }
+}

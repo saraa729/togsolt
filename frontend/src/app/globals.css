@@ -42,9 +42,17 @@ body {
 }
 
 html:has(.landing-shell),
-body:has(.landing-shell) {
+body:has(.landing-shell),
+html.is-landing,
+body.is-landing {
   background: var(--color-night);
   scrollbar-color: var(--color-sand) var(--color-night);
+}
+
+.landing-hero,
+.landing-hero-inner {
+  min-height: calc(100vh - 4rem);
+  min-height: calc(100dvh - 4rem);
 }
 
 body {
@@ -276,11 +284,17 @@ body {
   border: 3px solid var(--color-paper);
 }
 
-body:has(.landing-shell)::-webkit-scrollbar-track {
+html:has(.landing-shell)::-webkit-scrollbar-track,
+body:has(.landing-shell)::-webkit-scrollbar-track,
+html.is-landing::-webkit-scrollbar-track,
+body.is-landing::-webkit-scrollbar-track {
   background: var(--color-night);
 }
 
-body:has(.landing-shell)::-webkit-scrollbar-thumb {
+html:has(.landing-shell)::-webkit-scrollbar-thumb,
+body:has(.landing-shell)::-webkit-scrollbar-thumb,
+html.is-landing::-webkit-scrollbar-thumb,
+body.is-landing::-webkit-scrollbar-thumb {
   background: var(--color-sand);
   border-color: var(--color-night);
 }

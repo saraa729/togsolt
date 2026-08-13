@@ -21,13 +21,22 @@ export default function LandingShell({ children }: { children: React.ReactNode }
     if (ready && user) router.replace("/home");
   }, [ready, user, router]);
 
+  useEffect(() => {
+    document.documentElement.classList.add("is-landing");
+    document.body.classList.add("is-landing");
+    return () => {
+      document.documentElement.classList.remove("is-landing");
+      document.body.classList.remove("is-landing");
+    };
+  }, []);
+
   // Шилжих хооронд танилцуулгыг эрээ цээргүй харуулахгүй.
   if (ready && user) return <div className="min-h-screen bg-night" />;
 
   return (
     <div className="landing-shell flex min-h-screen flex-col bg-night text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-night/80 backdrop-blur-md">
-        <div className="page-wide flex h-16 items-center gap-6 py-0">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 sm:px-6">
           <Link href="/" className="display text-xl tracking-[0.28em] lowercase text-sand">
             expocraft
           </Link>
@@ -61,7 +70,7 @@ export default function LandingShell({ children }: { children: React.ReactNode }
         </div>
       </header>
 
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 bg-night">{children}</main>
 
       <footer className="border-t border-white/10">
         <div className="page-wide flex flex-wrap items-center justify-between gap-4 py-8 text-[10px] tracking-[0.16em] text-white/40 uppercase">

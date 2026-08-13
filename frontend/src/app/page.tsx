@@ -41,7 +41,7 @@ export default async function LandingPage() {
   return (
     <LandingShell>
       {/* ── Hero ─────────────────────────────────────────── */}
-      <section className="relative isolate min-h-[calc(100svh-4rem)] overflow-hidden">
+      <section className="landing-hero relative isolate overflow-hidden">
         <img
           src={LANDING_HERO_IMAGE}
           alt=""
@@ -63,7 +63,7 @@ export default async function LandingPage() {
         </svg>
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(26,23,20,0.2),rgba(26,23,20,0.82)),radial-gradient(ellipse_at_center,transparent_8%,var(--color-night)_78%)]" />
 
-        <div className="page-wide relative flex min-h-[calc(100svh-4rem)] flex-col items-center justify-center py-14 text-center sm:py-16 lg:py-20">
+        <div className="page-wide landing-hero-inner relative flex flex-col items-center justify-center py-14 text-center sm:py-16 lg:py-20">
           <span className="h-px w-14 bg-sand" />
           <p className="eyebrow mt-5 text-sand">{t("lp.hero.eyebrow")}</p>
 

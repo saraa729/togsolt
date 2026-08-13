@@ -8,7 +8,9 @@ import type { Role, User } from "@/lib/types";
 import { Alert, Field, Spinner } from "./ui";
 
 const GSI_SRC = "https://accounts.google.com/gsi/client";
-const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const DEFAULT_GOOGLE_CLIENT_ID = "727216094961-nmhhimemqnqopfe440u5d7rd53rpae83.apps.googleusercontent.com";
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
+const GOOGLE_LOCAL_ORIGIN = process.env.NEXT_PUBLIC_GOOGLE_LOCAL_ORIGIN || "http://localhost:3000";
 
 type GoogleIdApi = {
   accounts?: {
@@ -70,10 +72,9 @@ function isBlockedRawIpOrigin(origin: string): boolean {
 }
 
 function localhostUrl(): string {
-  if (typeof window === "undefined") return "http://localhost:3000/login";
-  const url = new URL(window.location.href);
-  url.hostname = "localhost";
-  return url.toString();
+  if (typeof window === "undefined") return `${GOOGLE_LOCAL_ORIGIN}/login`;
+  const target = new URL(window.location.pathname + window.location.search + window.location.hash, GOOGLE_LOCAL_ORIGIN);
+  return target.toString();
 }
 
 /**
@@ -83,9 +84,9 @@ function localhostUrl(): string {
  * дээр баталгаажуулж, и-мэйлийг ТОКЕНООС авна. Хэрэглэгчийн и-мэйлийг клиентээс
  * илгээх нь ямар ч баталгаа болохгүй тул огт илгээхгүй.
  *
- * `NEXT_PUBLIC_GOOGLE_CLIENT_ID` тохируулаагүй бол Google хэсгийг disabled
- * байдлаар харуулна. Ингэснээр login/register дээр Google урсгал байгаа нь
- * тодорхой харагдаж, тохиргоо дутууг ойлгомжтой мэдэгдэнэ.
+ * `NEXT_PUBLIC_GOOGLE_CLIENT_ID` байхгүй үед demo Client ID ашиглана.
+ * Raw IP дээр Google OAuth ажилладаггүй тул Google товчийг харагдуулаад
+ * дарахад localhost руу шилжүүлнэ.
  */
 export default function GoogleSignInButton({
   roles,
@@ -109,7 +110,7 @@ export default function GoogleSignInButton({
   const [abroad, setAbroad] = useState(false);
   const [busy, setBusy] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(Boolean(CLIENT_ID));
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [currentOrigin, setCurrentOrigin] = useState("");
   const isRawIpOrigin = isBlockedRawIpOrigin(currentOrigin);
 
@@ -144,11 +145,8 @@ export default function GoogleSignInButton({
   }, []);
 
   useEffect(() => {
-    if (!CLIENT_ID) {
-      setGoogleLoading(false);
-      return;
-    }
-    if (isBlockedRawIpOrigin(window.location.origin)) {
+    if (!currentOrigin) return;
+    if (isBlockedRawIpOrigin(currentOrigin)) {
       setGoogleLoading(false);
       setGoogleReady(false);
       setError(null);
@@ -186,11 +184,11 @@ export default function GoogleSignInButton({
             const rendered = holder.current.childElementCount > 0;
             setGoogleReady(rendered);
             setGoogleLoading(false);
-            if (!rendered) setError(t("auth.googleOriginHint", { origin: window.location.origin }));
+            if (!rendered) setError(t("auth.googleOriginHint", { origin: currentOrigin }));
           });
         } catch {
           setGoogleLoading(false);
-          setError(t("auth.googleOriginHint", { origin: window.location.origin }));
+          setError(t("auth.googleOriginHint", { origin: currentOrigin }));
         }
       })
       .catch(() => {
@@ -204,7 +202,9 @@ export default function GoogleSignInButton({
       cancelled = true;
     };
     // Google-ийг нэг л удаа эхлүүлнэ — хамаарлыг ref барьж байгаа тул энд оруулахгүй.
-  }, [t]);
+  }, [currentOrigin, t]);
+
+  if (!currentOrigin) return null;
 
   return (
     <div className="space-y-2">
@@ -214,28 +214,16 @@ export default function GoogleSignInButton({
         <span className="h-px flex-1 bg-line" />
       </div>
 
-      {!CLIENT_ID ? (
-        <div className="space-y-2">
-          <button type="button" className="btn-secondary w-full justify-center" disabled>
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface text-xs font-semibold">
-              G
-            </span>
-            {t("auth.google")}
-          </button>
-          <Alert tone="warn">{t("auth.googleConfigMissing")}</Alert>
-        </div>
-      ) : null}
-
-      {CLIENT_ID && isRawIpOrigin ? (
+      {isRawIpOrigin ? (
         <button type="button" className="btn-secondary w-full justify-center" onClick={() => window.location.assign(localhostUrl())}>
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface text-xs font-semibold">
             G
           </span>
-          {t("auth.googleOpenLocalhost")}
+          {t("auth.google")}
         </button>
       ) : null}
 
-      {CLIENT_ID && !isRawIpOrigin && !pendingCredential && (!googleReady || googleLoading) ? (
+      {!isRawIpOrigin && !pendingCredential && (!googleReady || googleLoading) ? (
         <button type="button" className="btn-secondary w-full justify-center" disabled>
           {googleLoading ? <Spinner /> : null}
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface text-xs font-semibold">
@@ -246,14 +234,8 @@ export default function GoogleSignInButton({
       ) : null}
 
       {/* Утас асуух үед Google товчийг нуухгүй — хэрэглэгч буцаж болно. */}
-      {CLIENT_ID && !isRawIpOrigin ? (
+      {!isRawIpOrigin ? (
         <div ref={holder} className={pendingCredential ? "hidden" : "flex min-h-11 justify-center"} />
-      ) : null}
-
-      {CLIENT_ID && currentOrigin && isRawIpOrigin ? (
-        <p className="rounded-xl border border-line bg-paper px-3 py-2 text-xs text-muted">
-          {t("auth.googleRawIpOrigin", { origin: currentOrigin })}
-        </p>
       ) : null}
 
       {pendingCredential ? (

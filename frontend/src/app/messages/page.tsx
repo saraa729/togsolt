@@ -7,7 +7,7 @@ import { Alert, EmptyState, Spinner } from "@/components/ui";
 import { api, errorMessage, getToken } from "@/lib/api";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
-import { API_URL, classNames, formatDateTime } from "@/lib/format";
+import { classNames, formatDateTime, getApiUrl } from "@/lib/format";
 import type { Conversation } from "@/lib/types";
 
 export default function MessagesPage() {
@@ -55,7 +55,7 @@ function MessagesView() {
     const token = getToken();
     if (!token) return;
 
-    const socket = io(API_URL, {
+    const socket = io(getApiUrl(), {
       auth: { token },
       transports: ["websocket", "polling"],
     });

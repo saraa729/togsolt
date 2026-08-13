@@ -3,9 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NEXT_DIST_DIR=.next-dev next dev -p 3000",
+    "dev:lan": "NEXT_DIST_DIR=.next-dev next dev -H 0.0.0.0 -p 3000",
+    "dev:fresh": "npm run clean:dev && NEXT_DIST_DIR=.next-dev next dev -p 3000",
+    "dev:lan:fresh": "npm run clean:dev && NEXT_DIST_DIR=.next-dev next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start",
+    "clean": "rm -rf .next .next-dev",
+    "clean:dev": "rm -rf .next-dev",
+    "clean:cache": "rm -rf .next/cache .next-dev/cache",
     "lint": "eslint"
   },
   "dependencies": {

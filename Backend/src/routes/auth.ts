@@ -7,6 +7,7 @@ const { WEB_ORIGIN, NODE_ENV } = require('../config/constants');
 const LOGIN_MAX_ATTEMPTS = NODE_ENV === 'production' ? 5 : 20;
 const LOGIN_LOCK_MS = NODE_ENV === 'production' ? 10 * 60 * 1000 : 30 * 1000;
 const LOGIN_FAILURE_TTL_MS = NODE_ENV === 'production' ? 10 * 60 * 1000 : 60 * 1000;
+const DEFAULT_GOOGLE_CLIENT_ID = '727216094961-nmhhimemqnqopfe440u5d7rd53rpae83.apps.googleusercontent.com';
 
 module.exports = function registerAuth(ctx) {
   const {
@@ -186,10 +187,7 @@ module.exports = function registerAuth(ctx) {
    * Одоо зөвхөн Google-ийн гарын үсэгтэй токен дотор байгаа и-мэйлд итгэнэ.
    */
   async function verifyGoogleIdToken(credential) {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      throw httpError(503, 'google_auth_unavailable', 'Google sign-in is not configured on this server.');
-    }
+    const clientId = process.env.GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
 
     let payload;
     try {

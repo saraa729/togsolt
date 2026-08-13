@@ -13,11 +13,13 @@ const { createLedgerService } = require('./services/ledger');
 const { createCatalogService } = require('./services/catalog');
 const { createCartService } = require('./services/cart');
 const { createBankService } = require('./services/bank');
+const { createPaymentService } = require('./services/payments');
 const { createStorageService } = require('./services/storage');
 const { createMailer } = require('./services/mailer');
 const { createSearchService } = require('./services/search');
 const { createRecommendationService } = require('./services/recommendations');
 const { createRuntimeStore } = require('./services/runtime-store');
+const { createQueueService } = require('./services/queue');
 const { createRealtime } = require('./services/realtime');
 const { createJobScheduler } = require('./jobs/scheduler');
 const metrics = require('./observability/metrics');
@@ -104,6 +106,17 @@ const bank = createBankService({
   httpError
 });
 
+const payments = createPaymentService({
+  db,
+  id,
+  now,
+  money,
+  httpError,
+  audit,
+  saveState,
+  addEscrowEntry: ledger.addEscrowEntry
+});
+
 const storage = createStorageService({
   httpError
 });
@@ -111,6 +124,7 @@ const storage = createStorageService({
 const mailer = createMailer();
 
 const runtimeStore = createRuntimeStore();
+const queue = createQueueService();
 const realtime = createRealtime({
   db,
   verifyToken,
@@ -135,7 +149,8 @@ const jobs = createJobScheduler({
   saveState,
   releaseEscrowForOrderItem: ledger.releaseEscrowForOrderItem,
   syncOrderEscrowStatus: ledger.syncOrderEscrowStatus,
-  reconciliationForDate: ledger.reconciliationForDate
+  reconciliationForDate: ledger.reconciliationForDate,
+  queue
 });
 
 const routeContext: AppContext = {
@@ -199,11 +214,21 @@ const routeContext: AppContext = {
   cartResponse: cart.cartResponse,
   executeBankTransfer: bank.executeTransfer,
   normalizeBankAccount: bank.normalizeBankAccount,
+  paymentMode: payments.mode,
+  paymentProviderFor: payments.providerFor,
+  assertPaymentProviderUsable: payments.assertProviderUsable,
+  createPayment: payments.createPayment,
+  capturePayment: payments.capturePayment,
+  failPayment: payments.failPayment,
+  verifyStripeSignature: payments.verifyStripeSignature,
+  verifyPaymentCallbackToken: payments.verifyCallbackToken,
+  checkQpayInvoice: payments.checkQpayInvoice,
   scanFile: storage.scanFile,
   saveImage: storage.saveImage,
   saveThumbnail: storage.saveThumbnail,
   mailer,
   runtimeStore,
+  queue,
   realtime,
   searchProducts: search.searchProducts,
   recommendForUser: recommendations.recommendForUser,
@@ -212,10 +237,11 @@ const routeContext: AppContext = {
 
 registerRoutes(routeContext);
 
-route('GET', '/metrics', async () => ({ metrics: metrics.snapshot(), runtimeStore: runtimeStore.provider, realtime: realtime.provider }));
+route('GET', '/metrics', async () => ({ metrics: metrics.snapshot(), runtimeStore: runtimeStore.provider, realtime: realtime.provider, queue: queue.provider }));
 route('GET', '/metrics/prometheus', async (ctx) => {
   metrics.setGauge('expocraft_runtime_store_info', 1, { provider: runtimeStore.provider, environment: process.env.NODE_ENV || 'development' });
   metrics.setGauge('expocraft_realtime_info', 1, { provider: realtime.provider });
+  metrics.setGauge('expocraft_queue_info', 1, { provider: queue.provider });
   metrics.setGauge('expocraft_admin_sla_critical_total', criticalSlaCount());
   if (process.env.EXPOCRAFT_LAST_BACKUP_TIMESTAMP_SECONDS) {
     metrics.setGauge('expocraft_last_backup_timestamp_seconds', Number(process.env.EXPOCRAFT_LAST_BACKUP_TIMESTAMP_SECONDS));
@@ -228,4 +254,4 @@ route('GET', '/docs', async () => ({ openapi: '/docs/openapi.json', title: 'Expo
 
 finalizeRoutes();
 
-module.exports = { app, handle, loadState, saveState, initialState, jobs, realtime };
+module.exports = { app, handle, loadState, saveState, initialState, jobs, realtime, queue };

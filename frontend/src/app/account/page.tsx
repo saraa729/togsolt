@@ -143,9 +143,9 @@ function AccountView() {
             <p className="font-medium">{t("nav.favorites")}</p>
             <p className="muted text-xs">{t("favorites.title")}</p>
           </Link>
-          <Link href="/custom-requests" className="card-pad hover:bg-paper">
-            <p className="font-medium">{t("nav.custom")}</p>
-            <p className="muted text-xs">{t("custom.title")}</p>
+          <Link href="/following" className="card-pad hover:bg-paper">
+            <p className="font-medium">{t("nav.following")}</p>
+            <p className="muted text-xs">{t("following.title")}</p>
           </Link>
         </section>
       </div>

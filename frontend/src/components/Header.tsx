@@ -18,6 +18,8 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
 
+  const isUploader = hasRole("seller");
+  const isAdmin = hasRole("admin");
   
   useEffect(() => {
     setMenuOpen(false);
@@ -33,7 +35,13 @@ export default function Header() {
     { href: "/products", label: t("nav.products") },
     { href: "/artisans", label: t("nav.artisans") },
   ];
-  const rightNav = user
+  const rightNav = user && isUploader
+    ? [
+        { href: "/seller", label: t("nav.seller") },
+        { href: "/seller/orders", label: t("seller.orders") },
+        { href: "/seller/products", label: t("seller.myProducts") },
+      ]
+    : user
     ? [
         { href: "/orders", label: t("nav.orders") },
         { href: "/favorites", label: t("nav.favorites") },
@@ -41,6 +49,30 @@ export default function Header() {
     : [
         { href: "/register?role=seller", label: t("auth.asSeller") },
       ];
+  const buyerAccountLinks = [
+    { href: "/account", label: t("nav.account") },
+    { href: "/orders", label: t("nav.orders") },
+    { href: "/favorites", label: t("nav.favorites") },
+    { href: "/following", label: t("nav.following") },
+  ];
+  const uploaderAccountLinks = [
+    { href: "/account", label: t("nav.account") },
+    { href: "/seller", label: t("seller.overview") },
+    { href: "/seller/products", label: t("seller.myProducts") },
+    { href: "/seller/products/new", label: t("seller.newProduct") },
+    { href: "/seller/orders", label: t("seller.orders") },
+    { href: "/seller/custom-requests", label: t("seller.customRequests") },
+    { href: "/seller/balance", label: t("seller.balance") },
+    { href: "/seller/shop", label: t("seller.myShop") },
+  ];
+  const accountLinks = user ? (isUploader ? uploaderAccountLinks : buyerAccountLinks) : [];
+  const mobileLinks = uniqueLinks([
+    ...leftNav,
+    ...rightNav,
+    ...(user && !isUploader ? [{ href: "/cart", label: t("nav.cart") }] : []),
+    ...(user ? accountLinks : []),
+    ...(isAdmin ? [{ href: "/admin", label: t("nav.admin") }] : []),
+  ]);
 
   function submitSearch(event: React.FormEvent) {
     event.preventDefault();
@@ -98,14 +130,16 @@ export default function Header() {
             </Link>
           ))}
 
-          <Link href="/cart" className="relative text-muted transition-colors hover:text-clay-dark">
-            {t("nav.cart")}
-            {cartCount > 0 ? (
-              <span className="absolute -top-2 -right-3 grid h-4 min-w-4 place-items-center rounded-full bg-sand px-1 text-[9px] font-semibold text-night">
-                {cartCount}
-              </span>
-            ) : null}
-          </Link>
+          {!isUploader ? (
+            <Link href="/cart" className="relative text-muted transition-colors hover:text-clay-dark">
+              {t("nav.cart")}
+              {cartCount > 0 ? (
+                <span className="absolute -top-2 -right-3 grid h-4 min-w-4 place-items-center rounded-full bg-sand px-1 text-[9px] font-semibold text-night">
+                  {cartCount}
+                </span>
+              ) : null}
+            </Link>
+          ) : null}
 
           {!ready ? (
             <span className="h-4 w-16 rounded bg-white/10" />
@@ -126,19 +160,20 @@ export default function Header() {
                 <span className="text-[9px] text-muted">▾</span>
               </button>
               {accountOpen ? (
-                <div className="absolute right-0 mt-3 w-60 overflow-hidden rounded-lg bg-night-soft py-1 text-[11px] tracking-[0.14em] shadow-2xl">
+                <div className="absolute right-0 mt-3 w-72 overflow-hidden rounded-lg bg-night-soft py-1 text-[11px] tracking-[0.14em] shadow-2xl">
                   <div className="border-b border-white/10 px-4 py-3 tracking-normal normal-case">
                     <p className="truncate text-xs font-medium text-white">{user.name}</p>
                     <p className="truncate text-[11px] text-white/45">{user.email}</p>
+                    <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.16em] text-sand">
+                      {isUploader ? t("common.seller") : t("common.buyer")}
+                    </p>
                   </div>
-                  <MenuLink href="/account">{t("nav.account")}</MenuLink>
-                  <MenuLink href="/orders">{t("nav.orders")}</MenuLink>
-                  <MenuLink href="/favorites">{t("nav.favorites")}</MenuLink>
-                  <MenuLink href="/custom-requests">{t("nav.custom")}</MenuLink>
-                  <MenuLink href="/contracts">{t("contract.mine")}</MenuLink>
-                  <MenuLink href="/messages">{t("nav.messages")}</MenuLink>
-                  {hasRole("seller") ? <MenuLink href="/seller">{t("nav.seller")}</MenuLink> : null}
-                  {hasRole("admin") ? <MenuLink href="/admin">{t("nav.admin")}</MenuLink> : null}
+                  {accountLinks.map((item) => (
+                    <MenuLink key={item.href} href={item.href}>
+                      {item.label}
+                    </MenuLink>
+                  ))}
+                  {isAdmin ? <MenuLink href="/admin">{t("nav.admin")}</MenuLink> : null}
                   <button
                     type="button"
                     className="mt-1 w-full cursor-pointer border-t border-white/10 px-4 py-2.5 text-left text-sand uppercase hover:bg-white/5"
@@ -161,14 +196,16 @@ export default function Header() {
         </div>
 
         {/* Mobile right side */}
-          <Link href="/cart" className="relative text-lg lg:hidden text-ink" aria-label={t("nav.cart")}>
-          🛒
-          {cartCount > 0 ? (
-            <span className="absolute -top-1 -right-2 grid h-4 min-w-4 place-items-center rounded-full bg-sand px-1 text-[9px] font-semibold text-night">
-              {cartCount}
-            </span>
-          ) : null}
-        </Link>
+        {!isUploader ? (
+          <Link href="/cart" className="relative text-lg text-ink lg:hidden" aria-label={t("nav.cart")}>
+            🛒
+            {cartCount > 0 ? (
+              <span className="absolute -top-1 -right-2 grid h-4 min-w-4 place-items-center rounded-full bg-sand px-1 text-[9px] font-semibold text-night">
+                {cartCount}
+              </span>
+            ) : null}
+          </Link>
+        ) : null}
       </div>
 
       {/* Search drawer */}
@@ -206,26 +243,13 @@ export default function Header() {
             </form>
 
             <nav className="grid gap-1 text-[11px] tracking-[0.18em] uppercase">
-              {[...leftNav, ...rightNav, { href: "/cart", label: t("nav.cart") }].map((item) => (
+              {mobileLinks.map((item) => (
                 <Link key={item.href} href={item.href} className="py-2 text-white/75">
                   {item.label}
                 </Link>
               ))}
               {user ? (
                 <>
-                  <Link href="/account" className="py-2 text-white/75">
-                    {t("nav.account")}
-                  </Link>
-                  {hasRole("seller") ? (
-                    <Link href="/seller" className="py-2 text-white/75">
-                      {t("nav.seller")}
-                    </Link>
-                  ) : null}
-                  {hasRole("admin") ? (
-                    <Link href="/admin" className="py-2 text-white/75">
-                      {t("nav.admin")}
-                    </Link>
-                  ) : null}
                   <button
                     type="button"
                     className="cursor-pointer py-2 text-left text-sand uppercase"
@@ -280,4 +304,13 @@ function MenuLink({ href, children }: { href: string; children: React.ReactNode 
       {children}
     </Link>
   );
+}
+
+function uniqueLinks(items: { href: string; label: string }[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    if (seen.has(item.href)) return false;
+    seen.add(item.href);
+    return true;
+  });
 }

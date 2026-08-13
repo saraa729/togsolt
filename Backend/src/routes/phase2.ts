@@ -13,8 +13,14 @@ module.exports = function registerPhase2(ctx) {
     saveState,
     audit,
     readJson,
+    readRaw,
     requireAuth,
     requireRole,
+    verifyStripeSignature,
+    verifyPaymentCallbackToken,
+    checkQpayInvoice,
+    capturePayment,
+    failPayment,
     assertText,
     assertLocalized,
     assertPositiveInt,
@@ -31,14 +37,20 @@ module.exports = function registerPhase2(ctx) {
   }
 
   async function postProviderJson(url, payload, apiKey) {
+    const controller = new AbortController();
+    const timeout = setTimeout(
+      () => controller.abort(),
+      Number(process.env.EXPOCRAFT_PROVIDER_TIMEOUT_MS || 10000)
+    );
     const response = await fetch(url, {
       method: 'POST',
+      signal: controller.signal,
       headers: {
         'content-type': 'application/json',
         ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {})
       },
       body: JSON.stringify(payload)
-    });
+    }).finally(() => clearTimeout(timeout));
     if (!response.ok) throw httpError(502, 'provider_unavailable', 'External provider request failed.');
     return response.json();
   }
@@ -192,6 +204,7 @@ module.exports = function registerPhase2(ctx) {
       const provider = await postProviderJson(aiUrl, body, process.env.EXPOCRAFT_AI_API_KEY);
       return { suggestions: provider.suggestions || provider, provider: 'external' };
     }
+    // rule-based fallback keeps seller drafting usable while no external AI key is configured.
     const text = `${body.title || ''} ${body.description || ''} ${(body.imageHints || []).join(' ')}`.toLowerCase();
     const material = text.includes('felt') || text.includes('эсгий') ? 'felt' : text.includes('leather') || text.includes('арьс') ? 'leather' : 'wood';
     return {
@@ -286,19 +299,80 @@ module.exports = function registerPhase2(ctx) {
     };
   });
 
+  /*
+   * ── Төлбөрийн баталгаажуулалт ────────────────────────────────────────────
+   *
+   * Энэ бол мөнгө орсныг зарладаг ЦОРЫН ГАНЦ гадаад цэг тул нэвтрэлтийн
+   * оронд provider-ийн криптограф баталгаа шаардана:
+   *   stripe — `Stripe-Signature` HMAC-SHA256 (+ replay хамгаалалт)
+   *   qpay   — callback URL дэх HMAC токен, дараа нь QPay-аас дүнг нь дахин асууна
+   *
+   * Өмнө нь энэ цэг ямар ч шалгалтгүй байсан тул хэн ч дурын захиалгыг
+   * төлөгдсөн болгож, ledger-т бичилт хийж чаддаг байв.
+   */
   route('POST', '/webhooks/payments/:provider', async (ctx) => {
-    const body = await readJson(ctx.req);
-    const provider = ctx.params.provider;
-    const eventId = assertText(body.eventId || body.id || body.invoiceId, 'eventId');
+    const provider = String(ctx.params.provider || '').toLowerCase();
+    const raw = await readRaw(ctx.req);
+
+    let eventId;
+    let eventType;
+    let order = null;
+    let payload;
+
+    if (provider === 'stripe') {
+      payload = verifyStripeSignature(raw, ctx.req.headers['stripe-signature']);
+      eventId = assertText(payload.id, 'eventId');
+      eventType = payload.type;
+      const object = payload.data?.object || {};
+      const orderId = object.metadata?.orderId || object.client_reference_id;
+      order = db.orders.find((candidate) => candidate.id === orderId) || null;
+    } else if (provider === 'qpay') {
+      const orderId = ctx.url.searchParams.get('order');
+      if (!orderId || !verifyPaymentCallbackToken(orderId, ctx.url.searchParams.get('token'))) {
+        throw httpError(401, 'callback_token_invalid', 'QPay callback token is missing or invalid.');
+      }
+      order = db.orders.find((candidate) => candidate.id === orderId) || null;
+      if (!order) throw httpError(404, 'order_not_found', 'Callback references an unknown order.');
+      // QPay гарын үсэг явуулдаггүй тул дүнг нь эх сурвалжаас нь баталгаажуулна.
+      const check = await checkQpayInvoice(order.payment?.providerRef);
+      eventId = `${order.payment?.providerRef}:${check.paid ? 'paid' : 'unpaid'}`;
+      eventType = check.paid ? 'invoice.paid' : 'invoice.unpaid';
+      payload = check.raw;
+    } else {
+      throw httpError(404, 'unknown_provider', `No payment webhook handler for "${provider}".`);
+    }
+
+    // Provider-ууд нэг үйл явдлыг дахин илгээж болно — нэг л удаа боловсруулна.
     const existing = db.paymentCallbacks.find((item) => item.provider === provider && item.eventId === eventId);
     if (existing) return { idempotent: true, callback: existing };
-    const callback = { id: id('pcb'), provider, eventId, status: body.status || 'received', raw: body, createdAt: now() };
+
+    const callback = {
+      id: id('pcb'),
+      provider,
+      eventId,
+      eventType,
+      orderId: order?.id || null,
+      status: 'received',
+      raw: payload,
+      createdAt: now()
+    };
     db.paymentCallbacks.push(callback);
-    if (body.orderId && body.amount && body.currency) {
-      addEscrowEntry(body.orderId, null, body.sellerId || null, `webhook_${provider}_${callback.status}`, money(body.amount, body.currency), 'Idempotent payment callback recorded.');
+
+    const SUCCESS_EVENTS = ['checkout.session.completed', 'payment_intent.succeeded', 'invoice.paid'];
+    const FAILURE_EVENTS = ['checkout.session.expired', 'payment_intent.payment_failed', 'charge.refunded'];
+
+    if (order && SUCCESS_EVENTS.includes(eventType)) {
+      capturePayment(order, { provider, providerRef: order.payment?.providerRef, raw: payload });
+      callback.status = 'captured';
+    } else if (order && FAILURE_EVENTS.includes(eventType)) {
+      failPayment(order, eventType);
+      callback.status = 'failed';
+    } else {
+      callback.status = 'ignored';
     }
-    audit('system', 'payment_callback', 'payment_callback', callback.id, { provider, eventId });
+
+    audit('system', 'payment_callback', 'payment_callback', callback.id, { provider, eventId, eventType, orderId: order?.id });
     saveState(db);
-    return { idempotent: false, callback };
+    return { idempotent: false, callback: { id: callback.id, status: callback.status } };
   });
 };

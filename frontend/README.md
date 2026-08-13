@@ -22,7 +22,7 @@ Production build:
 npm run build && npm start
 ```
 
-> `next build`-ийг `next dev` ажиллаж байхад зэрэг бүү ажиллуул — хоёулаа `.next` хавтас хуваалцдаг.
+> Dev server `.next-dev`, production build `.next` output ашигладаг. Chunk/cache алдаа гарвал `npm run dev:fresh` эсвэл root хавтаснаас `./dev.sh` асаана.
 
 ## Демо хаягууд (seed)
 

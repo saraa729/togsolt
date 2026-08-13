@@ -35,31 +35,37 @@ export function PageHeader({
   );
 }
 
+/**
+ * Хоосон төлөв. Өргөн хуудсанд (`page-wide`) сунаж, дунд нь өчүүхэн агуулгатай
+ * аварга хоосон хайрцаг болохоос сэргийлж өргөнийг нь хязгаарлаж голлуулна.
+ */
 export function EmptyState({
   title,
   description,
   actionLabel,
   actionHref,
   onAction,
+  icon = "✦",
 }: {
   title: string;
   description?: string;
   actionLabel?: string;
   actionHref?: string;
   onAction?: () => void;
+  icon?: React.ReactNode;
 }) {
   return (
-    <div className="card flex flex-col items-center gap-3 px-6 py-14 text-center">
-      <div className="grid h-12 w-12 place-items-center rounded-full bg-paper text-xl">✦</div>
+    <div className="mx-auto flex max-w-lg flex-col items-center gap-3 rounded-3xl border border-dashed border-line bg-surface/60 px-6 py-11 text-center">
+      <div className="grid h-11 w-11 place-items-center rounded-full bg-paper text-lg text-muted">{icon}</div>
       <p className="font-medium">{title}</p>
-      {description ? <p className="muted max-w-md">{description}</p> : null}
+      {description ? <p className="muted max-w-sm leading-relaxed">{description}</p> : null}
       {actionLabel && actionHref ? (
-        <Link href={actionHref} className="btn-primary mt-1">
+        <Link href={actionHref} className="btn-primary btn-sm mt-2">
           {actionLabel}
         </Link>
       ) : null}
       {actionLabel && onAction ? (
-        <button type="button" className="btn-primary mt-1" onClick={onAction}>
+        <button type="button" className="btn-primary btn-sm mt-2" onClick={onAction}>
           {actionLabel}
         </button>
       ) : null}

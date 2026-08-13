@@ -17,6 +17,9 @@ build/
 dist/
 *.tsbuildinfo
 
+# Local dev runtime data
+.dev-data/
+
 # Лог
 *.log
 npm-debug.log*
