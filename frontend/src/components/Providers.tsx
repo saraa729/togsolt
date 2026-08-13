@@ -15,7 +15,9 @@ export default function Providers({
 }) {
   return (
     <AppProvider initialLocale={initialLocale} initialCurrency={initialCurrency}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
     </AppProvider>
   );
 }

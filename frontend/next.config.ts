@@ -35,10 +35,6 @@ const nextConfig: NextConfig = {
   experimental: {
     devtoolSegmentExplorer: false,
   },
-  eslint: {
-    // Дизайны давталт хийхэд build-ийг lint зогсоохгүй байх
-    ignoreDuringBuilds: true,
-  },
   images: {
     unoptimized: true,
   },
