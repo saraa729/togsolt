@@ -239,9 +239,13 @@ export default function ProductForm({ product }: { product?: Product }) {
           <Field label={t("seller.priceUsd")} hint={t("common.optional")}>
             <input
               className="input"
-              inputMode="numeric"
+              inputMode="decimal"
+              placeholder="0.00"
               value={form.priceUsd}
-              onChange={(event) => update("priceUsd", event.target.value.replace(/[^\d.]/g, ""))}
+              // Доллар цент дэмждэг: цэгийг зөвшөөрөх ба зөвхөн НЭГ цэг, 2 орон.
+              onChange={(event) =>
+                update("priceUsd", (event.target.value.replace(/[^\d.]/g, "").match(/^\d*\.?\d{0,2}/) || [""])[0])
+              }
             />
           </Field>
           <Field label={t("common.category")} required>

@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const { app, route, handle, finalizeRoutes } = require('./http/router');
 const registerRoutes = require('./routes');
-const { now, id, money, addMoney, percentBps, httpError, localize, readJson, readRaw } = require('./utils/core');
+const { now, id, money, addMoney, percentBps, percentOfMoney, roundAmount, httpError, localize, readJson, readRaw } = require('./utils/core');
 const { verifyPassword, signToken, verifyToken } = require('./auth/security');
 const { createAuthContext } = require('./auth/context');
 const { loadState, saveState, initialState, createUserRecord } = require('./data/store');
@@ -167,6 +167,8 @@ const routeContext: AppContext = {
   money,
   addMoney,
   percentBps,
+  percentOfMoney,
+  roundAmount,
   httpError,
   verifyPassword,
   createUserRecord,

@@ -56,8 +56,9 @@ export function formatMoney(money: Money | null | undefined, locale: Locale = "m
   if (!money) return "—";
   const amount = Number(money.amount || 0);
   if (money.currency === "USD") {
+    // Доллар үргэлж 2 оронтой — $18 ба $9.99 нэг жагсаалтад зэрэгцэхэд эв нэгдэлтэй.
     return `$${amount.toLocaleString(locale === "mn" ? "mn-MN" : "en-US", {
-      minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+      minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
   }

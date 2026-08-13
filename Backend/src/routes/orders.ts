@@ -14,6 +14,8 @@ module.exports = function registerOrders(ctx) {
     money,
     addMoney,
     percentBps,
+    percentOfMoney,
+    roundAmount,
     httpError,
     verifyPassword,
     createUserRecord,
@@ -235,7 +237,7 @@ module.exports = function registerOrders(ctx) {
       const shippingOptionCode = cartItem.shippingOption || shippingSelections[product.shopId] || shippingSelections[product.sellerId] || (destinationCountry === 'MN' ? 'domestic_city' : 'international_post');
       const shippingOption = shippingOptionForProduct(product, shippingOptionCode, destinationCountry);
       const lineTotal = money(unitPrice.amount * cartItem.quantity, currency);
-      const commission = money(percentBps(lineTotal.amount, db.meta.defaultCommissionBps), currency);
+      const commission = percentOfMoney(lineTotal, db.meta.defaultCommissionBps);
       const sellerReceivable = money(lineTotal.amount - commission.amount, currency);
       return {
         id: id('oi'),
@@ -281,25 +283,26 @@ module.exports = function registerOrders(ctx) {
       const eligible = orderItems.filter((item) => item.sellerId === coupon.sellerId);
       if (!eligible.length) throw httpError(409, 'coupon_not_applicable', 'Coupon does not apply to any item in this order.');
 
-      const eligibleTotal = eligible.reduce((sum, item) => sum + item.lineTotal.amount, 0);
+      const eligibleTotal = roundAmount(eligible.reduce((sum, item) => sum + item.lineTotal.amount, 0), currency);
       if (coupon.minSubtotal && eligibleTotal < coupon.minSubtotal.amount) {
         throw httpError(409, 'coupon_min_subtotal', 'Order does not reach the coupon minimum subtotal.');
       }
 
+      // Хөнгөлөлтийг валютын нарийвчлалаар бөөрөнхийлнө — USD-д цент хадгалагдана.
       const total = coupon.type === 'percent'
-        ? Math.round((eligibleTotal * coupon.value) / 100)
+        ? roundAmount((eligibleTotal * coupon.value) / 100, currency)
         : Math.min(coupon.value, eligibleTotal);
 
       // Мөрүүдэд хувь тэнцүүлэн хуваарилж, бөөрөнхийллийн үлдэгдлийг сүүлийн мөрөнд өгнө.
       let remaining = total;
       eligible.forEach((item, index) => {
         const share = index === eligible.length - 1
-          ? remaining
-          : Math.round((total * item.lineTotal.amount) / eligibleTotal);
-        remaining -= share;
+          ? roundAmount(remaining, currency)
+          : roundAmount((total * item.lineTotal.amount) / eligibleTotal, currency);
+        remaining = roundAmount(remaining - share, currency);
         item.discount = money(share, currency);
         item.lineTotal = money(item.lineTotal.amount - share, currency);
-        item.commission = money(percentBps(item.lineTotal.amount, db.meta.defaultCommissionBps), currency);
+        item.commission = percentOfMoney(item.lineTotal, db.meta.defaultCommissionBps);
         item.sellerReceivable = money(item.lineTotal.amount - item.commission.amount, currency);
       });
 
