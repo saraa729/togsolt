@@ -25,7 +25,7 @@ export default function LandingShell({ children }: { children: React.ReactNode }
   if (ready && user) return <div className="min-h-screen bg-night" />;
 
   return (
-    <div className="flex min-h-screen flex-col bg-night text-white">
+    <div className="landing-shell flex min-h-screen flex-col bg-night text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-night/80 backdrop-blur-md">
         <div className="page-wide flex h-16 items-center gap-6 py-0">
           <Link href="/" className="display text-xl tracking-[0.28em] lowercase text-sand">

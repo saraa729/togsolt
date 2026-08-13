@@ -17,6 +17,9 @@ export const metadata: Metadata = {
     description: "Handmade Mongolian crafts from verified artisans.",
     type: "website",
   },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

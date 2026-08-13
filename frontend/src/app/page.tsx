@@ -2,6 +2,7 @@ import Link from "next/link";
 import CraftShowcase from "@/components/CraftShowcase";
 import LandingShell from "@/components/LandingShell";
 import { serverGet } from "@/lib/api";
+import { demoHomePayload } from "@/lib/demo-content";
 import { demoArtisanImage, LANDING_HERO_IMAGE } from "@/lib/demo-images";
 import { resolveImageUrl } from "@/lib/format";
 import { translate } from "@/lib/i18n";
@@ -24,9 +25,10 @@ export default async function LandingPage() {
     serverGet<{ products: Product[] }>("/products", { locale, currency }),
   ]);
 
-  const artisans = home?.newArtisans ?? [];
-  const categories = home?.categories ?? [];
-  const products = catalog?.products ?? home?.featuredProducts ?? [];
+  const fallback = demoHomePayload(locale, currency);
+  const artisans = home?.newArtisans?.length ? home.newArtisans : fallback.newArtisans;
+  const categories = home?.categories?.length ? home.categories : fallback.categories;
+  const products = catalog?.products?.length ? catalog.products : home?.featuredProducts?.length ? home.featuredProducts : fallback.featuredProducts;
   // Эхний 4 нь шууд харагдана; үлдсэнийг нь "Цааш үзэх" дөрвөөр нээнэ.
   const showcase = pickOnePerCategory(products, 12);
 
@@ -39,7 +41,7 @@ export default async function LandingPage() {
   return (
     <LandingShell>
       {/* ── Hero ─────────────────────────────────────────── */}
-      <section className="relative isolate overflow-hidden">
+      <section className="relative isolate min-h-[calc(100svh-4rem)] overflow-hidden">
         <img
           src={LANDING_HERO_IMAGE}
           alt=""
@@ -61,7 +63,7 @@ export default async function LandingPage() {
         </svg>
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(26,23,20,0.2),rgba(26,23,20,0.82)),radial-gradient(ellipse_at_center,transparent_8%,var(--color-night)_78%)]" />
 
-        <div className="page-wide relative flex min-h-[560px] flex-col items-center justify-center py-24 text-center lg:min-h-[640px]">
+        <div className="page-wide relative flex min-h-[calc(100svh-4rem)] flex-col items-center justify-center py-14 text-center sm:py-16 lg:py-20">
           <span className="h-px w-14 bg-sand" />
           <p className="eyebrow mt-5 text-sand">{t("lp.hero.eyebrow")}</p>
 
@@ -216,29 +218,6 @@ export default async function LandingPage() {
           </div>
         </section>
       ) : null}
-
-      {/* ── Төгсгөлийн уриалга ───────────────────────────── */}
-      <section className="page-wide py-24 text-center lg:py-28">
-        <span className="mx-auto block h-px w-14 bg-sand" />
-        <h2 className="display mt-8 text-3xl sm:text-4xl">{t("lp.cta.title")}</h2>
-        <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/60">{t("lp.cta.sub")}</p>
-
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <Link href="/login" className="btn-pill-sand">
-            {t("lp.hero.login")}
-          </Link>
-          <Link
-            href="/register"
-            className="inline-flex items-center justify-center rounded-full border border-white/25 px-7 py-3 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors hover:border-white/60"
-          >
-            {t("lp.cta.register")}
-          </Link>
-        </div>
-
-        <Link href="/register?role=seller" className="rule-link mt-8 text-white/45 hover:text-white">
-          {t("lp.cta.seller")} <span className="text-base">⟶</span>
-        </Link>
-      </section>
     </LandingShell>
   );
 }

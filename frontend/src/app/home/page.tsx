@@ -1,5 +1,6 @@
 import HomeDashboard from "@/components/HomeDashboard";
 import { serverGet } from "@/lib/api";
+import { demoHomePayload } from "@/lib/demo-content";
 import { readPreferences } from "@/lib/prefs";
 import type { HomePayload, Product } from "@/lib/types";
 
@@ -17,14 +18,15 @@ export default async function HomePage() {
     serverGet<{ products: Product[] }>("/products", { locale, currency }),
   ]);
 
-  const products = catalog?.products ?? home?.featuredProducts ?? [];
+  const fallback = demoHomePayload(locale, currency);
+  const products = catalog?.products?.length ? catalog.products : home?.featuredProducts?.length ? home.featuredProducts : fallback.featuredProducts;
 
   return (
     <HomeDashboard
       recommended={pickOnePerCategory(products, 12)}
       fresh={sortByNewest(products).slice(0, 8)}
-      categories={home?.categories ?? []}
-      artisans={home?.newArtisans ?? []}
+      categories={home?.categories?.length ? home.categories : fallback.categories}
+      artisans={home?.newArtisans?.length ? home.newArtisans : fallback.newArtisans}
     />
   );
 }

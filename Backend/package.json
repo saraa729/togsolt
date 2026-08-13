@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "type": "commonjs",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "npm run prisma:generate && tsc -p tsconfig.json",
     "start": "node dist/app.js",
     "dev": "npm run build && EXPOCRAFT_SEED=true node dist/app.js",
     "test": "npm run build && node --test \"dist/test/**/*.js\"",

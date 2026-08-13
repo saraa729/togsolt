@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { api, ApiError, REFRESH_KEY, setTokens, SIGNED_OUT_EVENT, TOKEN_KEY } from "./api";
+import { api, REFRESH_KEY, setTokens, SIGNED_OUT_EVENT, TOKEN_KEY } from "./api";
 import type { Cart, Locale, Role, Shop, User } from "./types";
 
 type AuthResponse = { user: User; accessToken: string; refreshToken: string };
@@ -73,10 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user);
       setShop(data.shop);
       if ((data.user.roles || []).includes("buyer")) await refreshCart();
-    } catch (error) {
+    } catch {
       // API давхарга access token-ыг аль хэдийн сэргээхийг оролдсон байна.
-      // Энд хүрсэн бол refresh token нь ч хүчингүй — сессийг цэвэрлэнэ.
-      if (error instanceof ApiError && (error.status === 401 || error.status === 403)) clearSession();
+      // Энд хүрсэн бол refresh token хүчингүй, эсвэл сервер түр холбогдохгүй байна.
+      // Хуучин token үлдээвэл protected page userгүй мөртлөө session байгаа мэт гацсан харагдана.
+      clearSession();
     }
   }, [refreshCart, clearSession]);
 

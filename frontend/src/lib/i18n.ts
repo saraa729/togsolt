@@ -152,13 +152,6 @@ export const dict: Dict = {
   },
   "lp.artisans.eyebrow": { mn: "Урлаачид", en: "The makers" },
   "lp.artisans.title": { mn: "Бүтээлийг урлаж буй хүмүүс", en: "The people behind the work" },
-  "lp.cta.title": { mn: "Дотогш орох уу?", en: "Ready to step inside?" },
-  "lp.cta.sub": {
-    mn: "Нэвтэрснээр танд зориулсан нүүр хуудас, хадгалсан бүтээл, захиалгын явц нээгдэнэ.",
-    en: "Log in to unlock your own home page, saved crafts and live order tracking.",
-  },
-  "lp.cta.register": { mn: "Шинээр бүртгүүлэх", en: "Create an account" },
-  "lp.cta.seller": { mn: "Урлаачаар нэгдэх", en: "Join as an artisan" },
 
   // --- home (нэвтэрсэн хэрэглэгчийн нүүр) ---
   "hp.welcome": { mn: "Тавтай морил", en: "Welcome back" },
