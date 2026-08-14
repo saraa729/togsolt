@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import QrCode from "@/components/QrCode";
 import RequireAuth from "@/components/RequireAuth";
 import { Alert, EmptyState, Field, Spinner } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
@@ -590,10 +591,10 @@ function PaymentPending({
               />
             ) : null}
 
+            {/* QPay зураг илгээгээгүй бол qr_text-ээс өөрсдөө зурна. */}
             {!payment.qrImage && payment.qrText ? (
-              <div className="rounded-2xl border border-line bg-paper p-4 text-left">
-                <p className="label mb-2">{t("checkout.qrText")}</p>
-                <p className="break-all font-mono text-xs text-muted">{payment.qrText}</p>
+              <div className="mx-auto w-fit rounded-2xl border border-line bg-white p-3 shadow-sm">
+                <QrCode value={payment.qrText} size={224} label="QPay" />
               </div>
             ) : null}
           </>
@@ -602,10 +603,13 @@ function PaymentPending({
         {!payment.simulated ? <p className="muted text-sm leading-relaxed">{t("checkout.pendingQrHint")}</p> : null}
 
         {payment.simulated ? (
-          <div className="rounded-2xl border border-line bg-paper p-4 text-left">
-            <p className="font-medium">{t("checkout.demoPaymentTitle")}</p>
-            <p className="muted mt-1 text-sm leading-relaxed">{t("checkout.demoPaymentBody")}</p>
-            <button type="button" className="btn-primary mt-4 w-full" disabled={busy} onClick={confirmDemoPayment}>
+          <div className="rounded-2xl border border-dashed border-gold/50 bg-gold-soft/40 p-4 text-left">
+            <div className="flex items-center gap-2">
+              <span className="badge-gold">{t("checkout.demoBadge")}</span>
+              <p className="font-medium">{t("checkout.demoPaymentTitle")}</p>
+            </div>
+            <p className="muted mt-2 text-sm leading-relaxed">{t("checkout.demoPaymentBody")}</p>
+            <button type="button" className="btn-primary mt-4 h-11 w-full" disabled={busy} onClick={confirmDemoPayment}>
               {busy ? <Spinner /> : null}
               {t("checkout.confirmDemoPaymentWith", { method: demoPaymentLabel(selectedMethod, locale) })}
             </button>
@@ -630,10 +634,16 @@ function PaymentPending({
 
         {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
 
-        <p className="flex items-center justify-center gap-2 text-xs text-muted">
-          <Spinner className="h-3 w-3" />
-          {t("checkout.pendingWaiting")}
-        </p>
+        {/*
+         * Demo горимд гадаад баталгаажуулалт ирэхгүй — хэрэглэгч дээрх товчийг
+         * дарах ёстой тул "хүлээж байна" эргэлдэгч харуулбал төөрөгдүүлнэ.
+         */}
+        {!payment.simulated ? (
+          <p className="flex items-center justify-center gap-2 text-xs text-muted">
+            <Spinner className="h-3 w-3" />
+            {t("checkout.pendingWaiting")}
+          </p>
+        ) : null}
 
         <p className="font-mono text-[11px] text-muted">{order.id}</p>
       </div>
@@ -699,14 +709,38 @@ function DemoPaymentMethods({
 
       <div className="rounded-2xl border border-line bg-paper p-4">
         {selected === "qpay" ? (
-          <>
-            <p className="font-medium">{t("checkout.qpayDemoTitle")}</p>
-            <p className="muted mt-1 text-sm">{t("checkout.qpayDemoBody")}</p>
-            <div className="mt-4 rounded-xl border border-line bg-surface p-3">
-              <p className="label mb-1">{t("checkout.qrText")}</p>
-              <p className="break-all font-mono text-xs text-muted">{qrText || orderId}</p>
+          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+            {/*
+             * Жинхэнэ уншигдах QR. Утга нь demo payload тул QPay апп таних-
+             * гүй ч дурын QR уншигчаар шалгаж болно — үзүүлэнд бодитой.
+             */}
+            <div className="shrink-0 rounded-2xl border border-line bg-white p-3 shadow-sm">
+              <QrCode value={qrText || orderId} size={168} label={t("checkout.qpayDemoTitle")} />
             </div>
-          </>
+
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">{t("checkout.qpayDemoTitle")}</p>
+              <p className="muted mt-1 text-sm leading-relaxed">{t("checkout.qpayDemoBody")}</p>
+
+              <dl className="mt-3 space-y-1.5 text-sm">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted">{t("cart.subtotal")}</dt>
+                  <dd className="font-semibold">{formatMoney(amount, locale)}</dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted">{t("common.order")}</dt>
+                  <dd className="truncate font-mono text-xs">{orderId}</dd>
+                </div>
+              </dl>
+
+              <details className="mt-3">
+                <summary className="cursor-pointer text-xs text-muted hover:text-ink">{t("checkout.qrText")}</summary>
+                <p className="mt-1.5 rounded-xl border border-line bg-surface p-2.5 font-mono text-[11px] break-all text-muted">
+                  {qrText || orderId}
+                </p>
+              </details>
+            </div>
+          </div>
         ) : null}
 
         {selected === "bank_app" ? (
