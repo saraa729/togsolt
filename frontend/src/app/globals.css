@@ -116,15 +116,6 @@ body {
     }
   }
 
-  @keyframes lp-pattern-drift {
-    from {
-      transform: translate3d(0, 0, 0);
-    }
-    to {
-      transform: translate3d(32px, 32px, 0);
-    }
-  }
-
   @keyframes lp-fade-up {
     from {
       opacity: 0;
@@ -218,11 +209,6 @@ body {
   .lp-hero-image {
     animation: lp-hero-breathe 18s ease-in-out infinite;
     transform-origin: center;
-    will-change: transform;
-  }
-
-  .lp-pattern {
-    animation: lp-pattern-drift 28s linear infinite;
     will-change: transform;
   }
 

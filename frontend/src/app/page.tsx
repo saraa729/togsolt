@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ArtisanRotator from "@/components/ArtisanRotator";
 import CraftShowcase from "@/components/CraftShowcase";
 import LandingShell from "@/components/LandingShell";
 import { serverGet } from "@/lib/api";
@@ -32,6 +33,24 @@ export default async function LandingPage() {
   // Эхний 4 нь шууд харагдана; үлдсэнийг нь "Цааш үзэх" дөрвөөр нээнэ.
   const showcase = pickOnePerCategory(products, 12);
 
+  /*
+   * Урлаачдыг гурван баганад ээлжлэн хуваарилна (0,3,6… | 1,4,7… | 2,5,8…).
+   * Багц бүр өөр урттай болох тул баганууд цаг хугацааны явцад давхцахгүй,
+   * ижил хослол дахин дахин давтагдахгүй.
+   */
+  const portraitColumns = [0, 1, 2].map((column) =>
+    artisans
+      .filter((_, index) => index % 3 === column)
+      .map((shop) => ({
+        id: shop.id,
+        src:
+          resolveImageUrl(
+            demoArtisanImage(shop) || shop.artisanProfile?.portraitUrl || shop.logoUrl || shop.bannerUrl
+          ) || null,
+        name: shopDisplayName(shop),
+      }))
+  );
+
   const steps = [
     { n: "01", title: t("lp.how.s1t"), body: t("lp.how.s1b") },
     { n: "02", title: t("lp.how.s2t"), body: t("lp.how.s2b") },
@@ -47,20 +66,6 @@ export default async function LandingPage() {
           alt=""
           className="lp-hero-image absolute inset-0 h-full w-full object-cover opacity-55"
         />
-        <svg className="lp-pattern absolute inset-0 h-full w-full" aria-hidden>
-          <defs>
-            <pattern id="lp-alkhan" width="64" height="64" patternUnits="userSpaceOnUse">
-              <path
-                d="M6 58 V6 H58 V44 H20 V20 H44 V32"
-                fill="none"
-                stroke="var(--color-sand)"
-                strokeWidth="2"
-                opacity="0.16"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#lp-alkhan)" />
-        </svg>
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(26,23,20,0.2),rgba(26,23,20,0.82)),radial-gradient(ellipse_at_center,transparent_8%,var(--color-night)_78%)]" />
 
         <div className="page-wide landing-hero-inner relative flex flex-col items-center justify-center py-14 text-center sm:py-16 lg:py-20">
@@ -126,21 +131,8 @@ export default async function LandingPage() {
             </Link>
           </div>
 
-          {/* Урлаачдын хөрөг — гурван хэмжээт цомог */}
-          <div className="grid grid-cols-3 gap-3 sm:gap-4">
-            {artisans.slice(0, 3).map((shop, index) => (
-              <PortraitPanel key={shop.id} shop={shop} tall={index === 1} index={index} />
-            ))}
-            {artisans.length === 0
-              ? [0, 1, 2].map((index) => (
-                  <div
-                    key={index}
-                    className={`lp-portrait ${index === 1 ? "aspect-[3/5]" : "mt-6 aspect-[3/4]"} bg-[linear-gradient(135deg,#e0d6c6,#cbbca6)]`}
-                    style={{ animationDelay: `${index * 140}ms` }}
-                  />
-                ))
-              : null}
-          </div>
+          {/* Урлаачдын хөрөг — гурван хэмжээт цомог, эргэлдэнэ */}
+          <ArtisanRotator columns={portraitColumns} />
         </div>
       </section>
 
@@ -254,17 +246,6 @@ function pickOnePerCategory(items: Product[], limit: number): Product[] {
   }
 
   return picked;
-}
-
-function PortraitPanel({ shop, tall, index }: { shop: Shop; tall: boolean; index: number }) {
-  return (
-    <div
-      className={`lp-portrait ${tall ? "aspect-[3/5] overflow-hidden bg-night" : "mt-6 aspect-[3/4] overflow-hidden bg-night"}`}
-      style={{ animationDelay: `${index * 140}ms` }}
-    >
-      <ArtisanImage shop={shop} />
-    </div>
-  );
 }
 
 function ArtisanImage({ shop }: { shop: Shop }) {

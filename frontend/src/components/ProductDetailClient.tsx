@@ -8,6 +8,7 @@ import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
 import { formatDate, formatMoney, formatSize, imageOrPlaceholder } from "@/lib/format";
 import type { Product, ProductReview } from "@/lib/types";
+import ContactArtisanButton from "./ContactArtisanButton";
 import ProductCard from "./ProductCard";
 import { Alert, Spinner, Stars } from "./ui";
 
@@ -199,29 +200,38 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             <h1 className="display mt-3 text-[28px] leading-[1.15] tracking-tight sm:text-[34px]">{product.titleText}</h1>
 
             {product.shop ? (
-              <Link
-                href={`/shop/${product.shop.slug}`}
-                className="group mt-4 inline-flex items-center gap-2.5 text-sm transition-colors hover:text-clay-dark"
-              >
-                <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-pine text-xs font-semibold text-white">
-                  {product.shop.artisanProfile?.portraitUrl ? (
-                    <img
-                      src={imageOrPlaceholder(product.shop.artisanProfile.portraitUrl)}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    (product.shop.displayName || "?").slice(0, 1)
-                  )}
-                </span>
-                <span className="font-medium underline-offset-4 group-hover:underline">{product.shop.displayName}</span>
-                {product.shop.verified ? (
-                  <span className="text-emerald-700" title="verified">
-                    ✓
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <Link
+                  href={`/shop/${product.shop.slug}`}
+                  className="group inline-flex items-center gap-2.5 text-sm transition-colors hover:text-clay-dark"
+                >
+                  <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-pine text-xs font-semibold text-white">
+                    {product.shop.artisanProfile?.portraitUrl ? (
+                      <img
+                        src={imageOrPlaceholder(product.shop.artisanProfile.portraitUrl)}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      (product.shop.displayName || "?").slice(0, 1)
+                    )}
                   </span>
-                ) : null}
-                <Stars value={product.shop.stats?.ratingAverage || 0} />
-              </Link>
+                  <span className="font-medium underline-offset-4 group-hover:underline">
+                    {product.shop.displayName}
+                  </span>
+                  {product.shop.verified ? (
+                    <span className="text-emerald-700" title="verified">
+                      ✓
+                    </span>
+                  ) : null}
+                  <Stars value={product.shop.stats?.ratingAverage || 0} />
+                </Link>
+                <ContactArtisanButton
+                  sellerId={product.sellerId}
+                  next={`/products/${product.id}`}
+                  className="btn-secondary btn-sm"
+                />
+              </div>
             ) : null}
           </div>
 

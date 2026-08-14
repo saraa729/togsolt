@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import ContactArtisanButton from "@/components/ContactArtisanButton";
 import ProductCard from "@/components/ProductCard";
 import ShopFollowButton from "@/components/ShopFollowButton";
 import { Stars } from "@/components/ui";
@@ -98,7 +99,10 @@ export default async function ShopPage({ params }: { params: Promise<Params> }) 
               {shop.artisanProfile?.makerName ? ` · ${shop.artisanProfile.makerName}` : ""}
             </p>
           </div>
-          <ShopFollowButton shopId={shop.id} slug={shop.slug} />
+          <div className="flex flex-wrap items-start gap-2">
+            <ContactArtisanButton sellerId={shop.sellerId} next={`/shop/${shop.slug}`} />
+            <ShopFollowButton shopId={shop.id} slug={shop.slug} />
+          </div>
         </div>
 
         <div className="grid gap-4 pb-10 sm:grid-cols-4">

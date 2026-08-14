@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import BackButton from "./BackButton";
 import Footer from "./Footer";
 import Header from "./Header";
 
@@ -18,6 +19,10 @@ export default function Chrome({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
+      {/* Хуудсууд өөрсдөө `py-10` авдаг тул энэ мөр зөвхөн дээд зайг эзэлнэ. */}
+      <div className="mx-auto w-full max-w-7xl px-4 pt-6 sm:px-6">
+        <BackButton />
+      </div>
       <main className="flex-1 pb-16">{children}</main>
       <Footer />
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import RequireAuth from "@/components/RequireAuth";
 import { Alert, EmptyState, Spinner } from "@/components/ui";
@@ -13,7 +14,16 @@ import type { Conversation } from "@/lib/types";
 export default function MessagesPage() {
   return (
     <RequireAuth>
-      <MessagesView />
+      {/* `useSearchParams` нь Suspense хүрээ шаарддаг. */}
+      <Suspense
+        fallback={
+          <div className="page py-12">
+            <div className="card h-96 skeleton" />
+          </div>
+        }
+      >
+        <MessagesView />
+      </Suspense>
     </RequireAuth>
   );
 }
@@ -21,6 +31,9 @@ export default function MessagesPage() {
 function MessagesView() {
   const { t, locale } = useApp();
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  /** Бүтээл/дэлгүүрийн хуудаснаас "Урлаачтай чатлах" дарж ирэхэд гарч ирдэг. */
+  const requestedId = searchParams?.get("c") || null;
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -37,14 +50,19 @@ function MessagesView() {
   const load = useCallback(async () => {
     try {
       const data = await api.get<{ conversations: Conversation[] }>("/conversations");
-      setConversations(data.conversations || []);
-      setActiveId((current) => current || data.conversations?.[0]?.id || null);
+      const list = data.conversations || [];
+      setConversations(list);
+      setActiveId((current) => {
+        // URL-аар заасан яриа байвал түүнийг сонгоно — шинээр үүсгэсэн яриа энэ замаар ирнэ.
+        if (requestedId && list.some((conversation) => conversation.id === requestedId)) return requestedId;
+        return current || list[0]?.id || null;
+      });
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [requestedId]);
 
   useEffect(() => {
     load();
@@ -224,6 +242,9 @@ function MessagesView() {
               </div>
             </div>
             <div className="flex-1 space-y-2 overflow-y-auto p-5">
+              {active && active.messages.length === 0 ? (
+                <p className="muted py-8 text-center text-sm">{t("messages.emptyThread")}</p>
+              ) : null}
               {(active?.messages || []).map((item) => (
                 <div
                   key={item.id}

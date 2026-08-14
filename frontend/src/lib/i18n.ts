@@ -234,6 +234,12 @@ export const dict: Dict = {
   "products.filters.international": { mn: "Олон улсад илгээх боломжтой", en: "Ships internationally" },
   "products.apply": { mn: "Шүүх", en: "Apply" },
   "products.empty": { mn: "Тохирох бүтээл олдсонгүй. Өөр үгээр хайж үзнэ үү.", en: "No crafts matched. Try another search." },
+  "products.filters.more": { mn: "Дэлгэрэнгүй шүүлтүүр", en: "More filters" },
+  "products.filters.hide": { mn: "Шүүлтүүр нуух", en: "Hide filters" },
+  "products.filters.activeOne": { mn: "шүүлтүүр идэвхтэй", en: "filter active" },
+  "products.filters.activeMany": { mn: "шүүлтүүр идэвхтэй", en: "filters active" },
+  "products.filters.clearAll": { mn: "Бүгдийг цэвэрлэх", en: "Clear all" },
+  "products.filters.locationPlaceholder": { mn: "Улаанбаатар, Дархан…", en: "Ulaanbaatar, Darkhan…" },
 
   // --- product detail ---
   "product.addToCart": { mn: "Сагсанд нэмэх", en: "Add to cart" },
@@ -273,6 +279,41 @@ export const dict: Dict = {
   "inv.limited_stock": { mn: "Хязгаартай нөөц", en: "Limited stock" },
   "inv.one_of_one": { mn: "Ганц хувь", en: "One of a kind" },
   "inv.made_to_order": { mn: "Захиалгаар хийх", en: "Made to order" },
+
+  // --- материал ---
+  "mat.bone": { mn: "Яс", en: "Bone" },
+  "mat.canvas": { mn: "Зотон", en: "Canvas" },
+  "mat.ceramic": { mn: "Керамик", en: "Ceramic" },
+  "mat.coral": { mn: "Шүр", en: "Coral" },
+  "mat.felt": { mn: "Эсгий", en: "Felt" },
+  "mat.horn": { mn: "Эвэр", en: "Horn" },
+  "mat.leather": { mn: "Арьс", en: "Leather" },
+  "mat.paint": { mn: "Будаг", en: "Paint" },
+  "mat.silk": { mn: "Торго", en: "Silk" },
+  "mat.silver": { mn: "Мөнгө", en: "Silver" },
+  "mat.textile": { mn: "Нэхмэл", en: "Textile" },
+  "mat.thread": { mn: "Утас", en: "Thread" },
+  "mat.turquoise": { mn: "Оюу", en: "Turquoise" },
+  "mat.wood": { mn: "Мод", en: "Wood" },
+  "mat.wool": { mn: "Ноос", en: "Wool" },
+
+  // --- хийх арга / техник ---
+  "tech.bone_carving": { mn: "Ясан сийлбэр", en: "Bone carving" },
+  "tech.carving": { mn: "Сийлбэр", en: "Carving" },
+  "tech.ceramics": { mn: "Керамик урлал", en: "Ceramics" },
+  "tech.embossing": { mn: "Хээ дарах", en: "Embossing" },
+  "tech.embroidery": { mn: "Хатгамал", en: "Embroidery" },
+  "tech.glazing": { mn: "Паалан", en: "Glazing" },
+  "tech.hand_felting": { mn: "Гар эсгий", en: "Hand felting" },
+  "tech.hand_polishing": { mn: "Гар өнгөлгөө", en: "Hand polishing" },
+  "tech.hand_stitching": { mn: "Гар оёдол", en: "Hand stitching" },
+  "tech.painting": { mn: "Зураг", en: "Painting" },
+  "tech.sewing": { mn: "Оёдол", en: "Sewing" },
+  "tech.silversmithing": { mn: "Мөнгөн дархан", en: "Silversmithing" },
+  "tech.stone_setting": { mn: "Чулуу суулгах", en: "Stone setting" },
+  "tech.tailoring": { mn: "Дээл оёх", en: "Tailoring" },
+  "tech.weaving": { mn: "Нэхэх", en: "Weaving" },
+  "tech.wood_carving": { mn: "Модон сийлбэр", en: "Wood carving" },
 
   // --- cart / checkout ---
   "cart.title": { mn: "Миний сагс", en: "Your cart" },
@@ -545,6 +586,9 @@ export const dict: Dict = {
   "messages.online": { mn: "онлайн байна", en: "online" },
   "messages.noPresence": { mn: "Одоогоор нөгөө тал офлайн байна", en: "The other participant is offline" },
   "messages.typing": { mn: "бичиж байна…", en: "is typing…" },
+  "messages.contactArtisan": { mn: "Урлаачтай чатлах", en: "Message artisan" },
+  "messages.opening": { mn: "Нээж байна…", en: "Opening…" },
+  "messages.emptyThread": { mn: "Эхний мессежээ бичээрэй.", en: "Send the first message." },
 
   // --- favorites ---
   "favorites.title": { mn: "Хадгалсан бүтээл", en: "Saved crafts" },

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import ProductCard from "@/components/ProductCard";
-import ProductFilters from "@/components/ProductFilters";
+import ProductFilters, { type ProductFacets } from "@/components/ProductFilters";
 import { serverGet } from "@/lib/api";
 import { translate } from "@/lib/i18n";
 import { readPreferences } from "@/lib/prefs";
@@ -15,33 +15,61 @@ export const metadata = {
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
+const FILTER_KEYS = [
+  "q",
+  "categoryId",
+  "material",
+  "technique",
+  "style",
+  "inventoryType",
+  "location",
+  "minPrice",
+  "maxPrice",
+  "international",
+  "shopId",
+  "sellerId",
+];
+
+function unique(values: (string | undefined | null)[]) {
+  return Array.from(new Set(values.filter((value): value is string => Boolean(value))));
+}
+
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
   const { locale, currency } = await readPreferences();
   const t = (key: string) => translate(locale, key);
 
   const query: Record<string, string> = { locale, currency };
-  for (const key of [
-    "q",
-    "categoryId",
-    "material",
-    "technique",
-    "style",
-    "inventoryType",
-    "location",
-    "minPrice",
-    "maxPrice",
-    "international",
-    "shopId",
-    "sellerId",
-  ]) {
+  for (const key of FILTER_KEYS) {
     const value = params[key];
     if (typeof value === "string" && value) query[key] = value;
   }
 
-  const productsPayload = await serverGet<{ products: Product[] }>("/products", query);
+  const filtered = FILTER_KEYS.some((key) => query[key]);
+
+  /*
+   * Шүүлтүүрийн сонголтууд нь үр дүнгээс биш, БҮХ бүтээлээс гарна. Эсрэгээр
+   * хийвэл нэг шүүлтүүр сонгоход бусад сонголтууд алга болж, хэрэглэгч сонголтоо
+   * өөрчилж чадахгүй мухардалд ордог. Шүүлтгүй үед хоёр дахь хүсэлт шаардлагагүй.
+   */
+  const [productsPayload, categoriesPayload, facetPayload] = await Promise.all([
+    serverGet<{ products: Product[] }>("/products", query),
+    serverGet<{ categories: { id: string; nameText: string }[] }>("/categories", { locale }),
+    filtered ? serverGet<{ products: Product[] }>("/products", { locale, currency }) : Promise.resolve(null),
+  ]);
 
   const products = productsPayload?.products ?? [];
+  const facetProducts = facetPayload?.products ?? products;
+
+  const byLabel = (prefix: string) => (a: string, b: string) =>
+    translate(locale, `${prefix}.${a}`).localeCompare(translate(locale, `${prefix}.${b}`), locale);
+
+  const facets: ProductFacets = {
+    categories: categoriesPayload?.categories ?? [],
+    materials: unique(facetProducts.flatMap((product) => product.materials || [])).sort(byLabel("mat")),
+    techniques: unique(facetProducts.flatMap((product) => product.techniques || [])).sort(byLabel("tech")),
+    inventoryTypes: unique(facetProducts.map((product) => product.inventoryType)).sort(byLabel("inv")),
+  };
 
   return (
     <div className="page-wide py-10">
@@ -53,7 +81,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       </div>
 
       <Suspense fallback={<div className="card h-20 skeleton" />}>
-        <ProductFilters />
+        <ProductFilters facets={facets} />
       </Suspense>
 
       <section className="mt-8">
