@@ -142,7 +142,7 @@ function main() {
       { ok: /healthCheckPath:\s*\/health/.test(renderYaml), label: 'Health check wired in deploy blueprint' },
       { ok: fileExists('scripts', 'production-smoke.ts'), label: 'Production smoke test script exists' },
       { ok: fileExists('scripts', 'provider-config-smoke.ts'), label: 'Provider config smoke test script exists' },
-      { ok: repoFileExists('DEPLOY_STEPS.md'), label: 'Render/Vercel dashboard steps exist' },
+      { ok: repoFileExists('DEPLOY_ENV.md'), label: 'Render/Vercel dashboard steps exist' },
       { ok: fs.existsSync(path.join(REPO_ROOT, 'frontend', 'package.json')), label: 'Frontend build package exists' }
     ], 'Production smoke command must be run against the final deployed backend URL.'),
     area('Backup + monitoring operations', [
@@ -152,7 +152,7 @@ function main() {
       { ok: fileExists('monitoring', 'prometheus.yml'), label: 'Prometheus scrape config exists' },
       { ok: fileExists('monitoring', 'alerts.yml'), label: 'Alert rules exist' },
       { ok: fileExists('monitoring', 'grafana-dashboard.json'), label: 'Grafana dashboard exists' },
-      { ok: repoFileExists('SECURITY_MONITORING_CHECKLIST.md'), label: 'Security monitoring checklist exists' },
+      { ok: repoFileExists('PRODUCTION_RUNBOOK.md'), label: 'Security monitoring checklist exists' },
       { ok: repoFileExists('PRODUCTION_LAUNCH_CHECKLIST.md'), label: 'Production launch checklist exists' }
     ], 'Monitoring dashboards and backups still need to be enabled in the live account.')
     ,
