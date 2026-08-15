@@ -16,12 +16,11 @@ type TouristHome = {
   currency: string;
   headline: string;
   featuredProducts: Product[];
-  shippingGuide: { internationalPost: string; pickup: string };
 };
 
 export const metadata: Metadata = {
   title: "Gifts from Mongolia — ExpoCraft",
-  description: "Handmade Mongolian craft that ships worldwide, bought safely through escrow.",
+  description: "Handmade Mongolian craft from verified artisans, bought safely through escrow.",
   alternates: { canonical: "/tourist" },
 };
 
@@ -67,21 +66,6 @@ export default async function TouristPage() {
         </section>
       )}
 
-      {data?.shippingGuide ? (
-        <section className="mt-12 border-t border-line pt-10">
-          <h2 className="display text-xl sm:text-2xl">Getting it home</h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <article className="card-pad">
-              <p className="font-medium">International post</p>
-              <p className="muted mt-2 text-sm leading-relaxed">{data.shippingGuide.internationalPost}</p>
-            </article>
-            <article className="card-pad">
-              <p className="font-medium">Pickup while you are here</p>
-              <p className="muted mt-2 text-sm leading-relaxed">{data.shippingGuide.pickup}</p>
-            </article>
-          </div>
-        </section>
-      ) : null}
     </div>
   );
 }

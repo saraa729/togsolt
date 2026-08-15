@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s | ExpoCraft",
   },
   description:
-    "Баталгаажсан монгол урлаачдын гар урлалын бүтээлүүд. Escrow-оор хамгаалагдсан төлбөр, олон улсын хүргэлт. / Handmade Mongolian crafts from verified artisans, escrow-protected payments and international shipping.",
+    "Баталгаажсан монгол урлаачдын гар урлалын бүтээлүүд. Escrow-оор хамгаалагдсан төлбөр. / Handmade Mongolian crafts from verified artisans with escrow-protected payments.",
   keywords: ["Mongolian handicraft", "гар урлал", "Монгол бэлэг", "felt craft", "ExpoCraft", "handmade Mongolia"],
   openGraph: {
     title: "ExpoCraft — Mongolian handicraft marketplace",

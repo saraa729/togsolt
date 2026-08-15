@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QrCode from "@/components/QrCode";
 import RequireAuth from "@/components/RequireAuth";
-import { Alert, EmptyState, Field, Spinner } from "@/components/ui";
+import { Alert, EmptyState, Spinner } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
@@ -21,7 +21,7 @@ export default function CartPage() {
 
 function CartView() {
   const { t, locale, currency } = useApp();
-  const { user, refreshCart } = useAuth();
+  const { refreshCart } = useAuth();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyItem, setBusyItem] = useState<string | null>(null);
@@ -32,15 +32,6 @@ function CartView() {
    * нь өөрөө тодорхойлдог болгов — сагснаас шууд төлнө.
    */
   const [payCurrency] = useState<Currency>(currency);
-  const [address, setAddress] = useState({
-    name: "",
-    phone: "",
-    country: "MN",
-    city: "Улаанбаатар",
-    line1: "",
-    zip: "",
-  });
-  const [shippingSelections, setShippingSelections] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
   const [orderItems, setOrderItems] = useState<Order["items"]>([]);
@@ -53,13 +44,6 @@ function CartView() {
     try {
       const data = await api.get<{ cart: Cart }>("/cart", { query: { locale, currency: payCurrency } });
       setCart(data.cart);
-      setShippingSelections((prev) => {
-        const next = { ...prev };
-        for (const group of data.cart.sellerGroups) {
-          if (!next[group.shopId]) next[group.shopId] = group.items[0]?.availableShippingOptions?.[0]?.code || "domestic_city";
-        }
-        return next;
-      });
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
@@ -71,34 +55,12 @@ function CartView() {
     load();
   }, [load]);
 
-  useEffect(() => {
-    if (user) setAddress((prev) => ({ ...prev, name: prev.name || user.name, phone: prev.phone || user.phone || "" }));
-  }, [user]);
-
-  const isInternational = address.country !== "MN";
-
-  useEffect(() => {
-    if (!isInternational || !cart) return;
-    setShippingSelections((prev) => {
-      const next = { ...prev };
-      for (const group of cart.sellerGroups) next[group.shopId] = "international_post";
-      return next;
-    });
-  }, [isInternational, cart]);
-
   const currencyIssues = useMemo(() => {
     if (!cart || payCurrency !== "USD") return [];
     return cart.items
       .filter((item) => item.unitPrice?.currency !== "USD")
       .map((item) => item.product?.titleText || item.productId);
   }, [cart, payCurrency]);
-
-  const intlIssues = useMemo(() => {
-    if (!cart || !isInternational) return [];
-    return cart.items
-      .filter((item) => !item.product?.shipsInternationally)
-      .map((item) => item.product?.titleText || item.productId);
-  }, [cart, isInternational]);
 
   async function placeOrder(event: React.FormEvent) {
     event.preventDefault();
@@ -109,8 +71,6 @@ function CartView() {
       const data = await api.post<{ order: Order; orderItems?: Order["items"]; payment: PaymentInstruction }>("/checkout", {
         cartId: cart?.id,
         currency: payCurrency,
-        shippingAddress: address,
-        shippingSelections,
         couponCode: coupon || undefined,
       });
       await refreshCart();
@@ -288,11 +248,6 @@ function CartView() {
         <p className="muted text-sm">{t("cart.itemCount", { count: itemCount })}</p>
       </header>
 
-      {/*
-       * Хаягийн маягтыг зүүн баганад байрлуулав. Өмнө нь хажуугийн самбарт
-       * байсан тул самбар нь дэлгэцээс өндөр болж `sticky` үйлчлэхээ болиод,
-       * "Сагсаас төлөх" товч нь эвхэгдсэн хэсэгт унадаг байв.
-       */}
       <div className="mt-7 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
           {error ? <Alert tone="error">{error}</Alert> : null}
@@ -302,7 +257,6 @@ function CartView() {
               USD: {currencyIssues.join(", ")} — {t("common.error")} (энэ бүтээлд олон улсын үнэ тохируулаагүй байна).
             </Alert>
           ) : null}
-          {intlIssues.length ? <Alert tone="warn">✈ {intlIssues.join(", ")}</Alert> : null}
 
           {groups.map((group) => (
             <section key={group.sellerId} className="card overflow-hidden">
@@ -341,12 +295,6 @@ function CartView() {
                       <p className="muted mt-1 text-xs">
                         {t(`inv.${item.product?.inventoryType}`)}
                         {item.orderType === "custom" ? ` · ${t("nav.custom")}` : ""}
-                        {item.availableShippingOptions?.length
-                          ? ` · ${
-                              item.availableShippingOptions.find((option) => option.code === item.shippingOption)?.label ||
-                              item.availableShippingOptions[0].label
-                            }`
-                          : ""}
                       </p>
 
                       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -392,74 +340,6 @@ function CartView() {
               </div>
             </section>
           ))}
-
-          <section className="card space-y-4 p-5 sm:p-6">
-            <h2 className="font-medium">{t("checkout.address")}</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={t("checkout.recipient")} required>
-                <input
-                  className="input"
-                  required
-                  autoComplete="name"
-                  value={address.name}
-                  onChange={(event) => setAddress({ ...address, name: event.target.value })}
-                />
-              </Field>
-              <Field label={t("common.phone")} required>
-                <input
-                  className="input"
-                  required
-                  autoComplete="tel"
-                  value={address.phone}
-                  onChange={(event) => setAddress({ ...address, phone: event.target.value })}
-                />
-              </Field>
-              <Field label={t("checkout.country")} required>
-                <select
-                  className="input"
-                  autoComplete="country"
-                  value={address.country}
-                  onChange={(event) => setAddress({ ...address, country: event.target.value })}
-                >
-                  <option value="MN">Монгол (MN)</option>
-                  <option value="US">United States</option>
-                  <option value="DE">Germany</option>
-                  <option value="JP">Japan</option>
-                  <option value="KR">Korea</option>
-                  <option value="FR">France</option>
-                  <option value="OTHER">Other</option>
-                </select>
-              </Field>
-              <Field label={t("checkout.city")} required>
-                <input
-                  className="input"
-                  required
-                  autoComplete="address-level2"
-                  value={address.city}
-                  onChange={(event) => setAddress({ ...address, city: event.target.value })}
-                />
-              </Field>
-              <div className="sm:col-span-2">
-                <Field label={t("checkout.line1")} required>
-                  <input
-                    className="input"
-                    required
-                    autoComplete="address-line1"
-                    value={address.line1}
-                    onChange={(event) => setAddress({ ...address, line1: event.target.value })}
-                  />
-                </Field>
-              </div>
-              <Field label={t("checkout.zip")}>
-                <input
-                  className="input"
-                  autoComplete="postal-code"
-                  value={address.zip}
-                  onChange={(event) => setAddress({ ...address, zip: event.target.value })}
-                />
-              </Field>
-            </div>
-          </section>
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -566,86 +446,135 @@ function PaymentPending({
   }
 
   return (
-    <div className="page max-w-2xl py-16 text-center">
-      <div className="card-pad space-y-5">
-        <div>
-          <h1 className="text-2xl font-semibold">{t("checkout.pendingTitle")}</h1>
-          <p className="mt-2 text-3xl font-semibold tracking-tight">{formatMoney(order.subtotal, locale)}</p>
+    <div className="page max-w-5xl py-12">
+      <header className="animate-rise text-center">
+        <span className="eyebrow inline-flex items-center gap-2 text-muted">
+          <span className="live-dot h-1.5 w-1.5 rounded-full bg-clay" aria-hidden />
+          {t("checkout.pendingEyebrow")}
+        </span>
+        <h1 className="display mt-3 text-[26px] leading-tight tracking-tight sm:text-[34px]">
+          {t("checkout.pendingTitle")}
+        </h1>
+        <p className="display mt-3 text-[46px] leading-none tracking-tight sm:text-[58px]">
+          {formatMoney(order.subtotal, locale)}
+        </p>
+        <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-1.5 text-[11px] text-muted">
+          {t("common.order")}
+          <span className="font-mono text-ink">{order.id}</span>
+        </p>
+      </header>
+
+      <div className="mt-10 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="space-y-5">
+          {payment.simulated ? (
+            <DemoPaymentMethods
+              selected={selectedMethod}
+              onSelect={setSelectedMethod}
+              qrText={payment.qrText || ""}
+              amount={order.subtotal}
+              orderId={order.id}
+            />
+          ) : (
+            <section className="card overflow-hidden">
+              <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line/70 bg-paper px-5 py-3.5">
+                <p className="label mb-0">QPay</p>
+                {/* Жинхэнэ provider үед л тандалт явна — тиймээс эргэлдэгчийг энд харуулна. */}
+                <span className="flex items-center gap-2 text-[11px] text-muted">
+                  <Spinner className="h-3 w-3" />
+                  {t("checkout.pendingWaiting")}
+                </span>
+              </header>
+              <div className="grid items-center gap-6 p-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:p-6">
+                <ScanFrame>
+                  {/* QPay зураг илгээгээгүй бол qr_text-ээс өөрсдөө зурна. */}
+                  {payment.qrImage ? (
+                    <img src={payment.qrImage} alt="" className="h-44 w-44" />
+                  ) : payment.qrText ? (
+                    <QrCode value={payment.qrText} size={176} label="QPay" />
+                  ) : null}
+                </ScanFrame>
+                <p className="muted text-sm leading-relaxed">{t("checkout.pendingQrHint")}</p>
+              </div>
+            </section>
+          )}
+
+          {payment.deepLinks?.length ? (
+            <div className="flex flex-wrap gap-2">
+              {payment.deepLinks.slice(0, 6).map((link) => (
+                <a
+                  key={link.link || link.name}
+                  href={link.link}
+                  className="btn-secondary btn-sm"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {link.name || t("checkout.openBankApp")}
+                </a>
+              ))}
+            </div>
+          ) : null}
+
+          {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
+
+          {/*
+           * Demo горимд гадаад баталгаажуулалт ирэхгүй — хэрэглэгч энэ товчийг
+           * дарж л төлбөрөө баталгаажуулна.
+           */}
+          {payment.simulated ? (
+            <section className="card overflow-hidden">
+              <header className="flex items-center gap-2.5 border-b border-line/70 bg-gold-soft/50 px-5 py-3.5">
+                <span className="badge-gold">{t("checkout.demoBadge")}</span>
+                <p className="text-sm font-medium">{t("checkout.demoPaymentTitle")}</p>
+              </header>
+              <div className="p-5 sm:p-6">
+                <p className="muted text-sm leading-relaxed">{t("checkout.demoPaymentBody")}</p>
+                <button
+                  type="button"
+                  className="btn-primary mt-4 h-12 w-full text-sm"
+                  disabled={busy}
+                  onClick={confirmDemoPayment}
+                >
+                  {busy ? <Spinner /> : null}
+                  {t("checkout.confirmDemoPaymentWith", { method: capitalize(demoPaymentLabel(selectedMethod, locale)) })}
+                </button>
+              </div>
+            </section>
+          ) : null}
         </div>
 
-        {payment.simulated ? (
-          <DemoPaymentMethods
-            selected={selectedMethod}
-            onSelect={setSelectedMethod}
-            qrText={payment.qrText || ""}
-            amount={order.subtotal}
-            orderId={order.id}
-          />
-        ) : (
-          <>
-            {payment.qrImage ? (
-              <img
-                src={payment.qrImage}
-                alt=""
-                className="mx-auto h-56 w-56 rounded-2xl border border-line bg-surface p-2"
-              />
-            ) : null}
-
-            {/* QPay зураг илгээгээгүй бол qr_text-ээс өөрсдөө зурна. */}
-            {!payment.qrImage && payment.qrText ? (
-              <div className="mx-auto w-fit rounded-2xl border border-line bg-white p-3 shadow-sm">
-                <QrCode value={payment.qrText} size={224} label="QPay" />
+        <aside className="space-y-4 lg:sticky lg:top-24">
+          <div className="card p-5">
+            <p className="label">{t("cart.summary")}</p>
+            <dl className="space-y-2.5 text-sm">
+              <div className="flex items-baseline justify-between gap-3">
+                <dt className="text-muted">{t("cart.subtotal")}</dt>
+                <dd className="font-semibold">{formatMoney(order.subtotal, locale)}</dd>
               </div>
-            ) : null}
-          </>
-        )}
-
-        {!payment.simulated ? <p className="muted text-sm leading-relaxed">{t("checkout.pendingQrHint")}</p> : null}
-
-        {payment.simulated ? (
-          <div className="rounded-2xl border border-dashed border-gold/50 bg-gold-soft/40 p-4 text-left">
-            <div className="flex items-center gap-2">
-              <span className="badge-gold">{t("checkout.demoBadge")}</span>
-              <p className="font-medium">{t("checkout.demoPaymentTitle")}</p>
-            </div>
-            <p className="muted mt-2 text-sm leading-relaxed">{t("checkout.demoPaymentBody")}</p>
-            <button type="button" className="btn-primary mt-4 h-11 w-full" disabled={busy} onClick={confirmDemoPayment}>
-              {busy ? <Spinner /> : null}
-              {t("checkout.confirmDemoPaymentWith", { method: demoPaymentLabel(selectedMethod, locale) })}
-            </button>
+              <div className="flex items-baseline justify-between gap-3">
+                <dt className="shrink-0 text-muted">{t("checkout.payment")}</dt>
+                <dd className="min-w-0 text-right font-medium">
+                  {payment.simulated
+                    ? capitalize(demoPaymentLabel(selectedMethod, locale))
+                    : paymentMethodLabel(order.payment.method, locale)}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <dt className="shrink-0 text-muted">{t("checkout.paymentStatus")}</dt>
+                <dd className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gold-soft px-2.5 py-1 text-[11px] font-medium text-gold">
+                  <span className="live-dot h-1.5 w-1.5 rounded-full bg-gold" aria-hidden />
+                  {t("pstatus.pending")}
+                </dd>
+              </div>
+            </dl>
           </div>
-        ) : null}
 
-        {payment.deepLinks?.length ? (
-          <div className="flex flex-wrap justify-center gap-2">
-            {payment.deepLinks.slice(0, 6).map((link) => (
-              <a
-                key={link.link || link.name}
-                href={link.link}
-                className="btn-secondary btn-sm"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {link.name || t("checkout.openBankApp")}
-              </a>
-            ))}
+          <div className="card p-5">
+            <p className="label">{t("checkout.paymentFlow")}</p>
+            <PaymentSteps active={1} />
           </div>
-        ) : null}
 
-        {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
-
-        {/*
-         * Demo горимд гадаад баталгаажуулалт ирэхгүй — хэрэглэгч дээрх товчийг
-         * дарах ёстой тул "хүлээж байна" эргэлдэгч харуулбал төөрөгдүүлнэ.
-         */}
-        {!payment.simulated ? (
-          <p className="flex items-center justify-center gap-2 text-xs text-muted">
-            <Spinner className="h-3 w-3" />
-            {t("checkout.pendingWaiting")}
-          </p>
-        ) : null}
-
-        <p className="font-mono text-[11px] text-muted">{order.id}</p>
+          <p className="muted px-1 text-xs leading-relaxed">{t("checkout.escrowNote")}</p>
+        </aside>
       </div>
     </div>
   );
@@ -675,67 +604,84 @@ function DemoPaymentMethods({
   ];
 
   return (
-    <section className="space-y-4 text-left">
-      <div>
-        <p className="label">{t("checkout.choosePayment")}</p>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          {methods.map((method) => (
+    <section className="card overflow-hidden text-left">
+      <header className="border-b border-line/70 bg-paper px-5 py-3.5">
+        <p className="label mb-0">{t("checkout.choosePayment")}</p>
+      </header>
+
+      <div className="grid gap-2 p-4 sm:grid-cols-2 sm:p-5">
+        {methods.map((method) => {
+          const active = selected === method.id;
+          return (
             <button
               key={method.id}
               type="button"
-              className={`rounded-2xl border p-4 text-left transition ${
-                selected === method.id
-                  ? "border-clay bg-clay/10 shadow-sm"
-                  : "border-line bg-paper hover:border-clay/40"
+              aria-pressed={active}
+              className={`craft-hover-lift flex cursor-pointer gap-3 rounded-2xl border p-4 text-left ${
+                active
+                  ? "border-clay bg-clay-soft/50 shadow-sm"
+                  : "border-line bg-surface hover:border-clay/40 hover:bg-paper"
               }`}
               onClick={() => onSelect(method.id)}
             >
-              <span className="flex items-center justify-between gap-3">
-                <span className="font-semibold">{method.label}</span>
-                <span
-                  className={`grid h-5 w-5 place-items-center rounded-full border text-[10px] ${
-                    selected === method.id ? "border-clay bg-clay text-white" : "border-line"
-                  }`}
-                  aria-hidden
-                >
-                  {selected === method.id ? "✓" : ""}
-                </span>
+              <span
+                aria-hidden
+                className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl transition-colors ${
+                  active ? "bg-clay text-white" : "bg-paper text-muted"
+                }`}
+              >
+                <MethodIcon method={method.id} className="h-4.5 w-4.5" />
               </span>
-              <span className="muted mt-1 block text-xs leading-relaxed">{method.description}</span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center justify-between gap-2">
+                  <span className="font-semibold">{method.label}</span>
+                  <span
+                    aria-hidden
+                    className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border transition-colors ${
+                      active ? "border-clay bg-clay" : "border-line bg-surface"
+                    }`}
+                  >
+                    {active ? <span className="h-1.5 w-1.5 rounded-full bg-white" /> : null}
+                  </span>
+                </span>
+                <span className="muted mt-1 block text-xs leading-relaxed">{method.description}</span>
+              </span>
             </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      <div className="rounded-2xl border border-line bg-paper p-4">
+      <div className="border-t border-line/70 bg-paper/60 p-5 sm:p-6">
         {selected === "qpay" ? (
-          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+          <div className="animate-rise grid items-center gap-6 sm:grid-cols-[auto_minmax(0,1fr)]">
             {/*
              * Жинхэнэ уншигдах QR. Утга нь demo payload тул QPay апп таних-
              * гүй ч дурын QR уншигчаар шалгаж болно — үзүүлэнд бодитой.
              */}
-            <div className="shrink-0 rounded-2xl border border-line bg-white p-3 shadow-sm">
-              <QrCode value={qrText || orderId} size={168} label={t("checkout.qpayDemoTitle")} />
-            </div>
+            <ScanFrame caption="QPay · demo">
+              <QrCode value={qrText || orderId} size={176} label={t("checkout.qpayDemoTitle")} />
+            </ScanFrame>
 
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0">
               <p className="font-medium">{t("checkout.qpayDemoTitle")}</p>
-              <p className="muted mt-1 text-sm leading-relaxed">{t("checkout.qpayDemoBody")}</p>
+              <p className="muted mt-1.5 text-sm leading-relaxed">{t("checkout.qpayDemoBody")}</p>
 
-              <dl className="mt-3 space-y-1.5 text-sm">
-                <div className="flex justify-between gap-3">
+              <dl className="mt-4 divide-y divide-line/60 border-y border-line/60 text-sm">
+                <div className="flex items-baseline justify-between gap-3 py-2.5">
                   <dt className="text-muted">{t("cart.subtotal")}</dt>
-                  <dd className="font-semibold">{formatMoney(amount, locale)}</dd>
+                  <dd className="text-base font-semibold">{formatMoney(amount, locale)}</dd>
                 </div>
-                <div className="flex justify-between gap-3">
+                <div className="flex items-baseline justify-between gap-3 py-2.5">
                   <dt className="text-muted">{t("common.order")}</dt>
                   <dd className="truncate font-mono text-xs">{orderId}</dd>
                 </div>
               </dl>
 
-              <details className="mt-3">
-                <summary className="cursor-pointer text-xs text-muted hover:text-ink">{t("checkout.qrText")}</summary>
-                <p className="mt-1.5 rounded-xl border border-line bg-surface p-2.5 font-mono text-[11px] break-all text-muted">
+              <details className="group mt-3">
+                <summary className="cursor-pointer list-none text-xs text-muted transition-colors hover:text-ink">
+                  <span className="inline-block transition-transform group-open:rotate-90">▸</span> {t("checkout.qrText")}
+                </summary>
+                <p className="mt-2 rounded-xl border border-line bg-surface p-2.5 font-mono text-[11px] break-all text-muted">
                   {qrText || orderId}
                 </p>
               </details>
@@ -744,50 +690,228 @@ function DemoPaymentMethods({
         ) : null}
 
         {selected === "bank_app" ? (
-          <>
+          <div className="animate-rise">
             <p className="font-medium">{t("checkout.bankAppDemoTitle")}</p>
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {["Khan Bank", "Golomt", "TDB", "State Bank"].map((bank) => (
-                <span key={bank} className="rounded-xl border border-line bg-surface px-3 py-2 text-center text-xs font-medium">
-                  {bank}
+            <p className="muted mt-1.5 text-sm leading-relaxed">{t("checkout.methodBankApp")}</p>
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {DEMO_BANKS.map((bank) => (
+                <span
+                  key={bank.name}
+                  className="craft-hover-lift flex items-center gap-2.5 rounded-2xl border border-line bg-surface px-3 py-2.5"
+                >
+                  <span
+                    aria-hidden
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-pine-soft text-[11px] font-semibold text-pine"
+                  >
+                    {bank.short}
+                  </span>
+                  <span className="min-w-0 truncate text-xs font-medium">{bank.name}</span>
                 </span>
               ))}
             </div>
-          </>
+          </div>
         ) : null}
 
         {selected === "card" ? (
-          <>
-            <p className="font-medium">{t("checkout.cardDemoTitle")}</p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3">
-              <span className="rounded-xl border border-line bg-surface px-3 py-2 text-sm">4242 4242 4242 4242</span>
-              <span className="rounded-xl border border-line bg-surface px-3 py-2 text-sm">12 / 30</span>
-              <span className="rounded-xl border border-line bg-surface px-3 py-2 text-sm">123</span>
+          <div className="animate-rise grid items-center gap-6 sm:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
+            <div className="relative overflow-hidden rounded-2xl bg-night p-5 text-cream shadow-[0_18px_40px_rgba(34,28,21,0.28)]">
+              <span aria-hidden className="absolute -top-14 -right-12 h-40 w-40 rounded-full bg-sand/15" />
+              <span aria-hidden className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-clay/25" />
+              <div className="relative flex items-center justify-between">
+                <span className="text-[10px] tracking-[0.22em] text-sand uppercase">ExpoCraft</span>
+                <span className="text-[10px] tracking-[0.22em] text-sand/70 uppercase">demo</span>
+              </div>
+              <span aria-hidden className="relative mt-6 block h-7 w-10 rounded-md bg-linear-to-br from-sand to-gold" />
+              <p className="relative mt-4 font-mono text-[15px] tracking-[0.16em]">4242 4242 4242 4242</p>
+              <div className="relative mt-4 flex gap-7 text-[10px]">
+                <span>
+                  <span className="block tracking-[0.14em] text-sand/70 uppercase">{t("checkout.cardExpiry")}</span>
+                  <span className="mt-0.5 block font-mono text-xs tracking-wider">12 / 30</span>
+                </span>
+                <span>
+                  <span className="block tracking-[0.14em] text-sand/70 uppercase">CVC</span>
+                  <span className="mt-0.5 block font-mono text-xs tracking-wider">123</span>
+                </span>
+              </div>
             </div>
-          </>
+
+            <div className="min-w-0">
+              <p className="font-medium">{t("checkout.cardDemoTitle")}</p>
+              <p className="muted mt-1.5 text-sm leading-relaxed">{t("checkout.methodCard")}</p>
+              <dl className="mt-4 divide-y divide-line/60 border-y border-line/60 text-sm">
+                <CopyRow label={t("checkout.cardNumber")} value="4242 4242 4242 4242" />
+                <div className="flex items-baseline justify-between gap-3 py-2.5">
+                  <dt className="text-muted">{t("cart.subtotal")}</dt>
+                  <dd className="font-semibold">{formatMoney(amount, locale)}</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
         ) : null}
 
         {selected === "bank_transfer" ? (
-          <>
+          <div className="animate-rise">
             <p className="font-medium">{t("checkout.transferDemoTitle")}</p>
-            <dl className="mt-3 space-y-2 text-sm">
-              <div className="flex justify-between gap-3">
-                <dt className="text-muted">{t("checkout.transferAccount")}</dt>
-                <dd className="font-mono">ExpoCraft Demo / 5111222333</dd>
-              </div>
-              <div className="flex justify-between gap-3">
+            <p className="muted mt-1.5 text-sm leading-relaxed">{t("checkout.methodTransfer")}</p>
+            <dl className="mt-4 divide-y divide-line/60 border-y border-line/60 text-sm">
+              <CopyRow label={t("checkout.transferAccount")} value="5111222333" hint="ExpoCraft Demo" />
+              <CopyRow label={t("common.order")} value={orderId} />
+              <div className="flex items-baseline justify-between gap-3 py-2.5">
                 <dt className="text-muted">{t("cart.subtotal")}</dt>
-                <dd>{formatMoney(amount, locale)}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-muted">{t("common.order")}</dt>
-                <dd className="font-mono text-xs">{orderId}</dd>
+                <dd className="text-base font-semibold">{formatMoney(amount, locale)}</dd>
               </div>
             </dl>
-          </>
+          </div>
         ) : null}
       </div>
     </section>
+  );
+}
+
+const DEMO_BANKS = [
+  { name: "Khan Bank", short: "KH" },
+  { name: "Golomt", short: "GL" },
+  { name: "TDB", short: "TDB" },
+  { name: "State Bank", short: "ST" },
+];
+
+/** QR-ыг уншигчийн хүрээ мэт булангийн хаалттайгаар онцолж харуулна. */
+function ScanFrame({ children, caption }: { children: React.ReactNode; caption?: string }) {
+  const corners = [
+    "top-2 left-2 border-t-2 border-l-2 rounded-tl-md",
+    "top-2 right-2 border-t-2 border-r-2 rounded-tr-md",
+    "bottom-2 left-2 border-b-2 border-l-2 rounded-bl-md",
+    "bottom-2 right-2 border-b-2 border-r-2 rounded-br-md",
+  ];
+  return (
+    <figure className="mx-auto w-fit sm:mx-0">
+      <div className="relative rounded-2xl bg-white p-4 shadow-[0_14px_34px_rgba(34,28,21,0.12)] ring-1 ring-line/70">
+        {corners.map((corner) => (
+          <span key={corner} aria-hidden className={`absolute h-5 w-5 border-clay ${corner}`} />
+        ))}
+        {children}
+      </div>
+      {caption ? (
+        <figcaption className="mt-2.5 text-center text-[10px] font-medium tracking-[0.18em] text-muted uppercase">
+          {caption}
+        </figcaption>
+      ) : null}
+    </figure>
+  );
+}
+
+/** Хуулж авах боломжтой мөр — demo реквизитийг гараар бичих шаардлагагүй. */
+function CopyRow({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  const { t } = useApp();
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // Clipboard-ыг хориглосон орчин байж болно — чимээгүй өнгөрнө.
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-between gap-3 py-2.5">
+      <dt className="shrink-0 text-muted">{label}</dt>
+      <dd className="flex min-w-0 items-center gap-2">
+        <span className="min-w-0 truncate text-right font-mono text-xs">
+          {hint ? <span className="mr-2 font-sans text-muted">{hint}</span> : null}
+          {value}
+        </span>
+        <button type="button" className="btn-ghost btn-sm shrink-0 text-[11px]" onClick={copy}>
+          {copied ? t("common.copied") : t("common.copy")}
+        </button>
+      </dd>
+    </div>
+  );
+}
+
+/** Escrow-ийн 3 алхмыг дугаарлаж харуулна. `active` нь одоо явж буй алхам. */
+function PaymentSteps({ active }: { active?: number }) {
+  const { t } = useApp();
+  const steps = [t("checkout.paymentStepCart"), t("checkout.paymentStepEscrow"), t("checkout.paymentStepSeller")];
+
+  return (
+    <ol className="space-y-3">
+      {steps.map((step, index) => {
+        const done = active !== undefined && index < active;
+        const current = active === index;
+        return (
+          <li key={step} className="flex gap-3">
+            <span
+              aria-hidden
+              className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold ${
+                done
+                  ? "bg-pine text-white"
+                  : current
+                    ? "bg-clay text-white"
+                    : "border border-line bg-paper text-muted"
+              }`}
+            >
+              {done ? "✓" : index + 1}
+            </span>
+            <span className={`text-xs leading-relaxed ${current ? "text-ink" : "text-muted"}`}>{step}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function MethodIcon({ method, className = "" }: { method: DemoPaymentMethod; className?: string }) {
+  const paths: Record<DemoPaymentMethod, React.ReactNode> = {
+    qpay: (
+      <>
+        <rect x="3" y="3" width="7" height="7" rx="1.5" />
+        <rect x="14" y="3" width="7" height="7" rx="1.5" />
+        <rect x="3" y="14" width="7" height="7" rx="1.5" />
+        <path d="M14 14h3v3h-3zM20.5 14v1.5M14 20.5h1.5M18 20.5h3V18" />
+      </>
+    ),
+    bank_app: (
+      <>
+        <rect x="6" y="2.5" width="12" height="19" rx="3" />
+        <path d="M10.5 18.5h3M9.5 9.8l1.9 1.9L15 8.1" />
+      </>
+    ),
+    card: (
+      <>
+        <rect x="2.5" y="5" width="19" height="14" rx="3" />
+        <path d="M2.5 9.5h19M6.5 15h4" />
+      </>
+    ),
+    bank_transfer: (
+      <>
+        <path d="M3.5 9.5 12 4.5l8.5 5" />
+        <path d="M5.8 11v6.5M10 11v6.5M14 11v6.5M18.2 11v6.5M3.5 20h17" />
+      </>
+    ),
+  };
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {paths[method]}
+    </svg>
   );
 }
 
@@ -803,12 +927,10 @@ function PaymentMethodSummary({ currency }: { currency: Currency }) {
         </div>
         <span className="badge-gold">{currency}</span>
       </div>
-      <ol className="mt-3 space-y-2 text-xs text-muted">
-        <li>{t("checkout.paymentStepCart")}</li>
-        <li>{t("checkout.paymentStepEscrow")}</li>
-        <li>{t("checkout.paymentStepSeller")}</li>
-      </ol>
-      <p className="mt-3 rounded-xl bg-surface px-3 py-2 text-xs text-muted">{t("checkout.demoPaymentHint")}</p>
+      <div className="mt-4">
+        <PaymentSteps />
+      </div>
+      <p className="mt-4 rounded-xl bg-surface px-3 py-2 text-xs text-muted">{t("checkout.demoPaymentHint")}</p>
     </section>
   );
 }
@@ -821,6 +943,11 @@ function demoPaymentLabel(method: DemoPaymentMethod, locale: string) {
     bank_transfer: { mn: "дансны шилжүүлэг", en: "bank transfer" },
   };
   return labels[method][locale === "mn" ? "mn" : "en"];
+}
+
+/** Өгүүлбэрийн эхэнд эсвэл товч дээр бичихэд эхний үсгийг том болгоно. */
+function capitalize(text: string) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function paymentMethodLabel(method?: string | null, locale: string = "mn") {

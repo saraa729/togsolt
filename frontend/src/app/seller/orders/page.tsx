@@ -95,8 +95,6 @@ function SellerOrderCard({
   const { t, locale } = useApp();
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
-  const [carrier, setCarrier] = useState(item.tracking?.carrier || "");
-  const [trackingCode, setTrackingCode] = useState(item.tracking?.trackingCode || "");
   const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -120,24 +118,6 @@ function SellerOrderCard({
     try {
       await api.post(`/seller/order-items/${item.id}/progress`, { note: note.trim() });
       setNote("");
-      setMessage({ tone: "success", text: t("common.saved") });
-      onChanged();
-    } catch (caught) {
-      setMessage({ tone: "error", text: errorMessage(caught) });
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function saveShipment() {
-    setBusy(true);
-    try {
-      await api.patch(`/seller/order-items/${item.id}/shipment`, {
-        carrier: carrier || undefined,
-        trackingCode: trackingCode || undefined,
-        method: item.shippingOption?.code,
-        status: "in_transit",
-      });
       setMessage({ tone: "success", text: t("common.saved") });
       onChanged();
     } catch (caught) {
@@ -179,10 +159,7 @@ function SellerOrderCard({
       </header>
 
       <div className="space-y-4 p-5">
-        <div className="grid gap-2 text-xs text-muted sm:grid-cols-3">
-          <span>
-            {t("cart.shippingOption")}: {item.shippingOption?.label}
-          </span>
+        <div className="grid gap-2 text-xs text-muted sm:grid-cols-2">
           <span>
             {t("common.commission")}: {formatMoney(item.commission, locale)}
           </span>
@@ -260,24 +237,6 @@ function SellerOrderCard({
               {busy ? <Spinner className="h-3 w-3" /> : null}
               {t("seller.addProgress")}
             </button>
-
-            <div className="grid gap-3 border-t border-line pt-3 sm:grid-cols-3">
-              <input
-                className="input"
-                placeholder={t("seller.carrier")}
-                value={carrier}
-                onChange={(event) => setCarrier(event.target.value)}
-              />
-              <input
-                className="input"
-                placeholder={t("seller.trackingCode")}
-                value={trackingCode}
-                onChange={(event) => setTrackingCode(event.target.value)}
-              />
-              <button type="button" className="btn-dark btn-sm" disabled={busy} onClick={saveShipment}>
-                {t("seller.shipment")}
-              </button>
-            </div>
           </div>
         ) : null}
 

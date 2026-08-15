@@ -19,7 +19,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [shippingOption, setShippingOption] = useState(product.shippingInfo?.[0]?.code || "");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
   const [favorite, setFavorite] = useState(false);
@@ -50,7 +49,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
       await api.post("/cart/items", {
         productId: product.id,
         quantity,
-        shippingOption: shippingOption || undefined,
         locale,
         currency,
       });
@@ -194,7 +192,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="badge-clay">{t(`inv.${product.inventoryType}`)}</span>
-              {product.shipsInternationally ? <span className="badge-pine">✈ {t("home.trustGlobal")}</span> : null}
             </div>
 
             <h1 className="display mt-3 text-[28px] leading-[1.15] tracking-tight sm:text-[34px]">{product.titleText}</h1>
@@ -257,47 +254,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 {formatSize(product.size) ? <Row label={t("product.size")} value={formatSize(product.size)} /> : null}
                 {product.weightGram ? <Row label={t("product.weight")} value={`${product.weightGram} g`} /> : null}
               </dl>
-            ) : null}
-
-            {product.shippingInfo?.length ? (
-              <div className="mt-5 border-t border-line/70 pt-4">
-                <p className="label">{t("product.shipping")}</p>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {product.shippingInfo.map((option) => {
-                    const selected = shippingOption === option.code;
-                    return (
-                      <label
-                        key={option.code}
-                        className={`flex cursor-pointer items-start gap-2.5 rounded-2xl border px-3 py-2.5 text-xs transition-colors ${
-                          selected ? "border-clay bg-clay-soft/45" : "border-line bg-paper hover:border-clay/40 hover:bg-paper"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="shipping"
-                          className="sr-only"
-                          checked={selected}
-                          onChange={() => setShippingOption(option.code)}
-                        />
-                        <span
-                          aria-hidden
-                          className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border transition-colors ${
-                            selected ? "border-clay bg-clay" : "border-line bg-surface"
-                          }`}
-                        >
-                          {selected ? <span className="h-1.5 w-1.5 rounded-full bg-white" /> : null}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block font-medium">{option.label}</span>
-                          {option.customsNote ? (
-                            <span className="muted mt-0.5 block text-[11px] leading-snug">{option.customsNote}</span>
-                          ) : null}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
             ) : null}
 
             <div className="mt-5 space-y-3 border-t border-line/70 pt-5">

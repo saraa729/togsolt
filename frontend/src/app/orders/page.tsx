@@ -283,17 +283,8 @@ function BuyerOrderItemRow({
                 {entry?.title || item.productId}
               </Link>
               <p className="muted mt-1 text-xs">
-                ×{item.quantity} · {item.shippingOption?.label} ·{" "}
-                {t(`inv.${item.orderType === "made_to_order" ? "made_to_order" : "ready_made"}`)}
+                ×{item.quantity} · {t(`inv.${item.orderType === "made_to_order" ? "made_to_order" : "ready_made"}`)}
               </p>
-              {item.tracking?.trackingCode ? (
-                <p className="mt-1 text-xs text-muted">
-                  {t("orders.tracking")}:{" "}
-                  <span className="font-mono text-ink">
-                    {item.tracking.carrier} · {item.tracking.trackingCode}
-                  </span>
-                </p>
-              ) : null}
             </div>
             <div className="flex shrink-0 items-center gap-2.5">
               <StatusPill status={item.status} label={t(`ostatus.${item.status}`)} />
